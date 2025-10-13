@@ -1,0 +1,693 @@
+{
+  "restricciones": [
+    {
+      "professor_id": 322,
+      "day": "SABADO",
+      "start_time": "08:50:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 15,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 323,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 323,
+      "day": "LUNES",
+      "start_time": "08:50:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 10,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 323,
+      "day": "MARTES",
+      "start_time": "08:50:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 10,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 323,
+      "day": "MIERCOLES",
+      "start_time": "08:50:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 10,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 323,
+      "day": "JUEVES",
+      "start_time": "08:50:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 10,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 323,
+      "day": "VIERNES",
+      "start_time": "08:50:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 10,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 324,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 326,
+      "day": "MIERCOLES",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 326,
+      "day": "JUEVES",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 326,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 326,
+      "day": "VIERNES",
+      "start_time": "14:20:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 327,
+      "day": "LUNES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 327,
+      "day": "MARTES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 327,
+      "day": "MIERCOLES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 327,
+      "day": "JUEVES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 327,
+      "day": "VIERNES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 329,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 329,
+      "day": "MARTES",
+      "start_time": "18:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 5,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 329,
+      "day": "MIERCOLES",
+      "start_time": "18:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 5,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 329,
+      "day": "JUEVES",
+      "start_time": "18:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 5,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 329,
+      "day": "VIERNES",
+      "start_time": "18:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 5,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 329,
+      "day": "LUNES",
+      "start_time": "19:50:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 3,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 330,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 330,
+      "day": "MIERCOLES",
+      "start_time": "18:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 5,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 332,
+      "day": "LUNES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 332,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 333,
+      "day": "LUNES",
+      "start_time": "07:00:00",
+      "end_time": "15:10:00",
+      "duration_blocks": 9,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 333,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 333,
+      "day": "JUEVES",
+      "start_time": "14:20:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 9,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 333,
+      "day": "VIERNES",
+      "start_time": "14:20:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 9,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 334,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 335,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 335,
+      "day": "LUNES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 335,
+      "day": "MARTES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 335,
+      "day": "MIERCOLES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 335,
+      "day": "JUEVES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 335,
+      "day": "VIERNES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 336,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 337,
+      "day": "LUNES",
+      "start_time": "07:00:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 12,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 337,
+      "day": "MARTES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 337,
+      "day": "MIERCOLES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 337,
+      "day": "JUEVES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 337,
+      "day": "VIERNES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 337,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 338,
+      "day": "LUNES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 338,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 340,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 340,
+      "day": "LUNES",
+      "start_time": "18:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 5,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 340,
+      "day": "MARTES",
+      "start_time": "18:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 5,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 341,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 341,
+      "day": "VIERNES",
+      "start_time": "18:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 4,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 342,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 344,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 345,
+      "day": "LUNES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 345,
+      "day": "MARTES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 345,
+      "day": "MIERCOLES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 345,
+      "day": "JUEVES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 345,
+      "day": "VIERNES",
+      "start_time": "10:40:00",
+      "end_time": "17:55:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 346,
+      "day": "LUNES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 346,
+      "day": "MIERCOLES",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 346,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 17,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 349,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 349,
+      "day": "LUNES",
+      "start_time": "18:55:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 3,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 349,
+      "day": "MARTES",
+      "start_time": "18:55:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 3,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 349,
+      "day": "MIERCOLES",
+      "start_time": "18:55:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 3,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 349,
+      "day": "JUEVES",
+      "start_time": "18:55:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 3,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 349,
+      "day": "VIERNES",
+      "start_time": "18:55:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 3,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 356,
+      "day": "MIERCOLES",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 356,
+      "day": "SABADO",
+      "start_time": "07:00:00",
+      "end_time": "21:35:00",
+      "duration_blocks": 16,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 357,
+      "day": "LUNES",
+      "start_time": "10:40:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 13,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 357,
+      "day": "MARTES",
+      "start_time": "10:40:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 13,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 357,
+      "day": "MIERCOLES",
+      "start_time": "10:40:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 13,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 357,
+      "day": "JUEVES",
+      "start_time": "10:40:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 13,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 357,
+      "day": "VIERNES",
+      "start_time": "10:40:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 13,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 357,
+      "day": "SABADO",
+      "start_time": "10:40:00",
+      "end_time": "22:30:00",
+      "duration_blocks": 13,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 358,
+      "day": "LUNES",
+      "start_time": "10:40:00",
+      "end_time": "17:00:00",
+      "duration_blocks": 7,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 358,
+      "day": "MARTES",
+      "start_time": "10:40:00",
+      "end_time": "17:00:00",
+      "duration_blocks": 7,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 358,
+      "day": "MIERCOLES",
+      "start_time": "10:40:00",
+      "end_time": "17:00:00",
+      "duration_blocks": 7,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 358,
+      "day": "JUEVES",
+      "start_time": "10:40:00",
+      "end_time": "17:00:00",
+      "duration_blocks": 7,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 358,
+      "day": "VIERNES",
+      "start_time": "10:40:00",
+      "end_time": "17:00:00",
+      "duration_blocks": 7,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 359,
+      "day": "LUNES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 359,
+      "day": "MARTES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 359,
+      "day": "MIERCOLES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 359,
+      "day": "JUEVES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    },
+    {
+      "professor_id": 359,
+      "day": "VIERNES",
+      "start_time": "07:00:00",
+      "end_time": "14:15:00",
+      "duration_blocks": 8,
+      "reason": "Extraido de Excel"
+    }
+  ],
+  "total": 86
+}

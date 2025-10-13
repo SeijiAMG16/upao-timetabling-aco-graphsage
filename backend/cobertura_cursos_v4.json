@@ -1,0 +1,485 @@
+{
+  "cursos_con_profesor": [
+    {
+      "codigo": "C1_ALYPR",
+      "nombre": "ALGORITMIA Y PROGRAMACION",
+      "profesores": [
+        330,
+        339,
+        357
+      ]
+    },
+    {
+      "codigo": "C1_ININSI",
+      "nombre": "INTR ING SIST E INTEL ARTIF",
+      "profesores": [
+        354,
+        351
+      ]
+    },
+    {
+      "codigo": "C2_ORYGE",
+      "nombre": "ORGANIZ Y GESTION DE EMPRESAS",
+      "profesores": [
+        351
+      ]
+    },
+    {
+      "codigo": "C2_PRORA",
+      "nombre": "PROGRAM ORIENTADA A OBJETOS",
+      "profesores": [
+        333
+      ]
+    },
+    {
+      "codigo": "C3_ESDEDA",
+      "nombre": "ESTRUCT DE DATOS Y ALGORIT",
+      "profesores": [
+        332
+      ]
+    },
+    {
+      "codigo": "C3_GEDEPR",
+      "nombre": "GEST DE PROCESOS DE NEGOCIOS",
+      "profesores": [
+        355,
+        324
+      ]
+    },
+    {
+      "codigo": "C4_BADEDA",
+      "nombre": "BASE DE DATOS",
+      "profesores": [
+        336,
+        346,
+        323
+      ]
+    },
+    {
+      "codigo": "C4_INDERE",
+      "nombre": "INGENIERIA DE REQUISITOS",
+      "profesores": [
+        341
+      ]
+    },
+    {
+      "codigo": "C4_REYSI",
+      "nombre": "REDES Y SISTEMAS OPERATIVOS",
+      "profesores": [
+        345,
+        334
+      ]
+    },
+    {
+      "codigo": "C4_SIEM",
+      "nombre": "SISTEMAS EMPRESARIALES",
+      "profesores": [
+        330,
+        355
+      ]
+    },
+    {
+      "codigo": "C5_APES",
+      "nombre": "APRENDIZAJE ESTADISTICO",
+      "profesores": [
+        338
+      ]
+    },
+    {
+      "codigo": "C5_CODIY",
+      "nombre": "COMPUTO DISTRIBUIDO Y PARALELO",
+      "profesores": [
+        330
+      ]
+    },
+    {
+      "codigo": "C5_INDESO",
+      "nombre": "INGENIERIA DEL SOFTWARE",
+      "profesores": [
+        340,
+        335
+      ]
+    },
+    {
+      "codigo": "C5_MEAMY",
+      "nombre": "MEDIO AMBIENTE Y DESARR SOST",
+      "profesores": [
+        340
+      ]
+    },
+    {
+      "codigo": "C5_SIGEBA",
+      "nombre": "SISTEM GESTION BASE DE DATOS",
+      "profesores": [
+        336,
+        322
+      ]
+    },
+    {
+      "codigo": "C6_AGDE",
+      "nombre": "AGILE DEVELOPMENT",
+      "profesores": [
+        340,
+        335
+      ]
+    },
+    {
+      "codigo": "C6_INARPR",
+      "nombre": "INTEL ART, PRINCIP Y TECNIC",
+      "profesores": [
+        338
+      ]
+    },
+    {
+      "codigo": "C7_ARDESI",
+      "nombre": "ARQUITECTURA DE SISTEMAS",
+      "profesores": [
+        322
+      ]
+    },
+    {
+      "codigo": "C7_AUINPR",
+      "nombre": "AUTOMATIZ INTELIG PROCESOS",
+      "profesores": [
+        352,
+        324,
+        349
+      ]
+    },
+    {
+      "codigo": "C7_CUDE",
+      "nombre": "CUSTOMER DEVELOPMENT",
+      "profesores": [
+        356,
+        339,
+        340
+      ]
+    },
+    {
+      "codigo": "C7_INDELA",
+      "nombre": "INTERNET DE LAS COSAS",
+      "profesores": [
+        350
+      ]
+    },
+    {
+      "codigo": "C7_MALE",
+      "nombre": "MACHINE LEARNING",
+      "profesores": [
+        336
+      ]
+    },
+    {
+      "codigo": "C7_PECO",
+      "nombre": "PERCEPCION COMPUTACIONAL",
+      "profesores": [
+        322
+      ]
+    },
+    {
+      "codigo": "C8_BIDAY",
+      "nombre": "BIG DATA Y ANALITICA DE DATOS",
+      "profesores": [
+        322,
+        331,
+        327
+      ]
+    },
+    {
+      "codigo": "C8_DELE",
+      "nombre": "DEEP LEARNING",
+      "profesores": [
+        322,
+        358
+      ]
+    },
+    {
+      "codigo": "C8_DEPR",
+      "nombre": "DEONTOLOGIA PROFESIONAL",
+      "profesores": [
+        339
+      ]
+    },
+    {
+      "codigo": "C8_GEPRSI",
+      "nombre": "GEST PROYECT SIST DE INFORMAC",
+      "profesores": [
+        344
+      ]
+    },
+    {
+      "codigo": "C8_GODEDA",
+      "nombre": "GOBIERNO DE DATOS",
+      "profesores": [
+        344
+      ]
+    },
+    {
+      "codigo": "C8_PRDEIN",
+      "nombre": "PROYECTO DE INVESTIGACION",
+      "profesores": [
+        356,
+        359,
+        342,
+        343,
+        349
+      ]
+    },
+    {
+      "codigo": "C9_MOGEDE",
+      "nombre": "MODELOS GENERATIVOS DE IA",
+      "profesores": [
+        331
+      ]
+    },
+    {
+      "codigo": "C9_SIDEIN",
+      "nombre": "SISTEM DE INFORMAC INTEGRADOS",
+      "profesores": [
+        327
+      ]
+    },
+    {
+      "codigo": "C9_TAINI",
+      "nombre": "TALLER INTEGRADOR I",
+      "profesores": [
+        337,
+        356
+      ]
+    },
+    {
+      "codigo": "C9_TEI",
+      "nombre": "TESIS I",
+      "profesores": [
+        356,
+        349,
+        359
+      ]
+    },
+    {
+      "codigo": "C10_TRDI",
+      "nombre": "TRANSFORMACION DIGITAL",
+      "profesores": [
+        344
+      ]
+    },
+    {
+      "codigo": "C10_TAINII",
+      "nombre": "TALLER INTEGRADOR II",
+      "profesores": [
+        342,
+        343
+      ]
+    },
+    {
+      "codigo": "C10_TEII",
+      "nombre": "TESIS II",
+      "profesores": [
+        328,
+        342,
+        343
+      ]
+    }
+  ],
+  "total_con_profesor": 36,
+  "cursos_sin_profesor": [
+    {
+      "codigo": "C1_ALMAY",
+      "nombre": "ALGEBRA MATRIC Y GEOM ANALIT"
+    },
+    {
+      "codigo": "C1_CAI",
+      "nombre": "CALCULO I"
+    },
+    {
+      "codigo": "C1_COI",
+      "nombre": "COMUNICACION I"
+    },
+    {
+      "codigo": "C1_MEAPUN",
+      "nombre": "METODOLOG APREND UNIVERSIT"
+    },
+    {
+      "codigo": "C2_CAII",
+      "nombre": "CALCULO II"
+    },
+    {
+      "codigo": "C2_COII",
+      "nombre": "COMUNICACION II"
+    },
+    {
+      "codigo": "C2_FIYPE",
+      "nombre": "FILOSOFIA Y PENSAM CRITICO"
+    },
+    {
+      "codigo": "C2_FII",
+      "nombre": "FISICA I"
+    },
+    {
+      "codigo": "C3_CAII",
+      "nombre": "CALCULO III"
+    },
+    {
+      "codigo": "C3_ESPAIN",
+      "nombre": "ESTADISTICA PARA INGENIEROS"
+    },
+    {
+      "codigo": "C3_FIII",
+      "nombre": "FISICA II"
+    },
+    {
+      "codigo": "C3_RENAY",
+      "nombre": "REALIDAD NACIONAL Y GLOBAL"
+    },
+    {
+      "codigo": "C4_ETCIE",
+      "nombre": "ETICA, CIUDADAN. E INCL SOCIAL"
+    },
+    {
+      "codigo": "C4_VIYTR",
+      "nombre": "VIGEN Y TRASC PENS A.ORREGO"
+    },
+    {
+      "codigo": "C5_PADEDI",
+      "nombre": "PATRONES DE DISEÑO DE SOFTW"
+    },
+    {
+      "codigo": "C6_INCOCO",
+      "nombre": "INFRAESTRUCTURA COMO CODIGO"
+    },
+    {
+      "codigo": "C6_MEINCI",
+      "nombre": "METODOLOG INVESTIGAC CIENTIF"
+    },
+    {
+      "codigo": "C6_MECUPA",
+      "nombre": "METODOS CUANTITAT PARA NEGOC"
+    },
+    {
+      "codigo": "C6_TACRIN",
+      "nombre": "TALL CREAT, INNOV Y EMPR"
+    },
+    {
+      "codigo": "C9_PRDELE",
+      "nombre": "PROCESAM DE LENGUAJE NATURAL"
+    },
+    {
+      "codigo": "C9_UXUI",
+      "nombre": "UX / UI"
+    },
+    {
+      "codigo": "C10_APMOPA",
+      "nombre": "APLICAC MOVILES PARA NEGOCIOS"
+    },
+    {
+      "codigo": "C10_AUDESI",
+      "nombre": "AUDITORIA DE SISTEM DE INFORM"
+    },
+    {
+      "codigo": "C10_AUSIIN",
+      "nombre": "AUDITORIA SISTEM INTELIGENTES"
+    },
+    {
+      "codigo": "C10_BLAPSI",
+      "nombre": "BLOCKCHAIN APL SIST EMPRES"
+    },
+    {
+      "codigo": "C10_CI",
+      "nombre": "CIBERSEGURIDAD"
+    },
+    {
+      "codigo": "C10_NECEEN",
+      "nombre": "NEGOCIOS CENTRADOS EN LA IA"
+    },
+    {
+      "codigo": "C10_PRPR",
+      "nombre": "PRACTICAS PRE-PROFESIONALES"
+    },
+    {
+      "codigo": "CURSO-001",
+      "nombre": "Algoritmia y \nProgramación\nL"
+    },
+    {
+      "codigo": "CURSO-002",
+      "nombre": "Algoritmia y \nProgramación\nL - Elias"
+    },
+    {
+      "codigo": "CURSO-003",
+      "nombre": "Sistemas Empresariales\nT  - Sheyli"
+    },
+    {
+      "codigo": "CURSO-004",
+      "nombre": "Algoritmia y \nProgramación\nL -  Lazo"
+    },
+    {
+      "codigo": "CURSO-005",
+      "nombre": "Redes y Sistemas Operativos\nT"
+    },
+    {
+      "codigo": "CURSO-006",
+      "nombre": "Sistemas Empresariales\nP  - Sheyli"
+    },
+    {
+      "codigo": "CURSO-007",
+      "nombre": "ARQUITECTURA DE SISTEMASP  - Armando"
+    },
+    {
+      "codigo": "CURSO-008",
+      "nombre": "Arquitectura de Sistemas T  - Armando"
+    },
+    {
+      "codigo": "CURSO-009",
+      "nombre": "Ingenieria Requisitos\nT - Castañeda"
+    },
+    {
+      "codigo": "CURSO-010",
+      "nombre": "Sistemas Empresariales\nL  - Elias"
+    },
+    {
+      "codigo": "CURSO-011",
+      "nombre": "ARQUITECTURA DE SISTEMASL  - Armando"
+    },
+    {
+      "codigo": "CURSO-012",
+      "nombre": "Algoritmia y \nProgramación\nT - CREAR"
+    },
+    {
+      "codigo": "CURSO-013",
+      "nombre": "ARQUITECTURA DE SISTEMAS  L  - Armando"
+    },
+    {
+      "codigo": "CURSO-014",
+      "nombre": "Ingenieria Requisitos\nP - Castañeda"
+    },
+    {
+      "codigo": "CURSO-015",
+      "nombre": "Algoritmia y \nProgramación\nT -"
+    },
+    {
+      "codigo": "CURSO-016",
+      "nombre": "Arquitectura de Sistemas P  - Armando"
+    },
+    {
+      "codigo": "CURSO-017",
+      "nombre": "Arquitectura de Sistemas L  - Armando"
+    },
+    {
+      "codigo": "CURSO-018",
+      "nombre": "ARQUITECTURA DE SISTEMAS T  - Armando"
+    },
+    {
+      "codigo": "CURSO-019",
+      "nombre": "Algoritmia y \nProgramación\nL  - Elias"
+    },
+    {
+      "codigo": "CURSO-020",
+      "nombre": "Redes y Sistemas Operativos\nL  - Jara"
+    },
+    {
+      "codigo": "CURSO-021",
+      "nombre": "Redes y Sistemas Operativos\nL"
+    }
+  ],
+  "total_sin_profesor": 49,
+  "porcentaje_cobertura": 42.35294117647059
+}

@@ -1,0 +1,76 @@
+﻿python : Traceback (most recent call last):
+En línea: 1 Carácter: 88
++ ... e\backend'; python -c "import sys; sys.stdout.reconfigure(encoding='u ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteEx 
+   ception
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "<string>", line 1, in <module>
+    import sys; sys.stdout.reconfigure(encoding='utf-8'); 
+exec(open('validacion_real_experimentos.py', encoding='utf-8').read())
+                                                          
+~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 302, in <module>
+  File "<string>", line 250, in generar_reporte_completo
+  File "<string>", line 112, in validar_experimento
+  File "<string>", line 51, in obtener_sesiones_experimento
+  File "C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\cursor.py", 
+line 416, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        read_timeout=self._read_timeout,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        write_timeout=self._write_timeout,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\opentelemetry\c
+ontext_propagation.py", line 106, in wrapper
+    result = method(cnx, *args, **kwargs)
+  File 
+"C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\_decorating.py", line 
+89, in handle_cnx_method
+    raise err
+  File 
+"C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\_decorating.py", line 
+85, in handle_cnx_method
+    return cnx_method(cnx, *args, **kwargs)
+  File 
+"C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\connection.py", line 
+984, in cmd_query
+    result = self._handle_result(
+        self._send_cmd(
+    ...<6 lines>...
+        write_timeout,
+    )
+  File 
+"C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\_decorating.py", line 
+89, in handle_cnx_method
+    raise err
+  File 
+"C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\_decorating.py", line 
+85, in handle_cnx_method
+    return cnx_method(cnx, *args, **kwargs)
+  File 
+"C:\Users\amaya\AppData\Roaming\Python\Python313\site-packages\mysql\connector\connection.py", line 
+745, in _handle_result
+    raise get_exception(packet)
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 'c.name' in 'field list'
+================================================================================
+­ƒöì VALIDACI├ôN REAL DE EXPERIMENTOS EN BASE DE DATOS
+================================================================================
+­ƒôà Fecha: 2025-10-09 15:08:38
+
+USANDO:
+   ÔÇó reglas_pedagogicas_v2.py (validaci├│n CORRECTA)
+   ÔÇó proyecciones_loader.py (proyecciones de Libro1.xlsx)
+================================================================================
+
+­ƒôè Total de experimentos encontrados: 16
+
+================================================================================
+­ƒöì VALIDANDO: ACO_OPTIMIZED - 2025-20 (ID: 1)
+================================================================================

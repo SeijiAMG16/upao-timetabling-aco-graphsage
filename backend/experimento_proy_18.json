@@ -1,0 +1,24 @@
+{
+  "execution_id": 18,
+  "timestamp": "2025-10-09T15:27:03.367937",
+  "metricas": {
+    "cursos_validos_tpl": 5,
+    "cursos_invalidos_tpl": 16,
+    "total_violaciones_tpl": 19,
+    "porcentaje_tpl": 23.81,
+    "cursos_cumplen_proyecciones": 12,
+    "cursos_no_cumplen_proyecciones": 9,
+    "porcentaje_proyecciones": 57.14,
+    "conflictos_aula": 0,
+    "conflictos_profesor": 0
+  },
+  "parametros": {
+    "version": "ACO_PROYECCIONES_V2",
+    "proyecciones_source": "inputs/Libro1.xlsx",
+    "total_secciones": 294,
+    "secciones_asignadas": 45,
+    "tiempo_total": 0.35
+  },
+  "total_secciones_generadas": 294,
+  "total_asignaciones": 45
+}

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPAO Timetabling - Visualización de Horarios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9em;
+        }
+
+        select, button {
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        select {
+            background: white;
+            cursor: pointer;
+            min-width: 250px;
+        }
+
+        select:hover {
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: white;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #495057;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .schedule-container {
+            padding: 30px;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .schedule-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+
+        .schedule-table td {
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+            vertical-align: top;
+            min-width: 150px;
+            height: 80px;
+        }
+
+        .schedule-table td.time-col {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            min-width: 100px;
+        }
+
+        .class-block {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            margin: 2px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .class-block:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .class-block.lab {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .class-block.practice {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+        }
+
+        .class-block .course-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .class-block .session-type {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .class-block .room {
+            margin-top: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .conflicts {
+            padding: 30px;
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            margin: 20px;
+            border-radius: 8px;
+        }
+
+        .conflicts h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .conflict-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 3px solid #dc3545;
+        }
+
+        .professor-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .professor-info h2 {
+            font-size: 1.8em;
+        }
+
+        .professor-info .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 UPAO Timetabling System</h1>
+            <p>Visualización de Horarios Generados por ACO</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="experimentSelect">Experimento ACO:</label>
+                <select id="experimentSelect" onchange="cargarExperimento()">
+                    <option value="">Selecciona un experimento...</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="profesorSelect">Profesor:</label>
+                <select id="profesorSelect" onchange="cargarHorarioProfesor()">
+                    <option value="">Todos los profesores</option>
+                </select>
+            </div>
+
+            <button onclick="ejecutarNuevoExperimento()">🚀 Ejecutar Nuevo Experimento</button>
+            <button onclick="window.location.reload()">🔄 Actualizar</button>
+        </div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <h3>Fitness Total</h3>
+                <div class="value" id="statFitness">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Horarios Generados</h3>
+                <div class="value" id="statHorarios">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Conflictos</h3>
+                <div class="value" id="statConflictos">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tiempo (seg)</h3>
+                <div class="value" id="statTiempo">-</div>
+            </div>
+        </div>
+
+        <div id="professorInfo" style="display: none;"></div>
+
+        <div class="schedule-container">
+            <div id="scheduleContent" class="loading">
+                Selecciona un experimento para visualizar los horarios
+            </div>
+        </div>
+
+        <div id="conflicts" style="display: none;"></div>
+    </div>
+
+    <script>
+        let currentExperiment = null;
+        let currentProfesor = null;
+
+        // Cargar experimentos al iniciar
+        async function cargarExperimentos() {
+            try {
+                const response = await fetch('/api/experimentos');
+                const experimentos = await response.json();
+                
+                const select = document.getElementById('experimentSelect');
+                select.innerHTML = '<option value="">Selecciona un experimento...</option>';
+                
+                experimentos.forEach(exp => {
+                    const option = document.createElement('option');
+                    option.value = exp.id;
+                    option.textContent = `#${exp.id} - Fitness: ${exp.fitness.toFixed(2)} - ${exp.created_at}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando experimentos:', error);
+            }
+        }
+
+        // Cargar profesores
+        async function cargarProfesores() {
+            try {
+                const response = await fetch('/api/profesores');
+                const profesores = await response.json();
+                
+                const select = document.getElementById('profesorSelect');
+                select.innerHTML = '<option value="">Todos los profesores</option>';
+                
+                profesores.forEach(prof => {
+                    if (prof.total_asignaciones > 0) {
+                        const option = document.createElement('option');
+                        option.value = prof.id;
+                        option.textContent = `${prof.nombre_completo} (${prof.total_asignaciones} clases)`;
+                        select.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando profesores:', error);
+            }
+        }
+
+        // Cargar experimento seleccionado
+        async function cargarExperimento() {
+            const experimentId = document.getElementById('experimentSelect').value;
+            if (!experimentId) return;
+
+            currentExperiment = experimentId;
+            document.getElementById('scheduleContent').innerHTML = '<div class="loading">Cargando horarios</div>';
+
+            try {
+                // Cargar estadísticas
+                const expResponse = await fetch('/api/experimentos');
+                const experimentos = await expResponse.json();
+                const exp = experimentos.find(e => e.id == experimentId);
+                
+                if (exp) {
+                    document.getElementById('stats').style.display = 'grid';
+                    document.getElementById('statFitness').textContent = exp.fitness.toFixed(2);
+                    document.getElementById('statHorarios').textContent = exp.total_horarios;
+                    document.getElementById('statTiempo').textContent = exp.tiempo_ejecucion.toFixed(2);
+                }
+
+                // Cargar conflictos
+                const conflictResponse = await fetch(`/api/conflictos/${experimentId}`);
+                const conflicts = await conflictResponse.json();
+                document.getElementById('statConflictos').textContent = conflicts.total;
+
+                if (conflicts.total > 0) {
+                    mostrarConflictos(conflicts);
+                } else {
+                    document.getElementById('conflicts').style.display = 'none';
+                }
+
+                // Cargar profesores del experimento
+                await cargarProfesores();
+
+                // Cargar todos los horarios
+                cargarTodosLosHorarios();
+
+            } catch (error) {
+                console.error('Error cargando experimento:', error);
+                document.getElementById('scheduleContent').innerHTML = 
+                    '<div style="color: red; padding: 20px;">Error cargando el experimento</div>';
+            }
+        }
+
+        // Cargar todos los horarios
+        async function cargarTodosLosHorarios() {
+            if (!currentExperiment) return;
+
+            try {
+                const response = await fetch(`/api/horario/${currentExperiment}`);
+                const horarios = await response.json();
+                
+                mostrarHorarioGeneral(horarios);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Cargar horario de un profesor específico
+        async function cargarHorarioProfesor() {
+            const profesorId = document.getElementById('profesorSelect').value;
+            
+            if (!profesorId) {
+                cargarTodosLosHorarios();
+                document.getElementById('professorInfo').style.display = 'none';
+                return;
+            }
+
+            if (!currentExperiment) {
+                alert('Primero selecciona un experimento');
+                return;
+            }
+
+            currentProfesor = profesorId;
+
+            try {
+                const response = await fetch(`/api/horario_profesor/${currentExperiment}/${profesorId}`);
+                const data = await response.json();
+                
+                mostrarHorarioProfesor(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Mostrar horario general
+        function mostrarHorarioGeneral(horarios) {
+            const dias = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+            const horas = [
+                {inicio: '07:00:00', fin: '08:40:00'},
+                {inicio: '08:50:00', fin: '10:30:00'},
+                {inicio: '10:40:00', fin: '12:20:00'},
+                {inicio: '12:30:00', fin: '14:10:00'},
+                {inicio: '14:20:00', fin: '16:00:00'},
+                {inicio: '16:10:00', fin: '17:50:00'},
+                {inicio: '18:00:00', fin: '19:40:00'}
+            ];
+
+            let html = '<table class="schedule-table"><thead><tr>';
+            html += '<th>Horario</th>';
+            dias.forEach(dia => html += `<th>${dia}</th>`);
+            html += '</tr></thead><tbody>';
+
+            horas.forEach(hora => {
+                html += '<tr>';
+                html += `<td class="time-col">${hora.inicio.slice(0,5)}<br/>${hora.fin.slice(0,5)}</td>`;
+                
+                dias.forEach(dia => {
+                    const clases = horarios.filter(h => 
+                        h.dia.toUpperCase() === dia && 
+                        h.hora_inicio === hora.inicio
+                    );
+                    
+                    html += '<td>';
+                    clases.forEach(clase => {
+                        const tipo = clase.tipo_sesion.startsWith('L') ? 'lab' : 
+                                   clase.tipo_sesion.startsWith('P') ? 'practice' : '';
+                        html += `
+                            <div class="class-block ${tipo}" title="${clase.profesor}">
+                                <div class="course-name">${clase.curso}</div>
+                                <div class="session-type">(${clase.tipo_sesion}) ${clase.nrc}</div>
+                                <div class="room">📍 ${clase.aula || 'Sin aula'}</div>
+                            </div>
+                        `;
+                    });
+                    html += '</td>';
+                });
+                
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('scheduleContent').innerHTML = html;
+        }
+
+        // Mostrar horario de profesor específico
+        function mostrarHorarioProfesor(data) {
+            const profesor = data.horarios[0]?.profesor || 'Profesor';
+            
+            // Mostrar info del profesor
+            document.getElementById('professorInfo').innerHTML = `
+                <div class="professor-info">
+                    <h2>👨‍🏫 ${profesor}</h2>
+                    <div class="badge">${data.horarios.length} clases semanales</div>
+                </div>
+            `;
+            document.getElementById('professorInfo').style.display = 'block';
+
+            // Mostrar horario
+            mostrarHorarioGeneral(data.horarios);
+        }
+
+        // Mostrar conflictos
+        function mostrarConflictos(conflicts) {
+            if (conflicts.total === 0) return;
+
+            let html = '<div class="conflicts"><h3>⚠️ Conflictos Detectados: ' + conflicts.total + '</h3>';
+            
+            conflicts.conflictos_aula.forEach(c => {
+                html += `
+                    <div class="conflict-item">
+                        <strong>Conflicto de Aula:</strong> ${c.aula}<br/>
+                        ${c.dia} ${c.hora_inicio} - ${c.hora_fin}<br/>
+                        ${c.profesor1}: ${c.curso1}<br/>
+                        ${c.profesor2}: ${c.curso2}
+                    </div>
+                `;
+            });
+
+            conflicts.conflictos_profesor.forEach(c => {
+                html += `
+                    <div class="conflict-item">
+                        <strong>Conflicto de Profesor:</strong> ${c.profesor}<br/>
+                        ${c.dia} ${c.hora_inicio} - ${c.hora_fin}<br/>
+                        ${c.curso1} en ${c.aula1}<br/>
+                        ${c.curso2} en ${c.aula2}
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            document.getElementById('conflicts').innerHTML = html;
+            document.getElementById('conflicts').style.display = 'block';
+        }
+
+        // Ejecutar nuevo experimento
+        function ejecutarNuevoExperimento() {
+            if (confirm('¿Ejecutar un nuevo experimento ACO? Esto puede tardar varios minutos.')) {
+                alert('Esta funcionalidad ejecutará el script de ACO. Por ahora, ejecuta manualmente ejecutar_aco_experimento.py');
+            }
+        }
+
+        // Inicializar
+        window.onload = () => {
+            cargarExperimentos();
+            cargarProfesores();
+        };
+    </script>
+</body>
+</html>

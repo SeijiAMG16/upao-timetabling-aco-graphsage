@@ -1,0 +1,231 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: upao_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: upao_root_password
+      MYSQL_DATABASE: upao_timetabling
+      MYSQL_USER: upao_user
+      MYSQL_PASSWORD: upao_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - upao_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Redis for Celery
+  redis:
+    image: redis:7-alpine
+    container_name: upao_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - upao_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend FastAPI
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: upao_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://upao_user:upao_password@mysql:3306/upao_timetabling
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - SECRET_KEY=your-secret-key-change-in-production
+    volumes:
+      - ./backend:/app
+      - ./inputs:/app/inputs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - upao_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Worker for background tasks
+  celery_worker:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: upao_celery_worker
+    restart: unless-stopped
+    command: celery -A app.worker worker --loglevel=info
+    environment:
+      - DATABASE_URL=mysql+pymysql://upao_user:upao_password@mysql:3306/upao_timetabling
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+    volumes:
+      - ./backend:/app
+      - ./inputs:/app/inputs
+    depends_on:
+      - mysql
+      - redis
+      - backend
+    networks:
+      - upao_network
+
+  # Celery Beat for scheduled tasks
+  celery_beat:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: upao_celery_beat
+    restart: unless-stopped
+    command: celery -A app.worker beat --loglevel=info
+    environment:
+      - DATABASE_URL=mysql+pymysql://upao_user:upao_password@mysql:3306/upao_timetabling
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mysql
+      - redis
+      - backend
+    networks:
+      - upao_network
+
+  # Frontend React (Development)
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: upao_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - upao_network
+
+  # Nginx Reverse Proxy (Production)
+  nginx:
+    image: nginx:alpine
+    container_name: upao_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites-available:/etc/nginx/sites-available
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - upao_network
+    profiles:
+      - production
+
+  # Flower for Celery monitoring
+  flower:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: upao_flower
+    restart: unless-stopped
+    command: celery -A app.worker flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=mysql+pymysql://upao_user:upao_password@mysql:3306/upao_timetabling
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    networks:
+      - upao_network
+    profiles:
+      - monitoring
+
+  # Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: upao_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - upao_network
+    profiles:
+      - monitoring
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: upao_grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - upao_network
+    profiles:
+      - monitoring
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  upao_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
