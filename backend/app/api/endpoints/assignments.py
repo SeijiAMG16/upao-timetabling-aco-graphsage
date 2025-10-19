@@ -10,10 +10,11 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, validator
-from sqlalchemy import text, bindparam
+from sqlalchemy import bindparam, select, text
 from sqlalchemy.orm import Session
 
 from ...database import get_db
+from ...models import Professor, ProfessorRestriction, TimeSlot
 
 router = APIRouter(prefix="/api/assignments", tags=["Assignments"])
 
@@ -506,35 +507,38 @@ def _validate_assignment_capacity(
 
 @router.get("/restrictions", response_model=List[ProfessorRestrictionResponse])
 async def get_all_restrictions(db: Session = Depends(get_db)) -> List[ProfessorRestrictionResponse]:
-    query = text(
-        """
-        SELECT 
-            r.id,
-            r.professor_id,
-            p.nombre_completo,
-            r.day,
-            DATE_FORMAT(r.start_time, '%H:%i:%s'),
-            DATE_FORMAT(r.end_time, '%H:%i:%s'),
-            r.duration_blocks,
-            r.reason
-        FROM professor_restrictions r
-        JOIN professors p ON r.professor_id = p.id
-        ORDER BY p.nombre_completo, r.day, r.start_time
-        """
+    statement = (
+        select(
+            ProfessorRestriction.id,
+            ProfessorRestriction.professor_id,
+            Professor.nombre_completo.label("professor_name"),
+            ProfessorRestriction.day,
+            ProfessorRestriction.start_time,
+            ProfessorRestriction.end_time,
+            ProfessorRestriction.duration_blocks,
+            ProfessorRestriction.reason,
+        )
+        .join(Professor, ProfessorRestriction.professor_id == Professor.id)
+        .order_by(
+            Professor.nombre_completo,
+            ProfessorRestriction.day,
+            ProfessorRestriction.start_time,
+        )
     )
-    result = db.execute(query)
+
+    rows = db.execute(statement).mappings().all()
     restrictions: List[ProfessorRestrictionResponse] = []
-    for row in result:
+    for row in rows:
         restrictions.append(
             ProfessorRestrictionResponse(
-                id=row[0],
-                professor_id=row[1],
-                professor_name=row[2],
-                day=row[3],
-                start_time=row[4],
-                end_time=row[5],
-                duration_blocks=row[6],
-                reason=row[7],
+                id=row["id"],
+                professor_id=row["professor_id"],
+                professor_name=row["professor_name"],
+                day=row["day"],
+                start_time=str(row["start_time"] or ""),
+                end_time=str(row["end_time"] or ""),
+                duration_blocks=row["duration_blocks"],
+                reason=row["reason"],
             )
         )
     return restrictions
@@ -544,36 +548,35 @@ async def get_all_restrictions(db: Session = Depends(get_db)) -> List[ProfessorR
 async def get_professor_restrictions(
     professor_id: int, db: Session = Depends(get_db)
 ) -> List[ProfessorRestrictionResponse]:
-    query = text(
-        """
-        SELECT 
-            r.id,
-            r.professor_id,
-            p.nombre_completo,
-            r.day,
-            DATE_FORMAT(r.start_time, '%H:%i:%s'),
-            DATE_FORMAT(r.end_time, '%H:%i:%s'),
-            r.duration_blocks,
-            r.reason
-        FROM professor_restrictions r
-        JOIN professors p ON r.professor_id = p.id
-        WHERE r.professor_id = :professor_id
-        ORDER BY r.day, r.start_time
-        """
+    statement = (
+        select(
+            ProfessorRestriction.id,
+            ProfessorRestriction.professor_id,
+            Professor.nombre_completo.label("professor_name"),
+            ProfessorRestriction.day,
+            ProfessorRestriction.start_time,
+            ProfessorRestriction.end_time,
+            ProfessorRestriction.duration_blocks,
+            ProfessorRestriction.reason,
+        )
+        .join(Professor, ProfessorRestriction.professor_id == Professor.id)
+        .where(ProfessorRestriction.professor_id == professor_id)
+        .order_by(ProfessorRestriction.day, ProfessorRestriction.start_time)
     )
-    result = db.execute(query, {"professor_id": professor_id})
+
+    rows = db.execute(statement).mappings().all()
     restrictions: List[ProfessorRestrictionResponse] = []
-    for row in result:
+    for row in rows:
         restrictions.append(
             ProfessorRestrictionResponse(
-                id=row[0],
-                professor_id=row[1],
-                professor_name=row[2],
-                day=row[3],
-                start_time=row[4],
-                end_time=row[5],
-                duration_blocks=row[6],
-                reason=row[7],
+                id=row["id"],
+                professor_id=row["professor_id"],
+                professor_name=row["professor_name"],
+                day=row["day"],
+                start_time=str(row["start_time"] or ""),
+                end_time=str(row["end_time"] or ""),
+                duration_blocks=row["duration_blocks"],
+                reason=row["reason"],
             )
         )
     return restrictions
@@ -1033,24 +1036,27 @@ async def delete_assignment(assignment_id: int, db: Session = Depends(get_db)) -
 
 @router.get("/professors")
 async def get_professors(db: Session = Depends(get_db)) -> Dict[str, List[Dict[str, Optional[str]]]]:
-    query = text(
-        """
-        SELECT id, nombre_completo, email, especialidad, codigo
-        FROM professors
-        WHERE nombre_completo IS NOT NULL
-        ORDER BY nombre_completo
-        """
+    statement = (
+        select(
+            Professor.id,
+            Professor.nombre_completo,
+            Professor.email,
+            Professor.especialidad,
+            Professor.codigo,
+        )
+        .where(Professor.nombre_completo.is_not(None))
+        .order_by(Professor.nombre_completo)
     )
-    result = db.execute(query)
+    rows = db.execute(statement).mappings()
     professors: List[Dict[str, Optional[str]]] = []
-    for row in result:
+    for row in rows:
         professors.append(
             {
-                "id": row[0],
-                "nombre_completo": row[1],
-                "email": row[2],
-                "especialidad": row[3],
-                "codigo": row[4],
+                "id": row["id"],
+                "nombre_completo": row["nombre_completo"],
+                "email": row.get("email"),
+                "especialidad": row.get("especialidad"),
+                "codigo": row.get("codigo"),
             }
         )
     return {"professors": professors}
@@ -1058,26 +1064,30 @@ async def get_professors(db: Session = Depends(get_db)) -> Dict[str, List[Dict[s
 
 @router.get("/time-blocks")
 async def get_time_blocks(db: Session = Depends(get_db)) -> List[Dict[str, object]]:
-    query = text(
-        """
-        SELECT id, dia_semana, DATE_FORMAT(hora_inicio, '%H:%i:%s'), DATE_FORMAT(hora_fin, '%H:%i:%s'), periodo, orden
-        FROM time_slots
-        WHERE activo = 1
-        ORDER BY dia_semana, orden
-        """
+    statement = (
+        select(
+            TimeSlot.id,
+            TimeSlot.dia_semana,
+            TimeSlot.hora_inicio,
+            TimeSlot.hora_fin,
+            TimeSlot.periodo,
+            TimeSlot.orden,
+        )
+        .where(TimeSlot.activo == True)
+        .order_by(TimeSlot.dia_semana, TimeSlot.orden)
     )
-    result = db.execute(query)
+    rows = db.execute(statement).mappings()
     blocks: List[Dict[str, object]] = []
-    for row in result:
+    for row in rows:
         blocks.append(
             {
-                "id": row[0],
-                "day": row[1],
-                "start": row[2],
-                "end": row[3],
-                "period": row[4],
-                "order": row[5],
-                "label": f"{row[1]} {row[2]}-{row[3]}",
+                "id": row["id"],
+                "day": row["dia_semana"],
+                "start": str(row["hora_inicio"]),
+                "end": str(row["hora_fin"]),
+                "period": row["periodo"],
+                "order": row["orden"],
+                "label": f"{row['dia_semana']} {row['hora_inicio']}-{row['hora_fin']}",
             }
         )
     return blocks

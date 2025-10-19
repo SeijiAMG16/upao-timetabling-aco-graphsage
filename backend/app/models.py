@@ -174,6 +174,22 @@ class CourseSection(Base):
     def __repr__(self):
         return f"<CourseSection(codigo='{self.codigo_completo}', alumnos={self.alumnos_proyectados})>"
 
+class ProfessorCourseAssignment(Base):
+    """Asignaciones explícitas de profesores a cursos por tipo y liga"""
+    __tablename__ = 'professor_course_assignments'
+
+    id = Column(Integer, primary_key=True)
+    course_id = Column(Integer, ForeignKey('courses.id'), nullable=False, index=True)
+    professor_id = Column(Integer, ForeignKey('professors.id'), nullable=False, index=True)
+    session_type = Column(String(10), nullable=True)
+    league = Column(Integer, nullable=True)
+    priority = Column(Integer, default=1)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+    course = relationship("Course", backref="explicit_professor_assignments")
+    professor = relationship("Professor", backref="explicit_course_assignments")
+
 class ProfessorRestriction(Base):
     """Modelo para restricciones horarias de profesores"""
     __tablename__ = 'professor_restrictions'

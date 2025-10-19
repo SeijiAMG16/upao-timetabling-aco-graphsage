@@ -12,6 +12,7 @@ import unicodedata
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Tuple
+from math import ceil
 
 from sqlalchemy import text
 
@@ -63,6 +64,19 @@ def format_duration(minutes: int) -> str:
     return f"{hours}:{rem:02d}"
 
 
+def calculate_blocks(minutes: int | float) -> int:
+    """Convierte minutos en bloques académicos (50m + 5m de receso)."""
+    try:
+        minutes_val = float(minutes)
+    except (TypeError, ValueError):
+        return 1
+
+    if minutes_val <= 0:
+        return 1
+
+    return max(1, int(ceil((minutes_val + 5) / 55)))
+
+
 def ensure_table_exists() -> None:
     ddl = text(
         """
@@ -71,6 +85,7 @@ def ensure_table_exists() -> None:
             course_id INT NOT NULL,
             session_type ENUM('T', 'P', 'L') NOT NULL,
             duration_minutes INT NOT NULL,
+            duration_blocks INT NOT NULL DEFAULT 1,
             duration_hours DECIMAL(5, 2) NOT NULL,
             duration_label VARCHAR(10) NOT NULL,
             source VARCHAR(20) DEFAULT 'excel',
@@ -84,6 +99,28 @@ def ensure_table_exists() -> None:
     )
     with engine.begin() as connection:
         connection.execute(ddl)
+        has_column = connection.execute(
+            text(
+                """
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'course_session_hours'
+                  AND COLUMN_NAME = 'duration_blocks'
+                """
+            )
+        ).scalar()
+
+        if not has_column:
+            connection.execute(
+                text(
+                    """
+                    ALTER TABLE course_session_hours
+                        ADD COLUMN duration_blocks INT NOT NULL DEFAULT 1
+                        AFTER duration_minutes
+                    """
+                )
+            )
 
 
 def load_mapping() -> Dict[str, str]:
@@ -211,6 +248,7 @@ def upsert_course_hours(
                     "course_id": course_id,
                     "session_type": session_type,
                     "duration_minutes": minutes_int,
+                    "duration_blocks": calculate_blocks(minutes_int),
                     "duration_hours": round(minutes_int / 60.0, 2),
                     "duration_label": label,
                     "source": source,
@@ -221,10 +259,27 @@ def upsert_course_hours(
 
     insert_stmt = text(
         """
-        INSERT INTO course_session_hours (course_id, session_type, duration_minutes, duration_hours, duration_label, source)
-        VALUES (:course_id, :session_type, :duration_minutes, :duration_hours, :duration_label, :source)
+        INSERT INTO course_session_hours (
+            course_id,
+            session_type,
+            duration_minutes,
+            duration_blocks,
+            duration_hours,
+            duration_label,
+            source
+        )
+        VALUES (
+            :course_id,
+            :session_type,
+            :duration_minutes,
+            :duration_blocks,
+            :duration_hours,
+            :duration_label,
+            :source
+        )
         ON DUPLICATE KEY UPDATE
             duration_minutes = VALUES(duration_minutes),
+            duration_blocks = VALUES(duration_blocks),
             duration_hours = VALUES(duration_hours),
             duration_label = VALUES(duration_label),
             source = VALUES(source),

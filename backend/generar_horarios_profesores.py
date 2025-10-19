@@ -12,12 +12,11 @@ Lee un experimento ACO con ligas y genera un archivo Excel con:
 import json
 import sys
 from pathlib import Path
-import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 import mysql.connector
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 # Configuración de conexión a BD
 DB_CONFIG = {
@@ -58,30 +57,63 @@ BLOQUES_TIEMPO = [
 ]
 
 
-def cargar_datos_profesores():
-    """Carga información de profesores desde la BD"""
+def _obtener_columnas(tabla):
+    """Obtiene set de columnas disponibles en una tabla."""
     conn = mysql.connector.connect(**DB_CONFIG)
     cursor = conn.cursor(dictionary=True)
-    
-    cursor.execute("""
-        SELECT id, nombres, apellidos, nombre_completo, especialidad
-        FROM professors
-        ORDER BY apellidos, nombres
-    """)
-    
-    profesores = {}
-    for p in cursor.fetchall():
-        profesores[p['id']] = {
-            'id': p['id'],
-            'nombre': p['nombres'] or p['nombre_completo'].split()[0],
-            'apellido': p['apellidos'] or p['nombre_completo'].split()[-1],
-            'nombre_completo': p['nombre_completo'],
-            'especialidad': p['especialidad']
-        }
-    
+    cursor.execute(f"SHOW COLUMNS FROM {tabla}")
+    columnas = {fila['Field'] for fila in cursor.fetchall()}
     cursor.close()
     conn.close()
-    
+    return columnas
+
+
+def cargar_datos_profesores():
+    """Carga información de profesores desde la BD adaptándose al esquema actual."""
+    columnas = _obtener_columnas('professors')
+    campos = ['id']
+
+    if 'nombre_completo' in columnas:
+        campos.append('nombre_completo')
+    if 'nombres' in columnas:
+        campos.append('nombres')
+    if 'apellidos' in columnas:
+        campos.append('apellidos')
+    if 'especialidad' in columnas:
+        campos.append('especialidad')
+
+    orden = []
+    if 'apellidos' in columnas:
+        orden.append('apellidos')
+    if 'nombres' in columnas:
+        orden.append('nombres')
+    if not orden and 'nombre_completo' in columnas:
+        orden.append('nombre_completo')
+
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cursor = conn.cursor(dictionary=True)
+    query = f"SELECT {', '.join(campos)} FROM professors"
+    if orden:
+        query += " ORDER BY " + ", ".join(orden)
+    cursor.execute(query)
+
+    profesores = {}
+    for fila in cursor.fetchall():
+        nombre_completo = fila.get('nombre_completo') or ''
+        nombres = fila.get('nombres') or (nombre_completo.split()[0] if nombre_completo else 'N/A')
+        apellidos = fila.get('apellidos') or (nombre_completo.split()[-1] if nombre_completo else 'N/A')
+
+        profesores[fila['id']] = {
+            'id': fila['id'],
+            'nombre': nombres,
+            'apellido': apellidos,
+            'nombre_completo': nombre_completo or f"{nombres} {apellidos}",
+            'especialidad': fila.get('especialidad')
+        }
+
+    cursor.close()
+    conn.close()
+
     return profesores
 
 
@@ -125,6 +157,12 @@ def parsear_hora(hora_str):
     """Convierte string de hora a objeto time"""
     if isinstance(hora_str, time):
         return hora_str
+    if isinstance(hora_str, timedelta):
+        total_segundos = int(hora_str.total_seconds())
+        horas = (total_segundos // 3600) % 24
+        minutos = (total_segundos % 3600) // 60
+        segundos = total_segundos % 60
+        return time(hour=horas, minute=minutos, second=segundos)
     return datetime.strptime(hora_str, "%H:%M:%S").time()
 
 
@@ -165,6 +203,69 @@ def agrupar_por_profesor(asignaciones):
         por_profesor[prof_id].append(asig)
     
     return por_profesor
+
+
+def cargar_asignaciones_desde_db(experimento_id):
+    """Obtiene asignaciones desde proposed_schedule_assignments."""
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT 
+            course_id,
+            professor_id,
+            classroom_id,
+            day,
+            start_time,
+            end_time,
+            session_type
+        FROM proposed_schedule_assignments
+        WHERE algorithm_execution_id = %s
+    """, (experimento_id,))
+
+    asignaciones = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    for asig in asignaciones:
+        inicio = asig.get('start_time')
+        fin = asig.get('end_time')
+        if isinstance(inicio, timedelta):
+            total_segundos = int(inicio.total_seconds())
+            horas = (total_segundos // 3600) % 24
+            minutos = (total_segundos % 3600) // 60
+            segundos = total_segundos % 60
+            inicio = time(hour=horas, minute=minutos, second=segundos)
+        if isinstance(inicio, time):
+            asig['start_time'] = inicio.strftime('%H:%M:%S')
+        elif isinstance(inicio, timedelta):
+            asig['start_time'] = str(parsear_hora(inicio))
+        
+        if isinstance(fin, time):
+            asig['end_time'] = fin.strftime('%H:%M:%S')
+        elif isinstance(fin, timedelta):
+            total_segundos = int(fin.total_seconds())
+            horas = (total_segundos // 3600) % 24
+            minutos = (total_segundos % 3600) // 60
+            segundos = total_segundos % 60
+            asig['end_time'] = time(hour=horas, minute=minutos, second=segundos).strftime('%H:%M:%S')
+        if asig.get('day'):
+            asig['day'] = asig['day'].upper()
+
+    return asignaciones
+
+
+def cargar_asignaciones_experimento(experimento_id):
+    """Carga asignaciones desde JSON si existe, de lo contrario desde la BD."""
+    archivo_json = Path(f"experimento_{experimento_id}_ligas.json")
+
+    if archivo_json.exists():
+        with open(archivo_json, 'r', encoding='utf-8') as f:
+            datos = json.load(f)
+        asignaciones = datos.get('asignaciones', [])
+        return asignaciones, f"archivo {archivo_json.name}"
+
+    asignaciones_db = cargar_asignaciones_desde_db(experimento_id)
+    return asignaciones_db, "tabla proposed_schedule_assignments"
 
 
 def crear_hoja_profesor(wb, profesor_info, asignaciones, cursos, aulas):
@@ -321,24 +422,13 @@ def generar_horarios_excel(experimento_id):
     print("📅 GENERADOR DE HORARIOS POR PROFESOR")
     print("="*80)
     
-    # Cargar archivo del experimento
-    archivo_json = Path(f"experimento_{experimento_id}_ligas.json")
-    
-    if not archivo_json.exists():
-        print(f"❌ ERROR: No se encontró el archivo {archivo_json}")
-        return
-    
-    print(f"\n📂 Cargando experimento: {archivo_json}")
-    
-    with open(archivo_json, 'r', encoding='utf-8') as f:
-        datos = json.load(f)
-    
-    asignaciones = datos.get('asignaciones', [])
-    
+    asignaciones, fuente = cargar_asignaciones_experimento(experimento_id)
+
     if not asignaciones:
-        print("❌ ERROR: No hay asignaciones en el experimento")
+        print("❌ ERROR: No hay asignaciones disponibles para generar el horario")
         return
-    
+
+    print(f"\n📂 Asignaciones obtenidas desde {fuente}")
     print(f"✅ Asignaciones cargadas: {len(asignaciones)}")
     
     # Cargar datos de BD

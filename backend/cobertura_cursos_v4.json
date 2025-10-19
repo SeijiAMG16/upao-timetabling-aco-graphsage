@@ -1,7 +1,7 @@
 {
   "cursos_con_profesor": [
     {
-      "codigo": "C1_ALYPR",
+      "codigo": "ICSI506",
       "nombre": "ALGORITMIA Y PROGRAMACION",
       "profesores": [
         330,
@@ -10,7 +10,7 @@
       ]
     },
     {
-      "codigo": "C1_ININSI",
+      "codigo": "ISIA100",
       "nombre": "INTR ING SIST E INTEL ARTIF",
       "profesores": [
         354,
@@ -18,28 +18,28 @@
       ]
     },
     {
-      "codigo": "C2_ORYGE",
+      "codigo": "ADMI779",
       "nombre": "ORGANIZ Y GESTION DE EMPRESAS",
       "profesores": [
         351
       ]
     },
     {
-      "codigo": "C2_PRORA",
+      "codigo": "ICSI509",
       "nombre": "PROGRAM ORIENTADA A OBJETOS",
       "profesores": [
         333
       ]
     },
     {
-      "codigo": "C3_ESDEDA",
+      "codigo": "ICSI671",
       "nombre": "ESTRUCT DE DATOS Y ALGORIT",
       "profesores": [
         332
       ]
     },
     {
-      "codigo": "C3_GEDEPR",
+      "codigo": "ICSI672",
       "nombre": "GEST DE PROCESOS DE NEGOCIOS",
       "profesores": [
         355,
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "codigo": "C4_BADEDA",
+      "codigo": "ICSI673",
       "nombre": "BASE DE DATOS",
       "profesores": [
         336,
@@ -56,14 +56,14 @@
       ]
     },
     {
-      "codigo": "C4_INDERE",
+      "codigo": "ICSI674",
       "nombre": "INGENIERIA DE REQUISITOS",
       "profesores": [
         341
       ]
     },
     {
-      "codigo": "C4_REYSI",
+      "codigo": "ISIA102",
       "nombre": "REDES Y SISTEMAS OPERATIVOS",
       "profesores": [
         345,
@@ -71,7 +71,7 @@
       ]
     },
     {
-      "codigo": "C4_SIEM",
+      "codigo": "ISIA103",
       "nombre": "SISTEMAS EMPRESARIALES",
       "profesores": [
         330,
@@ -79,21 +79,21 @@
       ]
     },
     {
-      "codigo": "C5_APES",
+      "codigo": "ISIA106",
       "nombre": "APRENDIZAJE ESTADISTICO",
       "profesores": [
         338
       ]
     },
     {
-      "codigo": "C5_CODIY",
+      "codigo": "ISIA104",
       "nombre": "COMPUTO DISTRIBUIDO Y PARALELO",
       "profesores": [
         330
       ]
     },
     {
-      "codigo": "C5_INDESO",
+      "codigo": "ISIA106A",
       "nombre": "INGENIERIA DEL SOFTWARE",
       "profesores": [
         340,
@@ -101,14 +101,14 @@
       ]
     },
     {
-      "codigo": "C5_MEAMY",
+      "codigo": "CIEN746",
       "nombre": "MEDIO AMBIENTE Y DESARR SOST",
       "profesores": [
         340
       ]
     },
     {
-      "codigo": "C5_SIGEBA",
+      "codigo": "ICSI521",
       "nombre": "SISTEM GESTION BASE DE DATOS",
       "profesores": [
         336,
@@ -116,7 +116,7 @@
       ]
     },
     {
-      "codigo": "C6_AGDE",
+      "codigo": "ISIA109",
       "nombre": "AGILE DEVELOPMENT",
       "profesores": [
         340,
@@ -124,21 +124,28 @@
       ]
     },
     {
-      "codigo": "C6_INARPR",
+      "codigo": "ISIA108",
       "nombre": "INTEL ART, PRINCIP Y TECNIC",
       "profesores": [
         338
       ]
     },
     {
-      "codigo": "C7_ARDESI",
+      "codigo": "CIEN747",
+      "nombre": "TALL CREAT, INNOV Y EMPR",
+      "profesores": [
+        330
+      ]
+    },
+    {
+      "codigo": "ISIA112",
       "nombre": "ARQUITECTURA DE SISTEMAS",
       "profesores": [
         322
       ]
     },
     {
-      "codigo": "C7_AUINPR",
+      "codigo": "ISIA114",
       "nombre": "AUTOMATIZ INTELIG PROCESOS",
       "profesores": [
         352,
@@ -147,7 +154,7 @@
       ]
     },
     {
-      "codigo": "C7_CUDE",
+      "codigo": "ISIA113",
       "nombre": "CUSTOMER DEVELOPMENT",
       "profesores": [
         356,
@@ -156,28 +163,28 @@
       ]
     },
     {
-      "codigo": "C7_INDELA",
+      "codigo": "ICSI677",
       "nombre": "INTERNET DE LAS COSAS",
       "profesores": [
         350
       ]
     },
     {
-      "codigo": "C7_MALE",
+      "codigo": "ISIA110",
       "nombre": "MACHINE LEARNING",
       "profesores": [
         336
       ]
     },
     {
-      "codigo": "C7_PECO",
+      "codigo": "ISIA111",
       "nombre": "PERCEPCION COMPUTACIONAL",
       "profesores": [
         322
       ]
     },
     {
-      "codigo": "C8_BIDAY",
+      "codigo": "ISIA115",
       "nombre": "BIG DATA Y ANALITICA DE DATOS",
       "profesores": [
         322,
@@ -186,7 +193,7 @@
       ]
     },
     {
-      "codigo": "C8_DELE",
+      "codigo": "ISIA116",
       "nombre": "DEEP LEARNING",
       "profesores": [
         322,
@@ -194,28 +201,28 @@
       ]
     },
     {
-      "codigo": "C8_DEPR",
+      "codigo": "ICSI546",
       "nombre": "DEONTOLOGIA PROFESIONAL",
       "profesores": [
         339
       ]
     },
     {
-      "codigo": "C8_GEPRSI",
+      "codigo": "ICSI678",
       "nombre": "GEST PROYECT SIST DE INFORMAC",
       "profesores": [
         344
       ]
     },
     {
-      "codigo": "C8_GODEDA",
+      "codigo": "ISIA118",
       "nombre": "GOBIERNO DE DATOS",
       "profesores": [
         344
       ]
     },
     {
-      "codigo": "C8_PRDEIN",
+      "codigo": "ISIA117",
       "nombre": "PROYECTO DE INVESTIGACION",
       "profesores": [
         356,
@@ -226,21 +233,21 @@
       ]
     },
     {
-      "codigo": "C9_MOGEDE",
+      "codigo": "ISIA119",
       "nombre": "MODELOS GENERATIVOS DE IA",
       "profesores": [
         331
       ]
     },
     {
-      "codigo": "C9_SIDEIN",
+      "codigo": "ICSI679",
       "nombre": "SISTEM DE INFORMAC INTEGRADOS",
       "profesores": [
         327
       ]
     },
     {
-      "codigo": "C9_TAINI",
+      "codigo": "ISIA123",
       "nombre": "TALLER INTEGRADOR I",
       "profesores": [
         337,
@@ -248,7 +255,7 @@
       ]
     },
     {
-      "codigo": "C9_TEI",
+      "codigo": "ISIA122",
       "nombre": "TESIS I",
       "profesores": [
         356,
@@ -257,14 +264,14 @@
       ]
     },
     {
-      "codigo": "C10_TRDI",
+      "codigo": "ISIA132",
       "nombre": "TRANSFORMACION DIGITAL",
       "profesores": [
         344
       ]
     },
     {
-      "codigo": "C10_TAINII",
+      "codigo": "ISIA126",
       "nombre": "TALLER INTEGRADOR II",
       "profesores": [
         342,
@@ -272,7 +279,7 @@
       ]
     },
     {
-      "codigo": "C10_TEII",
+      "codigo": "ISIA125",
       "nombre": "TESIS II",
       "profesores": [
         328,
@@ -281,205 +288,117 @@
       ]
     }
   ],
-  "total_con_profesor": 36,
+  "total_con_profesor": 37,
   "cursos_sin_profesor": [
     {
-      "codigo": "C1_ALMAY",
+      "codigo": "CIEN752",
       "nombre": "ALGEBRA MATRIC Y GEOM ANALIT"
     },
     {
-      "codigo": "C1_CAI",
+      "codigo": "CIEN753",
       "nombre": "CALCULO I"
     },
     {
-      "codigo": "C1_COI",
+      "codigo": "HUMA1179",
       "nombre": "COMUNICACION I"
     },
     {
-      "codigo": "C1_MEAPUN",
+      "codigo": "HUMA900",
       "nombre": "METODOLOG APREND UNIVERSIT"
     },
     {
-      "codigo": "C2_CAII",
+      "codigo": "CIEN754",
       "nombre": "CALCULO II"
     },
     {
-      "codigo": "C2_COII",
+      "codigo": "HUMA1180",
       "nombre": "COMUNICACION II"
     },
     {
-      "codigo": "C2_FIYPE",
+      "codigo": "HUMA1181",
       "nombre": "FILOSOFIA Y PENSAM CRITICO"
     },
     {
-      "codigo": "C2_FII",
+      "codigo": "CIEN768",
       "nombre": "FISICA I"
     },
     {
-      "codigo": "C3_CAII",
+      "codigo": "CIEN755",
       "nombre": "CALCULO III"
     },
     {
-      "codigo": "C3_ESPAIN",
+      "codigo": "ISIA101",
       "nombre": "ESTADISTICA PARA INGENIEROS"
     },
     {
-      "codigo": "C3_FIII",
+      "codigo": "CIEN769",
       "nombre": "FISICA II"
     },
     {
-      "codigo": "C3_RENAY",
+      "codigo": "HUMA1182",
       "nombre": "REALIDAD NACIONAL Y GLOBAL"
     },
     {
-      "codigo": "C4_ETCIE",
+      "codigo": "HUMA1184",
       "nombre": "ETICA, CIUDADAN. E INCL SOCIAL"
     },
     {
-      "codigo": "C4_VIYTR",
+      "codigo": "HUMA1183",
       "nombre": "VIGEN Y TRASC PENS A.ORREGO"
     },
     {
-      "codigo": "C5_PADEDI",
+      "codigo": "ICSI675",
       "nombre": "PATRONES DE DISEÑO DE SOFTW"
     },
     {
-      "codigo": "C6_INCOCO",
+      "codigo": "ISIA107",
       "nombre": "INFRAESTRUCTURA COMO CODIGO"
     },
     {
-      "codigo": "C6_MEINCI",
+      "codigo": "HUMA1185",
       "nombre": "METODOLOG INVESTIGAC CIENTIF"
     },
     {
-      "codigo": "C6_MECUPA",
+      "codigo": "ICSI676",
       "nombre": "METODOS CUANTITAT PARA NEGOC"
     },
     {
-      "codigo": "C6_TACRIN",
-      "nombre": "TALL CREAT, INNOV Y EMPR"
-    },
-    {
-      "codigo": "C9_PRDELE",
+      "codigo": "ISIA120",
       "nombre": "PROCESAM DE LENGUAJE NATURAL"
     },
     {
-      "codigo": "C9_UXUI",
+      "codigo": "ISIA121",
       "nombre": "UX / UI"
     },
     {
-      "codigo": "C10_APMOPA",
+      "codigo": "ISIA127",
       "nombre": "APLICAC MOVILES PARA NEGOCIOS"
     },
     {
-      "codigo": "C10_AUDESI",
+      "codigo": "ISIA128",
       "nombre": "AUDITORIA DE SISTEM DE INFORM"
     },
     {
-      "codigo": "C10_AUSIIN",
+      "codigo": "ISIA129",
       "nombre": "AUDITORIA SISTEM INTELIGENTES"
     },
     {
-      "codigo": "C10_BLAPSI",
+      "codigo": "ISIA131",
       "nombre": "BLOCKCHAIN APL SIST EMPRES"
     },
     {
-      "codigo": "C10_CI",
+      "codigo": "ISIA133",
       "nombre": "CIBERSEGURIDAD"
     },
     {
-      "codigo": "C10_NECEEN",
+      "codigo": "ISIA130",
       "nombre": "NEGOCIOS CENTRADOS EN LA IA"
     },
     {
-      "codigo": "C10_PRPR",
+      "codigo": "ISIA124",
       "nombre": "PRACTICAS PRE-PROFESIONALES"
-    },
-    {
-      "codigo": "CURSO-001",
-      "nombre": "Algoritmia y \nProgramación\nL"
-    },
-    {
-      "codigo": "CURSO-002",
-      "nombre": "Algoritmia y \nProgramación\nL - Elias"
-    },
-    {
-      "codigo": "CURSO-003",
-      "nombre": "Sistemas Empresariales\nT  - Sheyli"
-    },
-    {
-      "codigo": "CURSO-004",
-      "nombre": "Algoritmia y \nProgramación\nL -  Lazo"
-    },
-    {
-      "codigo": "CURSO-005",
-      "nombre": "Redes y Sistemas Operativos\nT"
-    },
-    {
-      "codigo": "CURSO-006",
-      "nombre": "Sistemas Empresariales\nP  - Sheyli"
-    },
-    {
-      "codigo": "CURSO-007",
-      "nombre": "ARQUITECTURA DE SISTEMASP  - Armando"
-    },
-    {
-      "codigo": "CURSO-008",
-      "nombre": "Arquitectura de Sistemas T  - Armando"
-    },
-    {
-      "codigo": "CURSO-009",
-      "nombre": "Ingenieria Requisitos\nT - Castañeda"
-    },
-    {
-      "codigo": "CURSO-010",
-      "nombre": "Sistemas Empresariales\nL  - Elias"
-    },
-    {
-      "codigo": "CURSO-011",
-      "nombre": "ARQUITECTURA DE SISTEMASL  - Armando"
-    },
-    {
-      "codigo": "CURSO-012",
-      "nombre": "Algoritmia y \nProgramación\nT - CREAR"
-    },
-    {
-      "codigo": "CURSO-013",
-      "nombre": "ARQUITECTURA DE SISTEMAS  L  - Armando"
-    },
-    {
-      "codigo": "CURSO-014",
-      "nombre": "Ingenieria Requisitos\nP - Castañeda"
-    },
-    {
-      "codigo": "CURSO-015",
-      "nombre": "Algoritmia y \nProgramación\nT -"
-    },
-    {
-      "codigo": "CURSO-016",
-      "nombre": "Arquitectura de Sistemas P  - Armando"
-    },
-    {
-      "codigo": "CURSO-017",
-      "nombre": "Arquitectura de Sistemas L  - Armando"
-    },
-    {
-      "codigo": "CURSO-018",
-      "nombre": "ARQUITECTURA DE SISTEMAS T  - Armando"
-    },
-    {
-      "codigo": "CURSO-019",
-      "nombre": "Algoritmia y \nProgramación\nL  - Elias"
-    },
-    {
-      "codigo": "CURSO-020",
-      "nombre": "Redes y Sistemas Operativos\nL  - Jara"
-    },
-    {
-      "codigo": "CURSO-021",
-      "nombre": "Redes y Sistemas Operativos\nL"
     }
   ],
-  "total_sin_profesor": 49,
-  "porcentaje_cobertura": 42.35294117647059
+  "total_sin_profesor": 27,
+  "porcentaje_cobertura": 57.8125
 }

@@ -5,6 +5,7 @@ Database configuration and connection setup
 from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.engine.url import make_url
 import os
 from typing import Generator
 
@@ -13,6 +14,12 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL", 
     "mysql+pymysql://root:sistemas@localhost:3306/upao_timetabling"
 )
+
+# Validamos que la URL de base de datos no use SQLite, ya que debemos operar solo con la BD oficial
+if make_url(DATABASE_URL).get_backend_name().startswith("sqlite"):
+    raise RuntimeError(
+        "DATABASE_URL apunta a SQLite; configure credenciales MySQL para usar la base de datos oficial"
+    )
 
 # Engine configuration
 engine = create_engine(

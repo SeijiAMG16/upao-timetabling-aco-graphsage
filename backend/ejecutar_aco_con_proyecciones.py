@@ -118,11 +118,29 @@ def cargar_datos_bd():
     
     # 2. Cargar profesores
     cursor.execute("""
-        SELECT id, nombre_completo, carga_maxima_horas
-        FROM professors
-        WHERE active = 1
+        SHOW COLUMNS FROM professors LIKE 'carga_maxima_horas'
     """)
+    tiene_carga_max = cursor.fetchone() is not None
+
+    cursor.execute("""
+        SHOW COLUMNS FROM professors LIKE 'active'
+    """)
+    tiene_active = cursor.fetchone() is not None
+
+    columnas_profesores = ["id", "nombre_completo"]
+    if tiene_carga_max:
+        columnas_profesores.append("carga_maxima_horas")
+
+    query_profesores = f"SELECT {', '.join(columnas_profesores)} FROM professors"
+    if tiene_active:
+        query_profesores += " WHERE active = 1"
+
+    cursor.execute(query_profesores)
     profesores = cursor.fetchall()
+
+    if not tiene_carga_max:
+        for profesor in profesores:
+            profesor['carga_maxima_horas'] = None
     print(f"✅ {len(profesores)} profesores cargados")
     
     # 3. Cargar aulas
