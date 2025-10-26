@@ -6,6 +6,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import UploadIcon from '@mui/icons-material/Upload';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 
 const DRAWER_WIDTH = 280;
 
@@ -51,6 +52,22 @@ export default function Sidebar({ open }) {
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
+          </ListItemButton>
+        </ListItem>
+        
+        <ListItem disablePadding>
+          <ListItemButton 
+            onClick={() => navigate('/generar-horario')}
+            sx={{ 
+              mx: 1, 
+              borderRadius: 1, 
+              backgroundColor: location.pathname === '/generar-horario' ? '#1976d2' : 'transparent' 
+            }}
+          >
+            <ListItemIcon sx={{ color: '#ffffff', minWidth: 45 }}>
+              <ScheduleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Generar Horario" />
           </ListItemButton>
         </ListItem>
         

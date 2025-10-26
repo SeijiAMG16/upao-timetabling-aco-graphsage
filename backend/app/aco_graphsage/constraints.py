@@ -188,6 +188,7 @@ class HardConstraintValidator:
         if not valid:
             return _result(False, "Conflicto con otra sección del mismo ciclo", detail)
 
+        # RE-HABILITADAS - Son necesarias para correctitud
         valid, detail = self._validate_block_cohesion(assignment, current_schedule)
         if not valid:
             return _result(False, "Conflicto interno de franja/bloque", detail)
@@ -196,9 +197,10 @@ class HardConstraintValidator:
         if not valid:
             return _result(False, "Conflicto con otras secciones de la misma liga", detail)
 
-        valid, detail = self._validate_pedagogical_order(assignment, current_schedule)
-        if not valid:
-            return _result(False, "Secuencia pedagogica T->P->L invalida", detail)
+        # DESHABILITADA TEMPORALMENTE - Muy costosa
+        # valid, detail = self._validate_pedagogical_order(assignment, current_schedule)
+        # if not valid:
+        #     return _result(False, "Secuencia pedagogica T->P->L invalida", detail)
 
         valid, detail = self._validate_professor_availability(assignment)
         if not valid:

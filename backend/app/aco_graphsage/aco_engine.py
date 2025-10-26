@@ -287,11 +287,14 @@ class ACOEngine:
             sorted_section_ids.extend(sections)
         
         # Construir asignaciones una por una
+        failed_sections = []  # Trackear secciones que no se pudieron asignar
+        
         for sec_id in sorted_section_ids:
             assignment = self._assign_section(sec_id, assignments, ant_id)
             
             if assignment is None:
-                # No se pudo asignar esta sección
+                # No se pudo asignar esta sección - CONTINUAR en vez de abortar
+                failed_sections.append(sec_id)
                 construction_log.append(f"❌ No se pudo asignar sección {sec_id}")
                 if self._last_debug_logs:
                     construction_log.extend(self._last_debug_logs)
@@ -299,33 +302,40 @@ class ACOEngine:
                     construction_log.append(
                         "(sin detalles porque la sección no estaba en debug_sections)"
                     )
-                preview = "\n      ".join(construction_log[-min(len(construction_log), 20):])
-                print(
-                    f"[Diagnóstico ACO] Iteración {iteration + 1}, hormiga {ant_id} detuvo la construcción en la sección {sec_id}.\n"
-                    f"      Historial reciente:\n      {preview}"
-                )
-                # Marcar solución como inválida
-                return Solution(
-                    assignments=assignments,
-                    total_cost=float('inf'),
-                    soft_penalties={},
-                    is_valid=False,
-                    construction_log=construction_log,
-                )
+                # **CONTINUAR** procesando otras secciones en vez de abortar
+                continue
             
             assignments.append(assignment)
             construction_log.append(f"✅ Asignada sección {sec_id}")
             if self._last_debug_logs:
                 construction_log.extend(self._last_debug_logs)
         
+        # Determinar si la solución es válida basado en cobertura
+        coverage = len(assignments) / len(sorted_section_ids) if sorted_section_ids else 0.0
+        is_valid = coverage >= 0.95  # Aceptar si se asignó al menos 95% de secciones
+        
+        if failed_sections:
+            preview = "\n      ".join(construction_log[-min(len(construction_log), 20):])
+            print(
+                f"[Diagnóstico ACO] Iteración {iteration + 1}, hormiga {ant_id}: "
+                f"asignó {len(assignments)}/{len(sorted_section_ids)} secciones ({coverage*100:.1f}%).\n"
+                f"      Secciones no asignadas: {failed_sections[:10]}"
+                f"{'...' if len(failed_sections) > 10 else ''}\n"
+                f"      Historial reciente:\n      {preview}"
+            )
+        
         # Calcular costo con restricciones blandas
         total_cost, penalties = self.soft_evaluator.calculate_total_penalty(assignments)
+        
+        # PENALIZAR soluciones parciales severamente (pero no infinito)
+        if not is_valid:
+            total_cost += 1000.0 * len(failed_sections)  # Penalización por secciones faltantes
         
         return Solution(
             assignments=assignments,
             total_cost=total_cost,
             soft_penalties=penalties,
-            is_valid=True,
+            is_valid=is_valid,
             construction_log=construction_log,
         )
     

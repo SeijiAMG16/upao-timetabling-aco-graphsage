@@ -42,9 +42,9 @@ def main():
         print("\n2. Configurando parametros ACO...")
         print("-"*80)
         params = {
-            # Parámetros básicos ACO - OPTIMIZADOS URGENTEMENTE
-            "n_hormigas": 3,            # REDUCIDO de 15 a 3 para velocidad
-            "n_iteraciones": 2,         # REDUCIDO de 5 a 2 para velocidad
+            # Parámetros básicos ACO - MINIMOS para generar YA (URGENTE)
+            "n_hormigas": 3,            # REDUCIDO a 3: Solo necesitamos UNA solución válida
+            "n_iteraciones": 1,         # SOLO 1 iteración: Ya sabemos que funciona
             "alpha": 1.0,               # Peso de feromona
             "beta": 3.5,                # Peso de heurística neural (más peso)
             "rho": 0.12,                # Evaporación de feromona ligeramente mayor
@@ -70,17 +70,17 @@ def main():
             # Parámetros MMAS
             "tau_max": 1.0,
             "tau_min": 0.01,
-            "q0": 0.9,                  # Probabilidad de explotación vs exploración
+            "q0": 0.7,                  # REDUCIDO de 0.9 a 0.7: MAS EXPLORACION, menos explotacion
             
             # Límites de candidatos (optimización)
             "shuffle_candidates": True,
-            "max_timeslots_per_section": 96,  # AUMENTADO: Permitir todos los timeslots (96 total)
-            "max_candidate_combinations": 3000,  # AUMENTADO: Más combinaciones para explorar
+            "max_timeslots_per_section": 96,  # Permitir todos los timeslots (96 total)
+            "max_candidate_combinations": 5000,  # AUMENTADO de 3000 a 5000: Mas combinaciones
             "max_professors_per_section": 50,
             "max_classrooms_per_section": 50,
             
             # Early stopping
-            "early_stopping_patience": 8,  # REDUCIDO: Detener más rápido si no mejora
+            "early_stopping_patience": 15,  # AUMENTADO de 8 a 15: Dar mas tiempo antes de abortar
             
             # Prioridades especiales
             "priority_course_groups": [("CIEN769", 1)],  # Grupos que se asignan primero

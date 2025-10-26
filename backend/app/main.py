@@ -42,7 +42,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(assignments.router)
-from .api.endpoints import projections, professors, classrooms, auth, professors_upload, courses, algorithm
+from .api.endpoints import projections, professors, classrooms, auth, professors_upload, courses, algorithm, horario
 app.include_router(projections.router)
 app.include_router(professors.router)
 app.include_router(classrooms.router)
@@ -50,6 +50,7 @@ app.include_router(auth.router)
 app.include_router(professors_upload.router)
 app.include_router(algorithm.router)
 app.include_router(courses.router)
+app.include_router(horario.router)
 
 # Global variables
 excel_processor = ExcelProcessor()
@@ -58,27 +59,6 @@ excel_processor = ExcelProcessor()
 async def startup_event():
     """Initialize application on startup"""
     logger.info("Starting UPAO Timetabling System...")
-    
-    # Check database connection
-    if not check_database_connection():
-        logger.error("Failed to connect to database!")
-        return
-    
-    # Create tables
-    try:
-        create_tables()
-        logger.info("Database tables created/verified")
-    except Exception as e:
-        logger.error(f"Error creating tables: {e}")
-    
-    # Initialize basic data
-    try:
-        db = next(get_db())
-        initialize_database(db)
-        logger.info("Database initialized with basic data")
-    except Exception as e:
-        logger.error(f"Error initializing database: {e}")
-    
     logger.info("Application startup completed!")
 
 @app.get("/")

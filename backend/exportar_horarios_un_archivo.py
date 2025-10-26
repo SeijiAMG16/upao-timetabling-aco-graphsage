@@ -33,16 +33,24 @@ def crear_hoja_profesor(wb, nombre_hoja, profesor_data, asignaciones_profesor):
     # CONFIGURACIÓN
     dias_semana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO']
     
-    # Definir bloques horarios (cada 2 horas)
+    # Definir bloques horarios REALES (16 timeslots de 50 minutos cada uno)
     bloques_horarios = [
-        ('07:00', '09:00'),
-        ('09:00', '11:00'),
-        ('11:00', '13:00'),
-        ('13:00', '15:00'),
-        ('15:00', '17:00'),
-        ('17:00', '19:00'),
-        ('19:00', '21:00'),
-        ('21:00', '23:00'),
+        ('07:00', '07:50'),
+        ('07:55', '08:45'),
+        ('08:50', '09:40'),
+        ('09:45', '10:35'),
+        ('10:40', '11:30'),
+        ('11:35', '12:25'),
+        ('12:30', '13:20'),
+        ('13:25', '14:15'),
+        ('14:20', '15:10'),
+        ('15:15', '16:05'),
+        ('16:10', '17:00'),
+        ('17:05', '17:55'),
+        ('18:00', '18:50'),
+        ('18:55', '19:45'),
+        ('19:50', '20:40'),
+        ('20:45', '21:35'),
     ]
     
     # ESTILOS
@@ -142,10 +150,11 @@ def crear_hoja_profesor(wb, nombre_hoja, profesor_data, asignaciones_profesor):
     # AJUSTAR TAMAÑOS
     ws.column_dimensions['A'].width = 12
     for idx in range(2, 8):  # Columnas B-G (días)
-        ws.column_dimensions[get_column_letter(idx)].width = 22
+        ws.column_dimensions[get_column_letter(idx)].width = 20
     
+    # Con 16 bloques, usar altura más pequeña para que entre mejor
     for row in range(5, row_idx):
-        ws.row_dimensions[row].height = 80
+        ws.row_dimensions[row].height = 60
     
     # ESTADÍSTICAS AL FINAL
     ws[f'A{row_idx + 2}'] = 'RESUMEN:'

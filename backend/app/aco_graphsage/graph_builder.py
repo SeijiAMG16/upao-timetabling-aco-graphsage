@@ -183,7 +183,7 @@ class TimetableGraphBuilder:
             .filter(CourseSection.alumnos_proyectados > 0)  # FILTRAR secciones sin estudiantes
             .all()
         )
-        print(f"  → Secciones cargadas: {len(sections)} (filtradas las que tienen 0 estudiantes)")
+        print(f"  -> Secciones cargadas: {len(sections)} (filtradas las que tienen 0 estudiantes)")
         return sections
     
     def _load_professors(self) -> List[Professor]:
@@ -264,6 +264,13 @@ class TimetableGraphBuilder:
         self.virtual_to_real_section.clear()
         self.section_virtual_groups.clear()
 
+        # NUEVO: Detectar qué tipos de sesión existen realmente por curso
+        # Esto evita generar secciones virtuales para tipos que no tienen secciones reales
+        existing_course_types = set()  # (course_id, session_type)
+        for section in sections:
+            session_type = self._normalize_session_type(section.tipo)
+            existing_course_types.add((section.course_id, session_type))
+
         instances: List[SectionInstance] = []
         normalized_classrooms = [
             (classroom, self._normalize_classroom_type(classroom.tipo))
@@ -294,7 +301,7 @@ class TimetableGraphBuilder:
 
             if group_count > 1:
                 print(
-                    f"⚠️  Sección {section.id} (curso {section.course.codigo if section.course else 'sin-curso'}) "
+                    f"[!] Seccion {section.id} (curso {section.course.codigo if section.course else 'sin-curso'}) "
                     f"dividida en {group_count} subgrupos de hasta {max_capacity} estudiantes"
                 )
 
@@ -849,7 +856,16 @@ class TimetableGraphBuilder:
     # ========================================================================
 
     def _load_professor_assignments(self) -> None:
-        """Carga asignaciones explicitas de profesores por curso, tipo y liga."""
+        """
+        Carga asignaciones explicitas de profesores por curso, tipo y liga.
+        
+        ESTRATEGIA CORREGIDA (2024-10-22):
+        - assign_by_league: Todas las asignaciones con liga específica
+        - assign_by_type: SOLO asignaciones SIN diferenciación por liga
+        - assign_by_course: SOLO asignaciones SIN diferenciación por tipo ni liga
+        
+        Esto asegura que las asignaciones por liga tengan prioridad absoluta.
+        """
         assign_by_league: Dict[Tuple[int, str, int], List[int]] = {}
         assign_by_type: Dict[Tuple[int, str], List[int]] = {}
         assign_by_course: Dict[int, List[int]] = {}
@@ -861,17 +877,45 @@ class TimetableGraphBuilder:
             )
         )
 
+        # Primera pasada: cargar todas las asignaciones
+        all_assignments = []
         for row in result:
-            course_id = row.course_id
-            professor_id = row.professor_id
-            session_type = (row.session_type or "").upper()
-            league = row.league or 1
+            all_assignments.append({
+                'course_id': row.course_id,
+                'professor_id': row.professor_id,
+                'session_type': (row.session_type or "").upper(),
+                'league': row.league or 1
+            })
 
+        # Segunda pasada: clasificar inteligentemente
+        # Detectar qué cursos tienen diferenciación por liga
+        courses_with_leagues = set()
+        for a in all_assignments:
+            key = (a['course_id'], a['session_type'])
+            # Si hay al menos 2 ligas diferentes para el mismo curso/tipo -> tiene diferenciación
+            leagues_for_key = set(a2['league'] for a2 in all_assignments 
+                                 if a2['course_id'] == a['course_id'] 
+                                 and a2['session_type'] == a['session_type'])
+            if len(leagues_for_key) > 1:
+                courses_with_leagues.add(key)
+
+        # Tercera pasada: construir diccionarios
+        for a in all_assignments:
+            course_id = a['course_id']
+            professor_id = a['professor_id']
+            session_type = a['session_type']
+            league = a['league']
+
+            # Siempre agregar a assign_by_league
             key_league = (course_id, session_type, league)
-            key_type = (course_id, session_type)
-
             assign_by_league.setdefault(key_league, []).append(professor_id)
-            assign_by_type.setdefault(key_type, []).append(professor_id)
+
+            # Solo agregar a assign_by_type si NO tiene diferenciación por liga
+            key_type = (course_id, session_type)
+            if key_type not in courses_with_leagues:
+                assign_by_type.setdefault(key_type, []).append(professor_id)
+
+            # Solo agregar a assign_by_course si es la única asignación del curso
             assign_by_course.setdefault(course_id, []).append(professor_id)
 
         self.prof_assign_by_league = assign_by_league
@@ -879,37 +923,38 @@ class TimetableGraphBuilder:
         self.prof_assign_by_course = assign_by_course
 
     def _candidate_professors_for_section(self, section: CourseSection) -> List[int]:
-        """Obtiene profesores candidatos priorizando las asignaciones manuales."""
+        """
+        Obtiene profesores candidatos para una sección, respetando ESTRICTAMENTE 
+        las asignaciones por liga cuando existan.
+        
+        ESTRATEGIA CORRECTA (2024-10-22 v5 - FINAL):
+        1. Si existe asignación exacta por (curso, tipo, liga) -> devolver SOLO esa (ESTRICTO)
+        2. Si NO hay asignación por liga, buscar por (curso, tipo) general
+        3. Si NO hay por tipo, buscar por curso
+        
+        OBJETIVO: Respetar 100% las ligas definidas en professor_course_assignments.
+        """
         course_id = section.course_id
         session_type = self._map_section_type(section)
         league = section.league or 1
 
-        manual_candidates: Set[int] = set()
+        # PASO 1: Buscar asignación exacta por (curso, tipo, liga)
+        key_league = (course_id, session_type, league)
+        if key_league in self.prof_assign_by_league:
+            # Hay asignación específica para esta liga -> usar SOLO esa (100% estricto)
+            return sorted(self.prof_assign_by_league[key_league])
 
-        if (course_id, session_type, league) in self.prof_assign_by_league:
-            manual_candidates.update(
-                self.prof_assign_by_league[(course_id, session_type, league)]
-            )
+        # PASO 2: Buscar asignaciones por (curso, tipo) genérico (cursos sin diferenciación de liga)
+        key_type = (course_id, session_type)
+        if key_type in self.prof_assign_by_type:
+            return sorted(self.prof_assign_by_type[key_type])
 
-        if (course_id, session_type) in self.prof_assign_by_type:
-            manual_candidates.update(
-                self.prof_assign_by_type[(course_id, session_type)]
-            )
-
+        # PASO 3: Buscar asignaciones por curso (más general)
         if course_id in self.prof_assign_by_course:
-            manual_candidates.update(self.prof_assign_by_course[course_id])
+            return sorted(self.prof_assign_by_course[course_id])
 
-        if manual_candidates:
-            return sorted(manual_candidates)
-
-        # **FIX CRÍTICO (2024-10-18 v3)**: 
-        # ELIMINADO el fallback a course.professors
-        # Ahora SOLO se permiten profesores explícitamente asignados en professor_course_assignments
-        # Esto garantiza 100% de respeto al mapeo manual
-        # Si una sección no tiene asignaciones, NO tendrá candidatos y NO podrá ser asignada
-        # (mejor que asignar un profesor incorrecto)
-        
-        return []  # Sin asignaciones manuales = sin candidatos
+        # Sin asignaciones manuales = sin candidatos
+        return []
 
     def _map_section_type(self, section: CourseSection) -> str:
         return self._normalize_session_type(section.tipo)
@@ -949,7 +994,7 @@ class TimetableGraphBuilder:
                 )
             )
         except Exception as exc:
-            print(f"⚠️  No se pudieron cargar course_session_hours: {exc}")
+            print(f"[!] No se pudieron cargar course_session_hours: {exc}")
             return
 
         for row in result:
