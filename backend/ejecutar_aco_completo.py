@@ -3,19 +3,31 @@ Script para ejecutar ACO+GraphSAGE con la BD completa
 y generar métricas de progreso
 """
 
+print("[DEBUG] Script iniciado - imports comenzando...")
+
 import argparse
 import sys
 from pathlib import Path
 from datetime import timedelta, time as datetime_time
 
+print("[DEBUG] Imports básicos completados")
+
 sys.path.append(str(Path(__file__).parent))
 
+print("[DEBUG] Importando módulos de la aplicación...")
 from app.database import SessionLocal
+print("[DEBUG] - SessionLocal importado")
 from app.aco_graphsage.graph_builder import TimetableGraphBuilder
+print("[DEBUG] - TimetableGraphBuilder importado")
 from app.aco_graphsage.graphsage_model import ACOGraphSAGEModel
+print("[DEBUG] - ACOGraphSAGEModel importado")
 from app.aco_graphsage.aco_engine import ACOEngine
+print("[DEBUG] - ACOEngine importado")
 from app.aco_graphsage.constraints import HardConstraintValidator, SoftConstraintEvaluator
+print("[DEBUG] - Constraints importados")
 import torch
+print("[DEBUG] - Torch importado")
+print("[DEBUG] ✅ Todos los imports completados!")
 
 
 def parse_args() -> argparse.Namespace:
@@ -42,8 +54,13 @@ def parse_args() -> argparse.Namespace:
 
 
 def main():
+    print("[DEBUG] main() iniciada")
     args = parse_args()
+    print(f"[DEBUG] Argumentos parseados: hormigas={args.hormigas}, iteraciones={args.iteraciones}")
+    
+    print("[DEBUG] Creando sesión de base de datos...")
     db = SessionLocal()
+    print("[DEBUG] ✅ Sesión de BD creada")
     
     try:
         print("="*80)
@@ -52,8 +69,11 @@ def main():
         
         # 1. Construir grafo
         print("\n1. Construyendo grafo...")
+        print("   [DEBUG] Inicializando TimetableGraphBuilder...")
         builder = TimetableGraphBuilder(db)
+        print("   [DEBUG] Llamando a build_graph()...")
         graph = builder.build_graph()
+        print("   [DEBUG] Grafo construido exitosamente!")
         
         print(f"\nGrafo construido:")
         print(f"  Secciones: {graph['section'].x.shape[0]}")
@@ -68,6 +88,7 @@ def main():
         
         # 2. Crear modelo GNN
         print("\n2. Creando modelo GNN...")
+        print("   [DEBUG] Calculando dimensiones de características...")
         hidden_dim = 64
         device = torch.device('cpu')
         
@@ -79,6 +100,7 @@ def main():
             'curriculum': graph['curriculum'].x.shape[1],
         }
         
+        print("   [DEBUG] Inicializando ACOGraphSAGEModel...")
         model = ACOGraphSAGEModel(
             node_features_dict=node_features_dict,
             hidden_dim=hidden_dim,
@@ -86,6 +108,7 @@ def main():
         ).to(device)
         
         print(f"  Modelo creado con hidden_dim={hidden_dim}")
+        print("   [DEBUG] Modelo GNN listo!")
         
         # 3. Crear validador
         print("\n3. Creando validador de restricciones...")
@@ -358,6 +381,15 @@ def main():
                     ])
             
             print(f"[GRAFICO] Horario guardado en CSV: {csv_file}")
+            
+            # Convertir automáticamente a Excel formateado
+            print("\n[EXCEL] Convirtiendo a formato Excel...")
+            try:
+                from convertir_csv_a_excel import convertir_csv_a_excel
+                excel_file = convertir_csv_a_excel(csv_file)
+                print(f"[EXCEL] ✅ Archivo Excel creado: {excel_file}")
+            except Exception as e:
+                print(f"[EXCEL] ❌ Error al convertir a Excel: {e}")
         else:
             print("\n[X] No se encontró ninguna solución")
         

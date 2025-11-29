@@ -225,21 +225,35 @@ class HardConstraintValidator:
         if len(assignment.timeslot_ids) <= 1:
             return True, detail
 
-        timeslots = [self.timeslots[tid] for tid in assignment.timeslot_ids]
-
-        dias = {ts.dia_semana for ts in timeslots}
-        if len(dias) > 1:
-            detail["dias_detectados"] = sorted(dias)
+        # OPTIMIZACIÓN: Acceso directo sin comprensión de lista para evitar overhead
+        try:
+            first_ts = self.timeslots[assignment.timeslot_ids[0]]
+            dia_ref = first_ts.dia_semana
+            ordenes = [first_ts.orden]
+            
+            # Verificar todos los slots restantes
+            for tid in assignment.timeslot_ids[1:]:
+                ts = self.timeslots[tid]
+                # Verificar mismo día
+                if ts.dia_semana != dia_ref:
+                    detail["dias_detectados"] = [dia_ref, ts.dia_semana]
+                    return False, detail
+                ordenes.append(ts.orden)
+            
+            # Verificar consecutividad
+            ordenes.sort()
+            for i in range(len(ordenes) - 1):
+                if ordenes[i+1] != ordenes[i] + 1:
+                    detail["ordenes_detectados"] = ordenes
+                    detail["salto_en"] = (ordenes[i], ordenes[i+1])
+                    return False, detail
+            
+            return True, detail
+            
+        except KeyError as e:
+            # Si un timeslot no existe, es un error crítico
+            detail["error"] = f"Timeslot {e} no encontrado"
             return False, detail
-
-        ordenes = sorted(ts.orden for ts in timeslots)
-        for anterior, siguiente in zip(ordenes, ordenes[1:]):
-            if siguiente != anterior + 1:
-                detail["ordenes_detectados"] = ordenes
-                detail["salto_en"] = (anterior, siguiente)
-                return False, detail
-
-        return True, detail
 
     def _validate_no_professor_overlap(
         self,
@@ -248,14 +262,21 @@ class HardConstraintValidator:
     ) -> Tuple[bool, Dict[str, Any]]:
         """Verifica que el profesor no tenga otra asignación simultánea"""
         detail: Dict[str, Any] = {"professor_id": assignment.professor_id}
+        
+        # OPTIMIZACIÓN: Usar set para detección rápida de overlap
+        assignment_slots_set = set(assignment.timeslot_ids)
+        
         for existing in current_schedule:
             if existing.professor_id == assignment.professor_id:
-                overlap = self._overlap_slots(assignment.timeslot_ids, existing.timeslot_ids)
+                # Verificación rápida con sets (O(1) promedio vs O(n) con listas)
+                existing_slots_set = set(existing.timeslot_ids)
+                overlap = assignment_slots_set & existing_slots_set
+                
                 if overlap:
                     detail.update({
                         "conflict_section_id": existing.section_id,
                         "conflict_course_code": existing.course_code,
-                        "overlap_slots": overlap,
+                        "overlap_slots": sorted(overlap),
                     })
                     return False, detail
         return True, detail
@@ -267,14 +288,21 @@ class HardConstraintValidator:
     ) -> Tuple[bool, Dict[str, Any]]:
         """Verifica que el aula no esté ocupada"""
         detail: Dict[str, Any] = {"classroom_id": assignment.classroom_id}
+        
+        # OPTIMIZACIÓN: Usar set para detección rápida de overlap
+        assignment_slots_set = set(assignment.timeslot_ids)
+        
         for existing in current_schedule:
             if existing.classroom_id == assignment.classroom_id:
-                overlap = self._overlap_slots(assignment.timeslot_ids, existing.timeslot_ids)
+                # Verificación rápida con sets (O(1) promedio vs O(n) con listas)
+                existing_slots_set = set(existing.timeslot_ids)
+                overlap = assignment_slots_set & existing_slots_set
+                
                 if overlap:
                     detail.update({
                         "conflict_section_id": existing.section_id,
                         "conflict_course_code": existing.course_code,
-                        "overlap_slots": overlap,
+                        "overlap_slots": sorted(overlap),
                     })
                     return False, detail
         return True, detail

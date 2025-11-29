@@ -65,32 +65,37 @@ async def ejecutar_generacion_completa():
         
         # Execute ACO+GraphSAGE generation script with optimized parameters
         aco_script = backend_dir / "ejecutar_aco_completo.py"
+        
+        logger.info(f"[DEBUG] Ejecutando script: {aco_script}")
+        logger.info(f"[DEBUG] Directorio de trabajo: {backend_dir}")
+        logger.info(f"[DEBUG] Parámetros: 10 hormigas, 20 iteraciones")
+        
+        # Usar stdout=None y stderr=None para ver los logs en tiempo real
         result_aco = subprocess.run(
             [
                 "python", str(aco_script),
-                "--hormigas", "40",           # 40 ants per iteration
-                "--iteraciones", "150",        # 150 max iterations
+                "--hormigas", "10",           # 10 ants per iteration
+                "--iteraciones", "20",        # 20 max iterations
                 "--alpha", "1.0",              # Pheromone weight
                 "--beta", "2.3",               # Neural heuristic weight
                 "--rho", "0.2",                # Evaporation rate
                 "--q0", "0.88",                # Exploitation probability
-                "--patiencia", "8",            # Early stopping patience
+                "--patiencia", "6",            # Early stopping patience
                 "--max-candidatos", "600",     # Max candidate combinations
                 "--max-profesores", "6",       # Max professors per section
                 "--max-aulas", "12",           # Max classrooms per section
-                "--max-timeslots", "24"        # Max starting timeslots per section
+                "--max-timeslots", "12"        # Max starting timeslots per section
             ],
             cwd=backend_dir,
-            capture_output=True,
-            text=True,
-            timeout=900  # 15 minutes timeout (increased for GraphSAGE)
+            timeout=600  # 10 minutes timeout
         )
         
+        logger.info(f"[DEBUG] Script completado con código: {result_aco.returncode}")
+        
         if result_aco.returncode != 0:
-            raise Exception(f"Error en ACO+GraphSAGE: {result_aco.stderr}")
+            raise Exception(f"Error en ACO+GraphSAGE: código de salida {result_aco.returncode}")
         
         logger.info("✅ ACO+GraphSAGE completado exitosamente")
-        logger.info(result_aco.stdout[-500:] if len(result_aco.stdout) > 500 else result_aco.stdout)
         
         # Find the generated JSON file
         json_files = glob.glob(str(backend_dir / "horario_generado_*.json"))
@@ -115,28 +120,12 @@ async def ejecutar_generacion_completa():
         generation_status["progress"] = 60
         generation_status["message"] = "Generando archivo Excel con horarios de profesores..."
         
-        logger.info("=== STEP 2: Generando Excel (exportar_horarios_un_archivo.py) ===")
+        logger.info("=== STEP 2: Excel ya generado automáticamente por ejecutar_aco_completo.py ===")
         
-        # Execute Excel export script
-        excel_script = backend_dir / "exportar_horarios_un_archivo.py"
-        result_excel = subprocess.run(
-            ["python", str(excel_script)],
-            cwd=backend_dir,
-            capture_output=True,
-            text=True,
-            timeout=120  # 2 minutes timeout
-        )
-        
-        if result_excel.returncode != 0:
-            raise Exception(f"Error generando Excel: {result_excel.stderr}")
-        
-        logger.info("✅ Excel generado exitosamente")
-        logger.info(result_excel.stdout[-500:] if len(result_excel.stdout) > 500 else result_excel.stdout)
-        
-        # Find the generated Excel file
-        excel_files = glob.glob(str(backend_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx"))
+        # Find the generated Excel file (formato profesores)
+        excel_files = glob.glob(str(backend_dir / "horario_generado_*_formato_profesores.xlsx"))
         if not excel_files:
-            raise Exception("No se encontró el archivo Excel generado")
+            raise Exception("No se encontró el archivo Excel formateado generado")
         
         latest_excel = max(excel_files, key=os.path.getctime)
         excel_filename = os.path.basename(latest_excel)
@@ -198,10 +187,10 @@ async def generar_horario(background_tasks: BackgroundTasks):
         "message": "Generación de horario iniciada",
         "status": "started",
         "algorithm": "ACO + GraphSAGE",
-        "estimated_time_minutes": 5,
+        "estimated_time_minutes": 3,
         "parameters": {
-            "hormigas": 40,
-            "iteraciones": 150,
+            "hormigas": 10,
+            "iteraciones": 20,
             "alpha": 1.0,
             "beta": 2.3,
             "rho": 0.2,
@@ -242,8 +231,12 @@ async def descargar_horario(filename: str):
     if ".." in filename or "/" in filename or "\\" in filename:
         raise HTTPException(status_code=400, detail="Nombre de archivo inválido")
     
-    # Check if filename matches expected pattern
-    if not filename.startswith("HORARIOS_PROFESORES_UPAO_") or not filename.endswith(".xlsx"):
+    # Check if filename matches expected pattern (acepta ambos formatos)
+    valid_patterns = [
+        filename.startswith("HORARIOS_PROFESORES_UPAO_") and filename.endswith(".xlsx"),
+        filename.startswith("horario_generado_") and filename.endswith("_formato_profesores.xlsx")
+    ]
+    if not any(valid_patterns):
         raise HTTPException(status_code=400, detail="Nombre de archivo no válido")
     
     # Get backend directory
@@ -275,7 +268,11 @@ async def listar_archivos():
     - List of available Excel files with metadata
     """
     backend_dir = Path(__file__).parent.parent.parent.parent
-    excel_files = glob.glob(str(backend_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx"))
+    
+    # Buscar archivos con ambos patrones
+    excel_files = []
+    excel_files.extend(glob.glob(str(backend_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
+    excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*_formato_profesores.xlsx")))
     
     files = []
     for file_path in excel_files:
