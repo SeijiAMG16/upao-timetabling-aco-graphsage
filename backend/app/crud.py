@@ -145,7 +145,7 @@ def create_time_slot(db: Session, time_slot_data: dict) -> models.TimeSlot:
 
 # CourseSection CRUD operations
 def get_course_sections(db: Session, course_id: Optional[int] = None) -> List[models.CourseSection]:
-    query = db.query(models.CourseSection).filter(models.CourseSection.activa == True)
+    query = db.query(models.CourseSection).filter(models.CourseSection.active == True)
     
     if course_id:
         query = query.filter(models.CourseSection.course_id == course_id)

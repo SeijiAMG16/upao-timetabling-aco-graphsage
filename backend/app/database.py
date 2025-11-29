@@ -24,7 +24,7 @@ if make_url(DATABASE_URL).get_backend_name().startswith("sqlite"):
 # Engine configuration
 engine = create_engine(
     DATABASE_URL,
-    echo=True,  # Set to False in production
+    echo=False,  # Disabled for ACO execution (too much output)
     pool_pre_ping=True,
     pool_recycle=300,
 )

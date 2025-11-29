@@ -36,6 +36,12 @@ ACO_PARAMS = {
     "max_classrooms_per_section": 12,
     "max_timeslots_per_section": 12,
     "shuffle_candidates": True,
+    "enforce_league_coherence": False,  # Evitar solapes dentro de la misma liga (desactivado por defecto)
+    # Relajación pedagógica automática (para prácticas/laboratorios de ciclos altos)
+    "pedagogical_relaxation_min_cycle": 4,
+    "pedagogical_relaxation_attempts": 3,  # REDUCIDO de 6 a 3 para secciones normales
+    # Cada 60 unidades equivale aproximadamente a 2/3 de día (rank = día*100 + orden)
+    "pedagogical_relaxation_rank_step": 80,  # AUMENTADO de 60 a 80 para ser menos agresivo en regulares
 }
 
 # ============================================================================

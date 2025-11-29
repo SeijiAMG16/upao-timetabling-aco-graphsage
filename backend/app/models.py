@@ -52,7 +52,7 @@ class Course(Base):
     active = Column(Boolean, default=True)
     
     # Relaciones
-    professors = relationship("Professor", secondary=professor_course_table, back_populates="courses")
+    # professors = relationship("Professor", secondary=professor_course_table, back_populates="courses")  # Tabla no existe en BD
     course_sections = relationship("CourseSection", back_populates="course", cascade="all, delete-orphan")
     schedule_assignments = relationship("ScheduleAssignment", back_populates="course")
     
@@ -68,7 +68,9 @@ class Professor(Base):
     nombre_completo = Column(String(200), nullable=False)
 
     # Relaciones
-    courses = relationship("Course", secondary=professor_course_table, back_populates="professors")
+    # courses = relationship("Course", secondary=professor_course_table, back_populates="professors")  # Tabla no existe en BD
+    # course_assignments -> viene de backref en ProfessorCourseAssignment
+    # restrictions -> viene de backref en ProfessorRestriction
     availability_slots = relationship("ProfessorAvailability", back_populates="professor", cascade="all, delete-orphan")
     schedule_assignments = relationship("ScheduleAssignment", back_populates="professor")
 
@@ -157,8 +159,8 @@ class CourseSection(Base):
     alumnos_proyectados = Column(Integer, nullable=False)
     alumnos_reales = Column(Integer, default=0)
     
-    # Estado
-    activa = Column(Boolean, default=True)
+    # Estado (la tabla usa 'active' en inglés, no 'activa')
+    active = Column(Boolean, default=True, name='active')
     
     # Metadatos
     created_at = Column(DateTime, default=func.now())
@@ -183,9 +185,9 @@ class ProfessorCourseAssignment(Base):
     professor_id = Column(Integer, ForeignKey('professors.id'), nullable=False, index=True)
     session_type = Column(String(10), nullable=True)
     league = Column(Integer, nullable=True)
-    priority = Column(Integer, default=1)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    # priority = Column(Integer, default=1)  # Columna no existe en BD real
+    # created_at = Column(DateTime, default=func.now())  # Columna no existe en BD real
+    # updated_at = Column(DateTime, default=func.now(), onupdate=func.now())  # Columna no existe en BD real
 
     course = relationship("Course", backref="explicit_professor_assignments")
     professor = relationship("Professor", backref="explicit_course_assignments")

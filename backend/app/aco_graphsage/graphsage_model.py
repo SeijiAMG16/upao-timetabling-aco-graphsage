@@ -38,8 +38,6 @@ class HeteroGraphSAGE(nn.Module):
     Toma un grafo con múltiples tipos de nodos y aristas, y aprende
     embeddings que capturan la estructura y restricciones del problema.
     
-    NOTA: Usa HeteroConv directamente en lugar de to_hetero() para 
-    compatibilidad con Python 3.13.
     """
     
     def __init__(

@@ -6,6 +6,7 @@ y generar métricas de progreso
 import argparse
 import sys
 from pathlib import Path
+from datetime import timedelta, time as datetime_time
 
 sys.path.append(str(Path(__file__).parent))
 
@@ -36,6 +37,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--debug", type=str, default="", help="Lista separada por comas de IDs de sección a depurar.")
     parser.add_argument("--log-limit", type=int, default=200, help="Máximo de líneas de log por sección depurada.")
     parser.add_argument("--sin-early", action="store_true", help="Desactiva el early stopping por falta de mejoras.")
+    parser.add_argument("--verbose", action="store_true", help="Muestra logs detallados de construcción de soluciones.")
     return parser.parse_args()
 
 
@@ -95,11 +97,33 @@ def main():
         # Convertir TimeSlots a diccionario
         timeslots_dict = {}
         for ts in db.query(TimeSlot).all():
+            # Convertir hora_inicio y hora_fin a datetime.time
+            # Puede venir como timedelta (desde BD) o como string (desde modelo)
+            if isinstance(ts.hora_inicio, timedelta):
+                total_seconds = int(ts.hora_inicio.total_seconds())
+                hora_inicio = datetime_time(hour=total_seconds // 3600, minute=(total_seconds % 3600) // 60)
+            elif isinstance(ts.hora_inicio, str):
+                # Parse "HH:MM" string
+                parts = ts.hora_inicio.split(':')
+                hora_inicio = datetime_time(hour=int(parts[0]), minute=int(parts[1]))
+            else:
+                hora_inicio = ts.hora_inicio
+            
+            if isinstance(ts.hora_fin, timedelta):
+                total_seconds = int(ts.hora_fin.total_seconds())
+                hora_fin = datetime_time(hour=total_seconds // 3600, minute=(total_seconds % 3600) // 60)
+            elif isinstance(ts.hora_fin, str):
+                # Parse "HH:MM" string
+                parts = ts.hora_fin.split(':')
+                hora_fin = datetime_time(hour=int(parts[0]), minute=int(parts[1]))
+            else:
+                hora_fin = ts.hora_fin
+            
             timeslots_dict[ts.id] = TimeSlotInfo(
                 id=ts.id,
                 dia_semana=ts.dia_semana,
-                hora_inicio=ts.hora_inicio,
-                hora_fin=ts.hora_fin,
+                hora_inicio=hora_inicio,
+                hora_fin=hora_fin,
                 periodo=ts.periodo,
                 orden=ts.orden,
             )
@@ -117,19 +141,58 @@ def main():
             )
         
         # Mapeo de restricciones de profesores
-        day_map = {"Lunes": 1, "Martes": 2, "Miércoles": 3, "Miercoles": 3, "Jueves": 4, "Viernes": 5, "Sábado": 6, "Sabado": 6}
+        # IMPORTANTE: La BD usa ENUM con TODO EN MAYÚSCULAS
+        day_map = {
+            "LUNES": 1, "Lunes": 1, "lunes": 1,
+            "MARTES": 2, "Martes": 2, "martes": 2,
+            "MIÉRCOLES": 3, "MIERCOLES": 3, "Miércoles": 3, "Miercoles": 3, "miércoles": 3, "miercoles": 3,
+            "JUEVES": 4, "Jueves": 4, "jueves": 4,
+            "VIERNES": 5, "Viernes": 5, "viernes": 5,
+            "SÁBADO": 6, "SABADO": 6, "Sábado": 6, "Sabado": 6, "sábado": 6, "sabado": 6,
+            "DOMINGO": 7, "Domingo": 7, "domingo": 7,
+        }
         professor_restrictions = {}
         for r in db.query(ProfessorRestriction).all():
             if r.professor_id not in professor_restrictions:
                 professor_restrictions[r.professor_id] = []
+            dia_num = day_map.get(r.day, 0)
+            if dia_num == 0:
+                print(f"  ⚠️ WARNING: Día no reconocido '{r.day}' para profesor ID={r.professor_id}")
+            
+            # Convertir timedelta a time si es necesario
+            if isinstance(r.start_time, timedelta):
+                total_seconds = int(r.start_time.total_seconds())
+                hora_inicio = datetime_time(hour=total_seconds // 3600, minute=(total_seconds % 3600) // 60)
+            else:
+                hora_inicio = r.start_time
+            
+            if isinstance(r.end_time, timedelta):
+                total_seconds = int(r.end_time.total_seconds())
+                hora_fin = datetime_time(hour=total_seconds // 3600, minute=(total_seconds % 3600) // 60)
+            else:
+                hora_fin = r.end_time
+            
             professor_restrictions[r.professor_id].append(
                 ProfessorRestrictionInfo(
                     professor_id=r.professor_id,
-                    dia_semana=day_map.get(r.day, 0),
-                    hora_inicio=r.start_time,
-                    hora_fin=r.end_time,
+                    dia_semana=dia_num,
+                    hora_inicio=hora_inicio,
+                    hora_fin=hora_fin,
                 )
             )
+        
+        # Log de restricciones cargadas
+        total_restricciones = sum(len(rest) for rest in professor_restrictions.values())
+        print(f"  >> Cargadas {total_restricciones} restricciones para {len(professor_restrictions)} profesores")
+        
+        # Debug: verificar tipos de datos
+        if timeslots_dict and professor_restrictions:
+            sample_ts = next(iter(timeslots_dict.values()))
+            print(f"  DEBUG: TimeSlot hora_inicio type = {type(sample_ts.hora_inicio)}, value = {sample_ts.hora_inicio}")
+            if professor_restrictions:
+                sample_prof_id = next(iter(professor_restrictions.keys()))
+                sample_restriction = professor_restrictions[sample_prof_id][0]
+                print(f"  DEBUG: Restriction hora_inicio type = {type(sample_restriction.hora_inicio)}, value = {sample_restriction.hora_inicio}")
         
         validator = HardConstraintValidator(
             timeslots=timeslots_dict,
@@ -172,6 +235,7 @@ def main():
             "max_timeslots_per_section": max(1, args.max_timeslots) if args.max_timeslots else None,
             "debug_sections": debug_sections,
             "debug_log_limit": max(20, args.log_limit),
+            "verbose": args.verbose,  # Nuevo parámetro
         }
         aco = ACOEngine(
             graph=graph,
@@ -213,13 +277,13 @@ def main():
         print("="*80)
         
         if best_solution:
-            print(f"\n✓ Mejor solución encontrada:")
+            print(f"\n[OK] Mejor solución encontrada:")
             print(f"  Secciones asignadas: {len(best_solution.assignments)}/{graph['section'].x.shape[0]}")
             print(f"  Costo soft: {best_solution.total_cost:.2f}")
             print(f"  Solución válida: {best_solution.is_valid}")
             
             if not best_solution.is_valid:
-                print(f"\n⚠ Solución con violaciones de restricciones duras")
+                print(f"\n[WARN] Solución con violaciones de restricciones duras")
                 print(f"\nLog de construcción:")
                 for log_entry in best_solution.construction_log[-10:]:  # Últimas 10 entradas
                     print(f"  {log_entry}")
@@ -267,7 +331,7 @@ def main():
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(horario_data, f, indent=2, ensure_ascii=False)
             
-            print(f"\n💾 Horario guardado en: {output_file}")
+            print(f"\n[GUARDADO] Horario guardado en: {output_file}")
             
             # También guardar en CSV para Excel
             import csv
@@ -293,11 +357,11 @@ def main():
                         assignment.alumnos_proyectados
                     ])
             
-            print(f"📊 Horario guardado en CSV: {csv_file}")
+            print(f"[GRAFICO] Horario guardado en CSV: {csv_file}")
         else:
-            print("\n❌ No se encontró ninguna solución")
+            print("\n[X] No se encontró ninguna solución")
         
-        print(f"\n📊 Métricas de ejecución:")
+        print(f"\n[GRAFICO] Métricas de ejecución:")
         print(f"  Mejor solución ACO: {best_solution is not None}")
         print(f"  Iteraciones completadas: {aco.completed_iterations}")
         
@@ -317,7 +381,7 @@ def main():
                     problematic.append((section_id, stats, total))
             
             if problematic:
-                print(f"\n⚠ {len(problematic)} secciones con pocos candidatos:")
+                print(f"\n[WARN] {len(problematic)} secciones con pocos candidatos:")
                 # Ordenar por total de candidatos
                 problematic.sort(key=lambda x: x[2])
                 for section_id, stats, total in problematic[:10]:  # Top 10
@@ -331,7 +395,7 @@ def main():
                     print(f"    Franjas: {stats.get('timeslots', 0)}")
                     print(f"    Total candidatos: {total}")
             else:
-                print("\n✓ Todas las secciones tienen suficientes candidatos")
+                print("\n[OK] Todas las secciones tienen suficientes candidatos")
         
     finally:
         db.close()

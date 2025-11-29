@@ -179,7 +179,7 @@ class TimetableGraphBuilder:
         """Carga todas las secciones activas CON estudiantes proyectados > 0"""
         sections = (
             self.db.query(CourseSection)
-            .filter(CourseSection.activa == True)
+            .filter(CourseSection.active == True)  # Usar 'active' en vez de 'activa'
             .filter(CourseSection.alumnos_proyectados > 0)  # FILTRAR secciones sin estudiantes
             .all()
         )
@@ -483,8 +483,8 @@ class TimetableGraphBuilder:
             n_restrictions = len(prof.restrictions)
             feat.append(n_restrictions / 20.0)  # Normalizado (max ~20)
             
-            # Contar cursos asignados
-            n_courses = len(prof.courses)
+            # Contar cursos asignados (usar explicit_course_assignments de la BD real)
+            n_courses = len(prof.explicit_course_assignments) if hasattr(prof, 'explicit_course_assignments') else 0
             feat.append(n_courses / 10.0)  # Normalizado (max ~10)
             
             # Embedding aleatorio (será aprendido)
@@ -689,6 +689,12 @@ class TimetableGraphBuilder:
                 if tipo_section_key in ['T', 'P'] and tipo_aula_normalizado == 'laboratorio':
                     # Teoría y práctica NO usan laboratorios
                     continue
+
+                if tipo_section_key == 'L':
+                    expected_building = self._expected_lab_building(section.alumnos_proyectados or 0)
+                    classroom_building = (classroom.edificio or "").strip().upper()
+                    if expected_building and classroom_building != expected_building:
+                        continue
                 
                 # Filtrar por capacidad
                 if classroom.capacidad < (section.alumnos_proyectados or 0):
@@ -880,10 +886,14 @@ class TimetableGraphBuilder:
         # Primera pasada: cargar todas las asignaciones
         all_assignments = []
         for row in result:
+            normalized_session = self._normalize_session_type(row.session_type)
+            if not normalized_session:
+                # Si el tipo no se puede normalizar, lo descartamos para evitar claves inconsistentes
+                continue
             all_assignments.append({
                 'course_id': row.course_id,
                 'professor_id': row.professor_id,
-                'session_type': (row.session_type or "").upper(),
+                'session_type': normalized_session,
                 'league': row.league or 1
             })
 
@@ -984,6 +994,12 @@ class TimetableGraphBuilder:
         if value in {"nolab", "aula", "teorica", "teórica", "general"}:
             return "teorica"
         return "teorica"
+
+    def _expected_lab_building(self, projected_students: int) -> Optional[str]:
+        """Replica la regla dura de constraints: <=20 alumnos -> edificio F, caso contrario G."""
+        if projected_students is None:
+            return "F"
+        return "F" if projected_students <= 20 else "G"
 
     def _load_course_session_hours(self) -> None:
         try:

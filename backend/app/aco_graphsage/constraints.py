@@ -188,7 +188,7 @@ class HardConstraintValidator:
         if not valid:
             return _result(False, "Conflicto con otra sección del mismo ciclo", detail)
 
-        # RE-HABILITADAS - Son necesarias para correctitud
+        # RE-HABILIT ADAS - Son necesarias para correctitud pero optimizadas
         valid, detail = self._validate_block_cohesion(assignment, current_schedule)
         if not valid:
             return _result(False, "Conflicto interno de franja/bloque", detail)
@@ -197,10 +197,9 @@ class HardConstraintValidator:
         if not valid:
             return _result(False, "Conflicto con otras secciones de la misma liga", detail)
 
-        # DESHABILITADA TEMPORALMENTE - Muy costosa
-        # valid, detail = self._validate_pedagogical_order(assignment, current_schedule)
-        # if not valid:
-        #     return _result(False, "Secuencia pedagogica T->P->L invalida", detail)
+        valid, detail = self._validate_pedagogical_order(assignment, current_schedule)
+        if not valid:
+            return _result(False, "Secuencia pedagógica T→P→L inválida", detail)
 
         valid, detail = self._validate_professor_availability(assignment)
         if not valid:
@@ -344,25 +343,32 @@ class HardConstraintValidator:
         current_original = getattr(assignment, "original_section_id", assignment.section_id)
         detail["original_section_id"] = current_original
 
+        # OPTIMIZACIÓN: Convertir a set para búsquedas O(1)
+        tracked_set = set(tracked_sections) if tracked_sections else set()
+        assignment_slots_set = set(assignment.timeslot_ids)
+        
         for existing in current_schedule:
             if existing.section_id == assignment.section_id:
                 continue
 
             existing_block = getattr(existing, "block_id", None)
-            if existing_block != block_id and existing.section_id not in tracked_sections:
+            # OPTIMIZACIÓN: Skip early si no es del mismo bloque Y no está tracked
+            if existing_block != block_id and existing.section_id not in tracked_set:
                 continue
 
             existing_original = getattr(existing, "original_section_id", existing.section_id)
             if existing_original != current_original:
                 continue
 
-            overlap = self._overlap_slots(assignment.timeslot_ids, existing.timeslot_ids)
+            # OPTIMIZACIÓN: Usar set intersection en vez de loop
+            existing_slots_set = set(existing.timeslot_ids)
+            overlap = assignment_slots_set & existing_slots_set
             if overlap:
                 detail.update({
                     "conflict_section_id": existing.section_id,
                     "conflict_course_code": existing.course_code,
                     "conflict_original_section_id": existing_original,
-                    "overlap_slots": overlap,
+                    "overlap_slots": list(overlap),
                 })
                 return False, detail
 
@@ -398,72 +404,90 @@ class HardConstraintValidator:
         assignment: Assignment,
         current_schedule: List[Assignment],
     ) -> Tuple[bool, Dict[str, Any]]:
-        """Verifica el orden pedagógico T->P->L dentro de cada liga del curso.
-        
-        **FIX MEJORADO (2024-10-18 v2)**: 
-        Ya NO es una restricción DURA que bloquea.
-        Ahora es una validación SUAVE:
-        - Verifica si existe violación del orden (P/L antes que T)
-        - Retorna True siempre (no bloquea)
-        - La penalización se calcula en soft_constraint_pedagogical_order()
-        
-        Esto permite generar horarios completos mientras se prefiere el orden correcto.
-        """
+        """Aplica estrictamente el orden pedagógico T -> P -> L por liga."""
         detail: Dict[str, Any] = {
-            "pedagogical_validation": "SOFT",
             "section_id": assignment.section_id,
             "session_type": assignment.session_type,
-            "violations": [],
+            "course_code": assignment.course_code,
+            "league_id": assignment.league_id,
         }
-        
-        # Buscar todas las secciones del mismo curso y liga
+
+        league_key = (assignment.course_code, assignment.league_id)
+        league_types = {t.upper() for t in self.league_session_types.get(league_key, set())}
+
         same_league_sections = [
             a for a in current_schedule
             if a.course_code == assignment.course_code and a.league_id == assignment.league_id
         ]
-        
-        # Verificar orden temporal de slots
-        if assignment.session_type in ["P", "L"] and same_league_sections:
-            # Obtener el slot más temprano de la asignación actual
-            assignment_earliest_slot = min(assignment.timeslot_ids)
-            assignment_earliest_ts = self.timeslots[assignment_earliest_slot]
-            
-            for other in same_league_sections:
-                # Si estamos asignando P/L, verificar que no haya T después
-                if assignment.session_type == "P" and other.session_type == "T":
-                    other_latest_slot = max(other.timeslot_ids)
-                    other_latest_ts = self.timeslots[other_latest_slot]
-                    
-                    # Verificar si P está ANTES que T (violación)
-                    if self._is_before(assignment_earliest_ts, other_latest_ts):
-                        detail["violations"].append({
-                            "type": "P_before_T",
-                            "other_section_id": other.section_id,
-                        })
-                
-                # Si estamos asignando L, verificar que no haya T/P después
-                if assignment.session_type == "L" and other.session_type in ["T", "P"]:
-                    other_latest_slot = max(other.timeslot_ids)
-                    other_latest_ts = self.timeslots[other_latest_slot]
-                    
-                    # Verificar si L está ANTES que T/P (violación)
-                    if self._is_before(assignment_earliest_ts, other_latest_ts):
-                        detail["violations"].append({
-                            "type": f"L_before_{other.session_type}",
-                            "other_section_id": other.section_id,
-                        })
-        
-        # SIEMPRE retornar True (no bloquea), pero registra violaciones
+
+        if not same_league_sections:
+            return True, detail
+
+        assignment_start_ts = self._get_start_timeslot(assignment)
+
+        for other in same_league_sections:
+            other_start_ts = self._get_start_timeslot(other)
+            comparison = self._compare_timeslots(other_start_ts, assignment_start_ts)
+
+            if assignment.session_type == "T":
+                if other.session_type in {"P", "L"} and other.session_type in league_types:
+                    # T debe ocurrir antes que P/L existentes
+                    if comparison <= 0:
+                        detail["conflict_type"] = f"T_after_{other.session_type}"
+                        detail["other_section_id"] = other.section_id
+                        return False, detail
+
+            elif assignment.session_type == "P":
+                if "T" in league_types and other.session_type == "T":
+                    # P no puede comenzar antes (o al mismo tiempo) que T
+                    if comparison >= 0:
+                        detail["conflict_type"] = "P_before_T"
+                        detail["other_section_id"] = other.section_id
+                        return False, detail
+
+                if "L" in league_types and other.session_type == "L":
+                    # P debe ocurrir antes que L
+                    if comparison <= 0:
+                        detail["conflict_type"] = "P_after_L"
+                        detail["other_section_id"] = other.section_id
+                        return False, detail
+
+            elif assignment.session_type == "L":
+                # Si existe P en la liga, L debe ocurrir después de P. Si no hay P, usar T.
+                enforce_against: List[str] = []
+                if "P" in league_types:
+                    enforce_against.append("P")
+                elif "T" in league_types:
+                    enforce_against.append("T")
+
+                if other.session_type in enforce_against:
+                    if comparison >= 0:
+                        detail["conflict_type"] = f"L_before_{other.session_type}"
+                        detail["other_section_id"] = other.section_id
+                        return False, detail
+
         return True, detail
     
     def _is_before(self, ts1: TimeSlotInfo, ts2: TimeSlotInfo) -> bool:
         """Compara si ts1 ocurre antes que ts2 en la semana."""
+        return self._compare_timeslots(ts1, ts2) == -1
+
+    def _compare_timeslots(self, ts1: TimeSlotInfo, ts2: TimeSlotInfo) -> int:
+        """-1 si ts1 es antes, 0 si igual, 1 si es después."""
         if ts1.dia_semana < ts2.dia_semana:
-            return True
+            return -1
         if ts1.dia_semana > ts2.dia_semana:
-            return False
-        # Mismo día: comparar horas
-        return ts1.hora_inicio < ts2.hora_inicio
+            return 1
+        if ts1.orden < ts2.orden:
+            return -1
+        if ts1.orden > ts2.orden:
+            return 1
+        return 0
+
+    def _get_start_timeslot(self, assignment: Assignment) -> TimeSlotInfo:
+        """Retorna el timeslot más temprano de la asignación."""
+        slot_id = min(assignment.timeslot_ids)
+        return self.timeslots[slot_id]
 
     def _validate_professor_availability(self, assignment: Assignment) -> Tuple[bool, Dict[str, Any]]:
         """Verifica que el profesor esté disponible en estas franjas"""

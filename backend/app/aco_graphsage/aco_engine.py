@@ -109,6 +109,7 @@ class ACOEngine:
         self.beta = self.params["beta"]
         self.rho = self.params["rho"]
         self.q0 = self.params["q0"]
+        self.enforce_league_coherence = self.params.get("enforce_league_coherence", False)
 
         # Debugging helpers
         debug_sections = self.params.get("debug_sections", []) or []
@@ -116,7 +117,13 @@ class ACOEngine:
             debug_sections = [int(debug_sections)]
         self.debug_sections = {int(sec_id) for sec_id in debug_sections}
         self.debug_log_limit = int(self.params.get("debug_log_limit", 120))
+        self.verbose = self.params.get("verbose", False)  # Modo verbose
         self._last_debug_logs: List[str] = []
+
+        # Relajación automática de corte pedagógico (para ciclos superiores)
+        self.pedagogical_relaxation_min_cycle = int(self.params.get("pedagogical_relaxation_min_cycle", 4))
+        self.pedagogical_relaxation_attempts = int(self.params.get("pedagogical_relaxation_attempts", 0))
+        self.pedagogical_relaxation_rank_step = int(self.params.get("pedagogical_relaxation_rank_step", 0))
         
         # Matriz de feromonas (MMAS)
         self.pheromones = PheromoneMatrix(
@@ -146,6 +153,59 @@ class ACOEngine:
             (ts.dia_semana, ts.orden): ts_id
             for ts_id, ts in self.hard_validator.timeslots.items()
         }
+        
+        # MEJORA: Identificar secciones críticas (profesores con alta restricción)
+        self.critical_sections: Set[int] = set()
+        self._identify_critical_sections()
+    
+    def _identify_critical_sections(self):
+        """
+        Identifica secciones críticas que requieren priorización especial.
+        
+        Criterios:
+        - Profesor tiene 4+ días restringidos (de 6 días laborables)
+        - Sección es tipo laboratorio (requiere 4 bloques consecutivos)
+        """
+        # Contar días restringidos por profesor
+        prof_restricted_days: Dict[int, Set[str]] = defaultdict(set)
+        
+        for prof_id, restrictions in self.hard_validator.professor_restrictions.items():
+            for restriction in restrictions:
+                # Contar día como "restringido" si tiene bloqueo significativo (>= 6 horas)
+                if restriction.hora_inicio and restriction.hora_fin:
+                    duracion_horas = (datetime.combine(datetime.today(), restriction.hora_fin) - 
+                                     datetime.combine(datetime.today(), restriction.hora_inicio)).total_seconds() / 3600
+                    if duracion_horas >= 6.0:
+                        prof_restricted_days[prof_id].add(restriction.dia_semana)
+        
+        # Identificar secciones de profesores altamente restringidos
+        for sec_id in self.graph_builder.section_id_to_idx.keys():
+            metadata = self.graph_builder.section_metadata.get(sec_id, {})
+            session_type = (metadata.get("session_type") or "T").upper()
+            
+            # Buscar profesor asignado a esta sección
+            assigned_prof = None
+            sec_idx = self.graph_builder.section_id_to_idx[sec_id]
+            
+            if ('section', 'assigned_to', 'professor') in self.graph.edge_index_dict:
+                edges = self.graph[('section', 'assigned_to', 'professor')].edge_index
+                prof_indices = edges[1][edges[0] == sec_idx].tolist()
+                if prof_indices:
+                    assigned_prof = self.graph_builder.idx_to_professor_id.get(prof_indices[0])
+            
+            if assigned_prof is None:
+                continue
+            
+            # Criterio: laboratorio + profesor con 3+ días restringidos
+            restricted_days = len(prof_restricted_days.get(assigned_prof, set()))
+            if session_type == "L" and restricted_days >= 2:  # BAJADO de 3 a 2 para ser más agresivo
+                self.critical_sections.add(sec_id)
+                if self.verbose:
+                    print(f"[CRITICO] Sección {sec_id} marcada como crítica (prof {assigned_prof} con {restricted_days} días restringidos)")
+        
+        print(f"\n[INFO] Identificadas {len(self.critical_sections)} secciones críticas que requieren priorización especial")
+        if self.critical_sections:
+            print(f"        IDs críticos: {sorted(list(self.critical_sections)[:20])}{'...' if len(self.critical_sections) > 20 else ''}\n")
     
     def optimize(self, max_iterations: int = None) -> Solution:
         """
@@ -175,7 +235,7 @@ class ACOEngine:
                     solutions.append(solution)
             
             if not solutions:
-                print(f"Iteración {iteration_index}/{n_iters}: ⚠️  No se encontraron soluciones válidas")
+                print(f"Iteración {iteration_index}/{n_iters}: [WARN]  No se encontraron soluciones válidas")
                 self.completed_iterations = iteration_index
                 continue
             
@@ -190,7 +250,7 @@ class ACOEngine:
             if self.best_solution is None or iteration_best_solution.total_cost < self.best_solution.total_cost:
                 self.best_solution = iteration_best_solution
                 self._iterations_without_improvement = 0  # Reset contador
-                print(f"Iteración {iteration_index}/{n_iters}: ✅ Nueva mejor solución: {self.best_solution.total_cost:.2f}")
+                print(f"Iteración {iteration_index}/{n_iters}: [OK] Nueva mejor solución: {self.best_solution.total_cost:.2f}")
             else:
                 self._iterations_without_improvement += 1
                 print(f"Iteración {iteration_index}/{n_iters}: Mejor={iteration_best_solution.total_cost:.2f}, "
@@ -200,7 +260,7 @@ class ACOEngine:
             
             # OPTIMIZACIÓN: Early stopping si no hay mejoras
             if self._iterations_without_improvement >= self._max_iterations_without_improvement:
-                print(f"\n⚠️  Early stopping: No hay mejoras en {self._max_iterations_without_improvement} iteraciones")
+                print(f"\n[WARN]  Early stopping: No hay mejoras en {self._max_iterations_without_improvement} iteraciones")
                 break
             
             # Evaporar feromonas
@@ -212,9 +272,9 @@ class ACOEngine:
         
         print(f"\n{'='*80}")
         if self.best_solution is not None:
-            print(f"✅ Optimización completada. Costo final: {self.best_solution.total_cost:.2f}")
+            print(f"[OK] Optimización completada. Costo final: {self.best_solution.total_cost:.2f}")
         else:
-            print(f"⚠️  Optimización completada SIN soluciones válidas encontradas")
+            print(f"[WARN] Optimización completada SIN soluciones válidas encontradas")
         print(f"{'='*80}\n")
         
         return self.best_solution
@@ -255,23 +315,28 @@ class ACOEngine:
 
         sorted_section_ids: List[int] = []
         
-        # PRIORIDAD ESPECIAL: Grupos de cursos que necesitan asignarse primero
-        # Configurable via parámetros
-        priority_groups = self.params.get("priority_course_groups", [("CIEN769", 1)])
-        
-        # Separar grupos prioritarios del resto
+        # PRIORIDAD MÁXIMA: Secciones críticas (profesores altamente restringidos)
+        critical_groups = []
+        priority_groups_param = self.params.get("priority_course_groups", [("CIEN769", 1)])
         priority_section_groups = []
         regular_section_groups = []
         
         for group_key in sorted(grouped_sections.keys(), key=group_sort_key):
             course_code, league = group_key
-            if (course_code, league) in priority_groups:
-                priority_section_groups.append((group_key, grouped_sections[group_key]))
+            sections_in_group = grouped_sections[group_key]
+            
+            # Verificar si alguna sección del grupo es crítica
+            has_critical = any(sec_id in self.critical_sections for sec_id in sections_in_group)
+            
+            if has_critical:
+                critical_groups.append((group_key, sections_in_group))
+            elif (course_code, league) in priority_groups_param:
+                priority_section_groups.append((group_key, sections_in_group))
             else:
                 regular_section_groups.append((group_key, grouped_sections[group_key]))
         
-        # Procesar grupos prioritarios primero
-        all_groups = priority_section_groups + regular_section_groups
+        # Procesar en orden: CRÍTICOS -> PRIORITARIOS -> REGULARES
+        all_groups = critical_groups + priority_section_groups + regular_section_groups
         
         for group_key, sections in all_groups:
 
@@ -295,7 +360,7 @@ class ACOEngine:
             if assignment is None:
                 # No se pudo asignar esta sección - CONTINUAR en vez de abortar
                 failed_sections.append(sec_id)
-                construction_log.append(f"❌ No se pudo asignar sección {sec_id}")
+                construction_log.append(f"[X] No se pudo asignar sección {sec_id}")
                 if self._last_debug_logs:
                     construction_log.extend(self._last_debug_logs)
                 else:
@@ -306,13 +371,35 @@ class ACOEngine:
                 continue
             
             assignments.append(assignment)
-            construction_log.append(f"✅ Asignada sección {sec_id}")
+            # Log detallado en modo verbose
+            if self.verbose:
+                prof_id = assignment.professor_id
+                aula_id = assignment.classroom_id
+                franjas = ','.join(map(str, assignment.timeslot_ids[:4]))  # Primeras 4 franjas
+                if len(assignment.timeslot_ids) > 4:
+                    franjas += f'...(+{len(assignment.timeslot_ids)-4})'
+                construction_log.append(
+                    f"[OK] Sec={sec_id:4d} -> Prof={prof_id:3d}, Aula={aula_id:2d}, Slots=[{franjas}]"
+                )
+            else:
+                construction_log.append(f"[OK] Asignada sección {sec_id}")
             if self._last_debug_logs:
                 construction_log.extend(self._last_debug_logs)
         
         # Determinar si la solución es válida basado en cobertura
         coverage = len(assignments) / len(sorted_section_ids) if sorted_section_ids else 0.0
-        is_valid = coverage >= 0.95  # Aceptar si se asignó al menos 95% de secciones
+        is_valid = coverage >= 0.90  # BAJADO de 0.95 a 0.90 - aceptar soluciones con 90%+ cobertura
+        
+        # Modo verbose: imprimir TODOS los logs de construcción
+        if self.verbose:
+            print(f"\n{'='*80}")
+            print(f"[CONSTRUCCIÓN] Hormiga {ant_id}, Iteración {iteration + 1}")
+            print(f"{'='*80}")
+            for log_line in construction_log:
+                print(f"  {log_line}")
+            print(f"{'='*80}")
+            print(f"Resultado: {len(assignments)}/{len(sorted_section_ids)} secciones asignadas ({coverage*100:.1f}%)")
+            print(f"{'='*80}\n")
         
         if failed_sections:
             preview = "\n      ".join(construction_log[-min(len(construction_log), 20):])
@@ -353,39 +440,33 @@ class ACOEngine:
         """
         self._last_debug_logs = []
         debug_enabled = section_id in self.debug_sections
+        is_critical = section_id in self.critical_sections
 
         def debug(message: str):
             if debug_enabled and len(self._last_debug_logs) < self.debug_log_limit:
                 self._last_debug_logs.append(message)
-
-        # Obtener candidatos válidos (cachear para eficiencia)
-        if section_id not in self._candidate_cache:
-            candidates = self._get_candidate_assignments(section_id)
-            
-            # MANEJO ESPECIAL: Para cursos virtuales (NO_PRESENCIAL), si no hay candidatos 
-            # del grafo (porque no tienen aristas section→classroom), generar candidatos especiales
-            if not candidates:
-                metadata_check = self.graph_builder.section_metadata.get(section_id, {})
-                modalidad_check = metadata_check.get("modalidad", "").upper()
-                if modalidad_check == "NO_PRESENCIAL":
-                    # Generar candidatos sin aula (classroom_idx = -1)
-                    candidates = self._generate_virtual_candidates(section_id)
-            
-            self._candidate_cache[section_id] = candidates
-        else:
-            candidates = self._candidate_cache[section_id]
         
-        debug(f"🔍 Sección {section_id}: {len(candidates)} candidatos iniciales")
+        # MEJORA: Secciones críticas obtienen más candidatos para mayor exploración
+        candidates = self._get_candidate_assignments(section_id, is_critical=is_critical)
+        if is_critical:
+            debug(f"[CRITICO] Sección {section_id}: {len(candidates)} candidatos (modo crítico con exploración ampliada)")
+        else:
+            debug(f"[BUSCAR] Sección {section_id}: {len(candidates)} candidatos iniciales")
 
         if not candidates:
-            debug("🚫 No se encontraron combinaciones profesor/aula/horario desde el grafo")
+            debug("[BLOQUEADO] No se encontraron combinaciones profesor/aula/horario desde el grafo")
             return None
         
         # OPTIMIZACIÓN: Crear conjunto de recursos ocupados para validación rápida
         metadata = self.graph_builder.section_metadata.get(section_id, {})
         course_code = metadata.get("course_code") or f"SECTION-{section_id}"
         league_id = metadata.get("league") or 1
-        ciclo = metadata.get("ciclo") or "SIN-CICLO"
+        ciclo_value_raw = metadata.get("ciclo")
+        ciclo = ciclo_value_raw or "SIN-CICLO"
+        try:
+            ciclo_numeric = int(str(ciclo_value_raw))
+        except (TypeError, ValueError):
+            ciclo_numeric = None
         projected_students = self.graph_builder.section_projected_students.get(section_id, 0)
         session_type = (metadata.get("session_type") or "T").upper()
         modalidad = metadata.get("modalidad", "").upper()
@@ -393,7 +474,7 @@ class ACOEngine:
         # MANEJO ESPECIAL: Cursos virtuales NO_PRESENCIAL no necesitan aula física
         is_virtual = modalidad == "NO_PRESENCIAL"
         if is_virtual:
-            debug(f"🌐 Sección {section_id} es VIRTUAL (NO_PRESENCIAL) - no requiere aula física")
+            debug(f"[VIRTUAL] Sección {section_id} es VIRTUAL (NO_PRESENCIAL) - no requiere aula física")
 
         # Enforzar T -> P -> L: si falta teoría/práctica previas, diferir esta asignación
         league_key = (course_code, league_id)
@@ -414,9 +495,34 @@ class ACOEngine:
             ]
             if pending_predecessors:
                 debug(
-                    f"⏳ Pendiente asignar secciones {pending_predecessors} antes de programar {section_id}"
+                    f"[PENDIENTE] Pendiente asignar secciones {pending_predecessors} antes de programar {section_id}"
                 )
                 return None
+
+        pedagogical_cutoff = self._compute_pedagogical_cutoff(
+            course_code,
+            league_id,
+            session_type,
+            current_schedule,
+        )
+
+        if pedagogical_cutoff is not None and not self._has_candidate_after_rank(candidates, pedagogical_cutoff):
+            expanded_candidates = self._get_candidate_assignments(
+                section_id,
+                min_start_rank=pedagogical_cutoff,
+                is_critical=is_critical,
+            )
+            if expanded_candidates:
+                debug(
+                    f"[PEDAGOGICO] Expandimos candidatos posteriores a {pedagogical_cutoff} "
+                    f"(de {len(candidates)} a {len(expanded_candidates)})"
+                )
+                candidates = expanded_candidates
+            else:
+                debug(
+                    f"[PEDAGOGICO] Sin franjas disponibles después del requisito mínimo "
+                    f"{pedagogical_cutoff}"
+                )
 
         occupied_timeslots_by_prof: Dict[int, Set[int]] = {}
         occupied_timeslots_by_classroom: Dict[int, Set[int]] = {}
@@ -437,7 +543,8 @@ class ACOEngine:
 
             for ts_id in existing.timeslot_ids:
                 curriculum_slots[(existing.ciclo, ts_id)] = (existing.course_code, existing.league_id)
-                league_slots[(existing.course_code, existing.league_id)].add(ts_id)
+                if self.enforce_league_coherence:
+                    league_slots[(existing.course_code, existing.league_id)].add(ts_id)
         
         # Filtrar candidatos que violan restricciones duras
         valid_candidates = []
@@ -452,161 +559,298 @@ class ACOEngine:
                 is_virtual_candidate = True
             else:
                 classroom_id = self.graph_builder.idx_to_classroom_id[classroom_idx]
-                is_virtual_candidate = False
-            
-            timeslot_start_id = self.graph_builder.idx_to_timeslot_id[timeslot_idx]
-            
-            # Obtener duración
-            duracion = self.graph_builder.section_durations.get(section_id, 1)
-            
-            # Buscar bloques consecutivos necesarios
-            start_ts = self.hard_validator.timeslots[timeslot_start_id]
-            timeslot_sequence = self._get_consecutive_timeslots(
-                start_ts.dia_semana,
-                start_ts.orden,
-                duracion,
-            )
-            
-            if not timeslot_sequence or timeslot_sequence[0] != timeslot_start_id:
-                debug(
-                    f"✂️  Bloques insuficientes (duración {duracion}) para prof {professor_id}, aula {classroom_id}, inicio {timeslot_start_id}"
-                )
-                continue  # No hay bloques consecutivos suficientes
-            
-            # OPTIMIZACIÓN: Validación rápida de conflictos
-            needed_slots_set = set(timeslot_sequence)
+                # Filtrar candidatos que violan restricciones duras, con relajación pedagógica opcional
+                def _evaluate_candidates(ped_limit: Optional[int]):
+                    valid: List[Tuple[int, int, int]] = []
+                    timeslot_map: Dict[Tuple[int, int, int], List[int]] = {}
+                    blocked_by_pedagogical = False
 
-            # Validación rápida: capacidad del aula (SOLO para cursos presenciales)
-            if not is_virtual_candidate:
-                classroom_info = self.hard_validator.classrooms.get(classroom_id)
-                if classroom_info and classroom_info.capacidad is not None and projected_students:
-                    if projected_students > classroom_info.capacidad:
-                        debug(
-                            f"🚷 Capacidad insuficiente aula {classroom_id} ({projected_students}>{classroom_info.capacidad})"
+                    for prof_idx, classroom_idx, timeslot_idx in candidates:
+                        professor_id = self.graph_builder.idx_to_professor_id[prof_idx]
+
+                        if classroom_idx == -1:
+                            classroom_id = None
+                            is_virtual_candidate = True
+                        else:
+                            classroom_id = self.graph_builder.idx_to_classroom_id[classroom_idx]
+                            is_virtual_candidate = False
+
+                        timeslot_start_id = self.graph_builder.idx_to_timeslot_id[timeslot_idx]
+                        duracion = self.graph_builder.section_durations.get(section_id, 1)
+                        start_ts = self.hard_validator.timeslots[timeslot_start_id]
+                        timeslot_sequence = self._get_consecutive_timeslots(
+                            start_ts.dia_semana,
+                            start_ts.orden,
+                            duracion,
                         )
-                        continue
 
-            # Validación rápida: conflictos curriculares (mismo ciclo)
-            has_curriculum_conflict = False
-            for ts_id in timeslot_sequence:
-                existing_course_league = curriculum_slots.get((ciclo, ts_id))
-                if existing_course_league is None:
-                    continue
+                        if not timeslot_sequence or timeslot_sequence[0] != timeslot_start_id:
+                            debug(
+                                f"[BLOQUES]  Bloques insuficientes (duración {duracion}) para prof {professor_id}, aula {classroom_id}, inicio {timeslot_start_id}"
+                            )
+                            continue
 
-                existing_course, existing_league = existing_course_league
+                        if ped_limit is not None:
+                            candidate_rank = self.hard_validator._timeslot_rank(start_ts)
+                            if candidate_rank <= ped_limit:
+                                blocked_by_pedagogical = True
+                                debug(
+                                    f"[PEDAGOGICO] Franjas {timeslot_sequence} ocurren antes del requisito mínimo {ped_limit}"
+                                )
+                                continue
 
-                # Si coincide el mismo curso, dejamos que coherencia de liga maneje el solape.
-                if existing_course == course_code:
-                    continue
+                        needed_slots_set = set(timeslot_sequence)
 
-                # Replicar la lógica del validador duro: solo bloquear si la liga coincide
-                # (o si alguna liga es desconocida).
-                if league_id is None or existing_league is None:
-                    relevant_overlap = True
+                        if not is_virtual_candidate:
+                            classroom_info = self.hard_validator.classrooms.get(classroom_id)
+                            if classroom_info and classroom_info.capacidad is not None and projected_students:
+                                if projected_students > classroom_info.capacidad:
+                                    debug(
+                                        f"[CAPACIDAD] Capacidad insuficiente aula {classroom_id} ({projected_students}>{classroom_info.capacidad})"
+                                    )
+                                    continue
+
+                        has_curriculum_conflict = False
+                        for ts_id in timeslot_sequence:
+                            existing_course_league = curriculum_slots.get((ciclo, ts_id))
+                            if existing_course_league is None:
+                                continue
+
+                            existing_course, existing_league = existing_course_league
+
+                            if existing_course == course_code:
+                                continue
+
+                            if league_id is None or existing_league is None:
+                                relevant_overlap = True
+                            else:
+                                relevant_overlap = existing_league == league_id
+
+                            if not relevant_overlap:
+                                continue
+
+                            has_curriculum_conflict = True
+                            debug(
+                                f"[CURRICULA] Conflicto curricular en ciclo {ciclo} con curso {existing_course} liga {existing_league} en franja {ts_id}"
+                            )
+                            break
+                        if has_curriculum_conflict:
+                            continue
+
+                        league_key = (course_code, league_id)
+                        # MEJORA: Para secciones críticas, PERMITIR solapamiento de liga si es necesario
+                        if self.enforce_league_coherence and not is_critical:
+                            overlap = league_slots.get(league_key, set()) & needed_slots_set
+                            if overlap:
+                                debug(
+                                    f"[LIGA]  Cruce con liga {league_key} en franjas {sorted(overlap)}"
+                                )
+                                continue
+                        elif is_critical and self.enforce_league_coherence:
+                            # Para críticos: advertir pero NO bloquear
+                            overlap = league_slots.get(league_key, set()) & needed_slots_set
+                            if overlap:
+                                debug(
+                                    f"[LIGA] (PERMITIDO para crítico) Cruce con liga {league_key} en franjas {sorted(overlap)}"
+                                )
+
+                        if professor_id in occupied_timeslots_by_prof:
+                            if occupied_timeslots_by_prof[professor_id] & needed_slots_set:
+                                debug(
+                                    f"[PROFESOR_OCUPADO] Profesor {professor_id} ocupado en franjas {sorted(occupied_timeslots_by_prof[professor_id] & needed_slots_set)}"
+                                )
+                                continue
+
+                        prof_restrictions = self.hard_validator.professor_restrictions.get(professor_id, [])
+                        if prof_restrictions:
+                            violates_restriction = False
+                            for ts_id in timeslot_sequence:
+                                ts = self.hard_validator.timeslots[ts_id]
+                                for restriction in prof_restrictions:
+                                    if (restriction.dia_semana == ts.dia_semana and 
+                                        self.hard_validator._time_overlaps(
+                                            ts.hora_inicio, ts.hora_fin,
+                                            restriction.hora_inicio, restriction.hora_fin
+                                        )):
+                                        debug(
+                                            f"[RESTRICCION_PROF] Profesor {professor_id} NO disponible {restriction.dia_semana} "
+                                            f"{restriction.hora_inicio}-{restriction.hora_fin} (franja {ts_id})"
+                                        )
+                                        violates_restriction = True
+                                        break
+                                if violates_restriction:
+                                    break
+                            if violates_restriction:
+                                continue
+
+                        if not is_virtual_candidate and classroom_id in occupied_timeslots_by_classroom:
+                            if occupied_timeslots_by_classroom[classroom_id] & needed_slots_set:
+                                debug(
+                                    f"[AULA] Aula {classroom_id} ocupada en franjas {sorted(occupied_timeslots_by_classroom[classroom_id] & needed_slots_set)}"
+                                )
+                                continue
+
+                        schedule_fingerprint = frozenset((a.section_id, a.professor_id, a.classroom_id, tuple(a.timeslot_ids)) 
+                                                        for a in current_schedule[-5:])
+                        cache_key = (section_id, professor_id, classroom_id, timeslot_start_id, schedule_fingerprint)
+
+                        if cache_key in self._validation_cache:
+                            if self._validation_cache[cache_key]:
+                                candidate_key = (prof_idx, classroom_idx, timeslot_idx)
+                                valid.append(candidate_key)
+                                timeslot_map[candidate_key] = timeslot_sequence
+                            continue
+
+                        assignment = self._build_assignment_object(
+                            section_id,
+                            prof_idx,
+                            classroom_idx,
+                            timeslot_idx,
+                            precomputed_timeslots=timeslot_sequence,
+                        )
+
+                        is_valid, error = self.hard_validator.validate_all(assignment, current_schedule)
+                        self._validation_cache[cache_key] = is_valid
+
+                        if is_valid:
+                            candidate_key = (prof_idx, classroom_idx, timeslot_idx)
+                            valid.append(candidate_key)
+                            timeslot_map[candidate_key] = timeslot_sequence
+                        else:
+                            debug(
+                                f"[X] Validación dura falló para prof {professor_id}, aula {classroom_id}, franjas {timeslot_sequence}: {error}"
+                            )
+
+                    return valid, timeslot_map, blocked_by_pedagogical
+
+                ped_limit = pedagogical_cutoff
+                candidate_timeslots: Dict[Tuple[int, int, int], List[int]] = {}
+                last_blocked_by_pedagogical = False
+                
+                # MEJORA: Secciones críticas obtienen más intentos de relajación y step más agresivo
+                if is_critical:
+                    relaxation_attempts = 8  # REDUCIDO para performance
+                    rank_step = 40  # AUMENTADO para menos pasos
+                    # Para críticos, habilitar relajación desde ciclo 1 (no solo ciclo 4+)
+                    min_cycle_for_relaxation = 1
                 else:
-                    relevant_overlap = existing_league == league_id
-
-                if not relevant_overlap:
-                    continue
-
-                has_curriculum_conflict = True
-                debug(
-                    f"🎓 Conflicto curricular en ciclo {ciclo} con curso {existing_course} liga {existing_league} en franja {ts_id}"
+                    relaxation_attempts = self.pedagogical_relaxation_attempts
+                    rank_step = self.pedagogical_relaxation_rank_step
+                    min_cycle_for_relaxation = self.pedagogical_relaxation_min_cycle
+                
+                relaxation_enabled = (
+                    ped_limit is not None
+                    and ciclo_numeric is not None
+                    and ciclo_numeric >= min_cycle_for_relaxation
+                    and relaxation_attempts > 0
                 )
-                break
-            if has_curriculum_conflict:
-                continue
+                attempts_left = relaxation_attempts if relaxation_enabled else 0
+                current_rank_step = rank_step
 
-            # Validación rápida: coherencia de liga (misma liga no se solapa)
-            league_key = (course_code, league_id)
-            if league_slots.get(league_key) and league_slots[league_key] & needed_slots_set:
-                debug(
-                    f"🏷️  Cruce con liga {league_key} en franjas {sorted(league_slots[league_key] & needed_slots_set)}"
-                )
-                continue
-            
-            # Check profesor ocupado
-            if professor_id in occupied_timeslots_by_prof:
-                if occupied_timeslots_by_prof[professor_id] & needed_slots_set:
-                    debug(
-                        f"👨‍🏫 Profesor {professor_id} ocupado en franjas {sorted(occupied_timeslots_by_prof[professor_id] & needed_slots_set)}"
+                while True:
+                    valid_candidates, candidate_timeslots, last_blocked_by_pedagogical = _evaluate_candidates(ped_limit)
+                    if valid_candidates:
+                        break
+
+                    should_attempt_relaxation = (
+                        relaxation_enabled
+                        and ped_limit is not None
+                        and attempts_left > 0
                     )
-                    continue  # Profesor ya ocupado en estos horarios
-            
-            # Check aula ocupada (SOLO para cursos presenciales)
-            if not is_virtual_candidate and classroom_id in occupied_timeslots_by_classroom:
-                if occupied_timeslots_by_classroom[classroom_id] & needed_slots_set:
-                    debug(
-                        f"🏫 Aula {classroom_id} ocupada en franjas {sorted(occupied_timeslots_by_classroom[classroom_id] & needed_slots_set)}"
-                    )
-                    continue  # Aula ya ocupada
-            
-            # OPTIMIZACIÓN: Usar caché de validación completa
-            schedule_fingerprint = frozenset((a.section_id, a.professor_id, a.classroom_id, tuple(a.timeslot_ids)) 
-                                            for a in current_schedule[-5:])  # REDUCIDO: Solo últimas 5 para más velocidad
-            cache_key = (section_id, professor_id, classroom_id, timeslot_start_id, schedule_fingerprint)
-            
-            if cache_key in self._validation_cache:
-                if self._validation_cache[cache_key]:
-                    candidate_key = (prof_idx, classroom_idx, timeslot_idx)
-                    valid_candidates.append(candidate_key)
-                    candidate_timeslots[candidate_key] = timeslot_sequence
-                continue
-            
-            # Construir Assignment solo si pasó validaciones rápidas
-            assignment = self._build_assignment_object(
-                section_id,
-                prof_idx,
-                classroom_idx,
-                timeslot_idx,
-                precomputed_timeslots=timeslot_sequence,
-            )
-            
-            # Validación completa
-            is_valid, error = self.hard_validator.validate_all(assignment, current_schedule)
-            
-            # Guardar en caché
-            self._validation_cache[cache_key] = is_valid
-            
-            if is_valid:
-                candidate_key = (prof_idx, classroom_idx, timeslot_idx)
-                valid_candidates.append(candidate_key)
-                candidate_timeslots[candidate_key] = timeslot_sequence
+
+                    if not should_attempt_relaxation:
+                        break
+
+                    if not last_blocked_by_pedagogical:
+                        debug(
+                            "[PEDAGOGICO] No quedan combinaciones válidas posteriores; relajamos requisito aunque otras restricciones también bloqueen"
+                        )
+
+                    attempts_left -= 1
+                    prev_limit = ped_limit
+                    if ped_limit is None or current_rank_step <= 0:
+                        ped_limit = None
+                    else:
+                        ped_limit -= current_rank_step
+                        if ped_limit < 0:
+                            ped_limit = None
+
+                    if ped_limit is None:
+                        debug("[PEDAGOGICO] Sin franjas posteriores compatibles; se desactiva el requisito pedagógico para esta sección")
+                    else:
+                        debug(
+                            f"[PEDAGOGICO] Relajamos rank mínimo de {prev_limit} a {ped_limit} para sección {section_id}"
+                        )
+
+                if not valid_candidates:
+                    if last_blocked_by_pedagogical and pedagogical_cutoff is not None:
+                        debug("[PEDAGOGICO] Incluso tras relajar no se encontraron franjas válidas")
+                    debug("[BLOQUEADO] Sin candidatos válidos tras validaciones duras")
+                    return None
+
+                # Seleccionar usando feromona + heurística (regla de transición ACO)
+                selected = self._select_assignment(section_id, valid_candidates, ant_id)
+                prof_id = self.graph_builder.idx_to_professor_id[selected[0]]
+                classroom_id_str = "VIRTUAL (sin aula)" if selected[1] == -1 else str(self.graph_builder.idx_to_classroom_id[selected[1]])
+                timeslot_id = self.graph_builder.idx_to_timeslot_id[selected[2]]
+
                 debug(
-                    f"✅ Candidato válido con prof {professor_id}, aula {classroom_id}, franjas {timeslot_sequence}"
+                    f"⭐ Sección {section_id} asignada con prof {prof_id}, "
+                    f"aula {classroom_id_str}, franja inicial {timeslot_id}"
                 )
-            else:
-                debug(
-                    f"⛔️ Validación dura falló para prof {professor_id}, aula {classroom_id}, franjas {timeslot_sequence}: {error}"
+                return self._build_assignment_object(
+                    section_id,
+                    selected[0],
+                    selected[1],
+                    selected[2],
+                    precomputed_timeslots=candidate_timeslots.get(selected),
                 )
-        
-        if not valid_candidates:
-            debug("🚫 Sin candidatos válidos tras validaciones duras")
+
+    def _compute_pedagogical_cutoff(
+        self,
+        course_code: str,
+        league_id: int,
+        session_type: str,
+        current_schedule: List[Assignment],
+    ) -> Optional[int]:
+        """Obtiene el rank mínimo permitido según sesiones predecesoras ya asignadas."""
+        session_type = (session_type or "T").upper()
+        if session_type == "T":
             return None
-        
-        # Seleccionar usando feromona + heurística (regla de transición ACO)
-        selected = self._select_assignment(section_id, valid_candidates, ant_id)
-        
-        # Construir Assignment final
-        prof_id = self.graph_builder.idx_to_professor_id[selected[0]]
-        classroom_id_str = "VIRTUAL (sin aula)" if selected[1] == -1 else str(self.graph_builder.idx_to_classroom_id[selected[1]])
-        timeslot_id = self.graph_builder.idx_to_timeslot_id[selected[2]]
-        
-        debug(
-            f"⭐ Sección {section_id} asignada con prof {prof_id}, "
-            f"aula {classroom_id_str}, franja inicial {timeslot_id}"
-        )
-        return self._build_assignment_object(
-            section_id,
-            selected[0],
-            selected[1],
-            selected[2],
-            precomputed_timeslots=candidate_timeslots.get(selected),
-        )
+
+        if session_type == "P":
+            required = {"T"}
+        else:  # L
+            required = {"P"}
+            # Si no existe práctica asignada, usar teoría como fallback
+            has_practica = any(
+                a.course_code == course_code and a.league_id == league_id and a.session_type == "P"
+                for a in current_schedule
+            )
+            if not has_practica:
+                required.add("T")
+
+        latest_rank: Optional[int] = None
+        for assignment in current_schedule:
+            if assignment.course_code != course_code or assignment.league_id != league_id:
+                continue
+            if assignment.session_type not in required:
+                continue
+
+            rank = self.hard_validator._assignment_start_rank(assignment)
+            if rank is None:
+                continue
+
+            if latest_rank is None or rank > latest_rank:
+                latest_rank = rank
+
+        return latest_rank
     
     def _get_candidate_assignments(
         self,
         section_id: int,
+        min_start_rank: Optional[int] = None,
+        is_critical: bool = False,
     ) -> List[Tuple[int, int, int]]:
         """
         Obtiene las asignaciones candidatas para una sección.
@@ -616,9 +860,19 @@ class ACOEngine:
         - section -> classroom
         - section -> timeslot
         
+        Args:
+            section_id: ID de la sección
+            min_start_rank: Rank mínimo pedagógico (si aplica)
+            is_critical: Si True, amplía límites de exploración para secciones críticas
+        
         Returns:
             Lista de (prof_idx, classroom_idx, timeslot_idx)
         """
+        if min_start_rank is None and not is_critical:
+            cached = self._candidate_cache.get(section_id)
+            if cached is not None:
+                return cached
+
         sec_idx = self.graph_builder.section_id_to_idx[section_id]
         
         # Obtener profesores candidatos (desde aristas del grafo)
@@ -642,14 +896,19 @@ class ACOEngine:
         else:
             timeslot_candidates = []
         
-        # Producto cartesiano (limitado para eficiencia)
-        candidates: List[Tuple[int, int, int]] = []
-
-        # Opcional: mezclar candidatos para repartir carga entre hormigas
-        if self.params.get("shuffle_candidates", True):
+        shuffle_enabled = self.params.get("shuffle_candidates", True)
+        if shuffle_enabled:
             random.shuffle(prof_candidates)
             random.shuffle(classroom_candidates)
-            random.shuffle(timeslot_candidates)
+
+        ordered_timeslots = self._order_timeslot_candidates(
+            timeslot_candidates,
+            min_start_rank,
+            shuffle_enabled,
+        )
+
+        # Producto cartesiano (limitado para eficiencia)
+        candidates: List[Tuple[int, int, int]] = []
 
         max_profs = min(
             len(prof_candidates),
@@ -660,21 +919,27 @@ class ACOEngine:
             self.params.get("max_classrooms_per_section", len(classroom_candidates)),
         )
 
-        # Escalar la cuota de franjas según la duración para evitar que sesiones largas
-        # exploren únicamente los primeros bloques y fallen por conflictos triviales.
+        # MEJORA: Secciones críticas obtienen más slots de tiempo para explorar
         base_timeslot_limit = self.params.get("max_timeslots_per_section")
-        if base_timeslot_limit is None or base_timeslot_limit <= 0:
-            max_timeslots = len(timeslot_candidates)
+        if is_critical:
+            # Críticos: explorar hasta 18 franjas (1.5x normal de 12) - REDUCIDO para performance
+            max_timeslots = min(len(ordered_timeslots), 18)
+        elif min_start_rank is not None:
+            max_timeslots = len(ordered_timeslots)
+        elif base_timeslot_limit is None or base_timeslot_limit <= 0:
+            max_timeslots = len(ordered_timeslots)
         else:
             duration = max(1, self.graph_builder.section_durations.get(section_id, 1))
             scaled_limit = base_timeslot_limit * duration
-            max_timeslots = min(len(timeslot_candidates), scaled_limit)
+            max_timeslots = min(len(ordered_timeslots), scaled_limit)
 
         if max_profs == 0 or max_classrooms == 0 or max_timeslots == 0:
             return candidates
 
         total_possible = max_profs * max_classrooms * max_timeslots
-        requested_max = self.params.get("max_candidate_combinations", 1200)
+        # MEJORA: Secciones críticas obtienen 1.5x combinaciones (900 vs 600) - REDUCIDO para performance
+        base_max_combinations = self.params.get("max_candidate_combinations", 600)
+        requested_max = int(base_max_combinations * 1.5) if is_critical else base_max_combinations
         if requested_max is None or requested_max <= 0:
             max_candidates = total_possible
         else:
@@ -684,7 +949,7 @@ class ACOEngine:
         remainder = max_candidates % max_profs
 
         classroom_subset = classroom_candidates[:max_classrooms]
-        timeslot_subset = timeslot_candidates[:max_timeslots]
+        timeslot_subset = ordered_timeslots[:max_timeslots]
 
         for idx, prof_idx in enumerate(prof_candidates[:max_profs]):
             quota = per_prof_base + (1 if idx < remainder else 0)
@@ -703,11 +968,25 @@ class ACOEngine:
                 if len(candidates) >= max_candidates or added >= quota:
                     break
 
+        if not candidates:
+            metadata_check = self.graph_builder.section_metadata.get(section_id, {})
+            modalidad_check = metadata_check.get("modalidad", "").upper()
+            if modalidad_check == "NO_PRESENCIAL":
+                candidates = self._generate_virtual_candidates(
+                    section_id,
+                    min_start_rank=min_start_rank,
+                )
+
+        # No cachear secciones críticas para que siempre usen límites ampliados
+        if min_start_rank is None and not is_critical:
+            self._candidate_cache[section_id] = candidates
+
         return candidates
     
     def _generate_virtual_candidates(
         self,
         section_id: int,
+        min_start_rank: Optional[int] = None,
     ) -> List[Tuple[int, int, int]]:
         """
         Genera candidatos para cursos virtuales (NO_PRESENCIAL).
@@ -734,12 +1013,17 @@ class ACOEngine:
         else:
             timeslot_candidates = []
         
+        shuffle_enabled = self.params.get("shuffle_candidates", True)
+        if shuffle_enabled:
+            random.shuffle(prof_candidates)
+        ordered_timeslots = self._order_timeslot_candidates(
+            timeslot_candidates,
+            min_start_rank,
+            shuffle_enabled,
+        )
+        
         # Producto cartesiano prof × timeslot (sin aula)
         candidates: List[Tuple[int, int, int]] = []
-        
-        if self.params.get("shuffle_candidates", True):
-            random.shuffle(prof_candidates)
-            random.shuffle(timeslot_candidates)
         
         max_profs = min(
             len(prof_candidates),
@@ -747,21 +1031,76 @@ class ACOEngine:
         )
         
         base_timeslot_limit = self.params.get("max_timeslots_per_section")
-        if base_timeslot_limit is None or base_timeslot_limit <= 0:
-            max_timeslots = len(timeslot_candidates)
+        if min_start_rank is not None:
+            max_timeslots = len(ordered_timeslots)
+        elif base_timeslot_limit is None or base_timeslot_limit <= 0:
+            max_timeslots = len(ordered_timeslots)
         else:
             duration = max(1, self.graph_builder.section_durations.get(section_id, 1))
             scaled_limit = base_timeslot_limit * duration
-            max_timeslots = min(len(timeslot_candidates), scaled_limit)
+            max_timeslots = min(len(ordered_timeslots), scaled_limit)
         
         # Para cursos virtuales, usamos -1 como índice de "sin aula"
         VIRTUAL_CLASSROOM_IDX = -1
-        
+        ordered_subset = ordered_timeslots[:max_timeslots]
         for prof_idx in prof_candidates[:max_profs]:
-            for timeslot_idx in timeslot_candidates[:max_timeslots]:
+            for timeslot_idx in ordered_subset:
                 candidates.append((prof_idx, VIRTUAL_CLASSROOM_IDX, timeslot_idx))
         
         return candidates
+    
+    def _has_candidate_after_rank(
+        self,
+        candidates: List[Tuple[int, int, int]],
+        min_rank: int,
+    ) -> bool:
+        """Detecta si algún candidato comienza después del rank indicado."""
+        for _, _, timeslot_idx in candidates:
+            candidate_rank = self._timeslot_rank_from_idx(timeslot_idx)
+            if candidate_rank is not None and candidate_rank > min_rank:
+                return True
+        return False
+
+    def _order_timeslot_candidates(
+        self,
+        timeslot_candidates: List[int],
+        min_start_rank: Optional[int],
+        shuffle_enabled: bool,
+    ) -> List[int]:
+        """Prioriza franjas posteriores al rank pedagógico requerido."""
+        if not timeslot_candidates:
+            return []
+
+        if min_start_rank is None:
+            ordered = list(timeslot_candidates)
+            if shuffle_enabled:
+                random.shuffle(ordered)
+            return ordered
+
+        later: List[int] = []
+        earlier_or_unknown: List[int] = []
+        for ts_idx in timeslot_candidates:
+            rank = self._timeslot_rank_from_idx(ts_idx)
+            if rank is None or rank <= min_start_rank:
+                earlier_or_unknown.append(ts_idx)
+            else:
+                later.append(ts_idx)
+
+        if shuffle_enabled:
+            random.shuffle(later)
+            random.shuffle(earlier_or_unknown)
+
+        return later + earlier_or_unknown
+
+    def _timeslot_rank_from_idx(self, timeslot_idx: int) -> Optional[int]:
+        """Mapea un índice de grafo a su rank lineal día/orden."""
+        timeslot_id = self.graph_builder.idx_to_timeslot_id.get(timeslot_idx)
+        if timeslot_id is None:
+            return None
+        timeslot = self.hard_validator.timeslots.get(timeslot_id)
+        if timeslot is None:
+            return None
+        return self.hard_validator._timeslot_rank(timeslot)
     
     def _get_virtual_candidates(
         self,
@@ -839,9 +1178,18 @@ class ACOEngine:
             for candidate in candidates
         ])
         
-        # Obtener heurística neural
+        # OPTIMIZACIÓN TEMPORAL: Usar solo feromonas sin GNN (muy lento en CPU)
+        # Heurística simple basada en disponibilidad
         sec_idx = self.graph_builder.section_id_to_idx[section_id]
-        heuristics = self.model.get_heuristic_matrix(self.graph, sec_idx, candidates)
+        
+        # Heurística simple: preferir primeros timeslots disponibles
+        heuristics = np.array([
+            1.0 / (1.0 + timeslot_idx * 0.01)  # Decae levemente con timeslot más tardíos
+            for _, _, timeslot_idx in candidates
+        ])
+        
+        # DESCOMENTAR para usar GraphSAGE (requiere GPU o mucho tiempo):
+        # heuristics = self.model.get_heuristic_matrix(self.graph, sec_idx, candidates)
         
         # Calcular probabilidades: P ∝ τ^α · η^β
         values = (pheromones ** self.alpha) * (heuristics ** self.beta)

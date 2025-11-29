@@ -220,3 +220,7 @@ model_checkpoints/
 *.xls
 !examples/*.xlsx
 !templates/*.xlsx
+
+# Generated schedules and exports
+resultados/horarios/
+!resultados/horarios/.gitkeep

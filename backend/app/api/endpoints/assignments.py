@@ -89,7 +89,9 @@ class ProfessorCourseAssignmentBase(BaseModel):
         resolved = _resolve_session_type(value)
         if not resolved:
             raise ValueError("Invalid session type")
-        return resolved[0]
+        # Retornar el label en minúsculas para que coincida con el ENUM de la BD
+        # resolved = ('T', 'Teoria') -> retornar 'teoria'
+        return resolved[1].lower()
 
     @validator("league")
     def validate_league(cls, value: Optional[int]) -> int:
@@ -398,7 +400,7 @@ def _build_capacity_by_league(
         """
         SELECT tipo, seccion, league, nrc
         FROM course_sections
-        WHERE course_id = :course_id AND activa = 1
+        WHERE course_id = :course_id AND active = 1
         ORDER BY id
         """
     )
@@ -408,13 +410,26 @@ def _build_capacity_by_league(
         resolved = _resolve_session_type(raw_type)
         if not resolved:
             continue
-        session_type = resolved[0]
+        session_type = resolved[0]  # Use short code: 'T', 'P', 'L'
         sections_by_type[session_type].append(
             {"seccion": seccion, "nrc": nrc, "league": league}
         )
 
     _session_summary, _league_details, capacity = _build_course_layout(desired_counts, sections_by_type)
-    return capacity
+    
+    # DEBUG: Print what capacity was built
+    print(f"\n🔍 DEBUG _build_capacity_by_league:")
+    print(f"   Built capacity: {capacity}")
+    
+    # Convert capacity keys from short codes to full names to match validator
+    converted_capacity: Dict[Tuple[str, int], int] = {}
+    code_to_name = {'T': 'teoria', 'P': 'practica', 'L': 'laboratorio'}
+    for (code, league), count in capacity.items():
+        full_name = code_to_name.get(code, code)
+        converted_capacity[(full_name, league)] = count
+    
+    print(f"   Converted capacity: {converted_capacity}")
+    return converted_capacity
 
 
 def _synchronize_assignments_with_sections(
@@ -472,6 +487,11 @@ def _validate_assignment_capacity(
 ) -> None:
     """Ensure assignments respect the per-league capacity derived from NRC counts."""
 
+    # DEBUG: Print capacity dict
+    print(f"\n🔍 DEBUG _validate_assignment_capacity:")
+    print(f"   Capacity dict: {capacity}")
+    print(f"   Assignments count: {len(list(assignments)) if hasattr(assignments, '__len__') else 'N/A'}")
+    
     if not capacity:
         raise HTTPException(
             status_code=400,
@@ -482,8 +502,12 @@ def _validate_assignment_capacity(
     for item in assignments:
         league_id = int(item.league or 1)
         key = (item.session_type, league_id)
+        print(f"   Checking assignment: session_type='{item.session_type}', league={league_id}, key={key}")
         max_slots = capacity.get(key)
+        print(f"     → max_slots from capacity: {max_slots}")
         if not max_slots:
+            print(f"     → ERROR: Key {key} not found in capacity!")
+            print(f"     → Available keys: {list(capacity.keys())}")
             raise HTTPException(
                 status_code=400,
                 detail=(
@@ -730,7 +754,15 @@ async def get_all_assignments(db: Session = Depends(get_db)) -> List[ProfessorCo
     )
     result = db.execute(query)
     assignments: List[ProfessorCourseAssignmentResponse] = []
+    
+    # Map para convertir de nombres completos (BD) a códigos cortos (frontend)
+    name_to_code = {'teoria': 'T', 'practica': 'P', 'laboratorio': 'L'}
+    
     for row in result:
+        # Convertir session_type de 'teoria' → 'T' para el frontend
+        db_session_type = row[6]
+        frontend_session_type = name_to_code.get(db_session_type, db_session_type)
+        
         assignments.append(
             ProfessorCourseAssignmentResponse(
                 assignment_id=row[0],
@@ -739,7 +771,7 @@ async def get_all_assignments(db: Session = Depends(get_db)) -> List[ProfessorCo
                 course_id=row[3],
                 course_code=row[4],
                 course_name=row[5],
-                session_type=row[6],
+                session_type=frontend_session_type,  # Usar código corto
                 league=row[7],
                 semestre=row[8],
             )
@@ -770,20 +802,22 @@ async def get_courses_with_assignments(db: Session = Depends(get_db)) -> List[Co
         """
     )
     course_rows = list(db.execute(courses_query))
-    any_cleansed = False
-    for course_row in course_rows:
-        course_id = course_row[0]
-        _capacity, cleaned = _synchronize_assignments_with_sections(db, course_id)
-        if cleaned:
-            any_cleansed = True
-    if any_cleansed:
-        db.commit()
+    # NOTA: Sincronización automática deshabilitada para evitar borrado no intencional
+    # Se puede habilitar manualmente cuando sea necesario limpiar asignaciones obsoletas
+    # any_cleansed = False
+    # for course_row in course_rows:
+    #     course_id = course_row[0]
+    #     _capacity, cleaned = _synchronize_assignments_with_sections(db, course_id)
+    #     if cleaned:
+    #         any_cleansed = True
+    # if any_cleansed:
+    #     db.commit()
 
     sections_query = text(
         """
         SELECT course_id, tipo, seccion, COALESCE(league, 1) AS league, nrc
         FROM course_sections
-        WHERE activa = 1
+        WHERE active = 1
         ORDER BY course_id, tipo, seccion, id
         """
     )
@@ -816,12 +850,20 @@ async def get_courses_with_assignments(db: Session = Depends(get_db)) -> List[Co
 
     assignments_result = db.execute(assignments_query)
     assignments_by_course: Dict[int, List[CourseAssignmentSummary]] = defaultdict(list)
+    
+    # Map para convertir de nombres completos (BD) a códigos cortos (frontend)
+    name_to_code = {'teoria': 'T', 'practica': 'P', 'laboratorio': 'L'}
+    
     for row in assignments_result:
+        # Convertir session_type de 'teoria' → 'T' para el frontend
+        db_session_type = row[2]
+        frontend_session_type = name_to_code.get(db_session_type, db_session_type)
+        
         assignments_by_course[row[1]].append(
             CourseAssignmentSummary(
                 assignment_id=row[0],
                 course_id=row[1],
-                session_type=row[2],
+                session_type=frontend_session_type,  # Usar código corto
                 league=row[3],
                 professor_id=row[4],
                 professor_name=row[5],
@@ -882,7 +924,8 @@ async def get_courses_with_assignments(db: Session = Depends(get_db)) -> List[Co
 async def create_assignment(
     assignment: ProfessorCourseAssignmentCreate, db: Session = Depends(get_db)
 ) -> ProfessorCourseAssignmentResponse:
-    capacity, _ = _synchronize_assignments_with_sections(db, assignment.course_id)
+    # NOTA: No sincronizar automáticamente en POST para evitar borrado no intencional
+    capacity = _build_capacity_by_league(db, assignment.course_id)
     if not capacity:
         raise HTTPException(
             status_code=400,
@@ -985,7 +1028,8 @@ async def update_course_assignments(
     if not course_exists:
         raise HTTPException(status_code=404, detail="Course not found")
 
-    capacity, _ = _synchronize_assignments_with_sections(db, course_id)
+    # NOTA: No sincronizar para evitar borrado. Solo validar capacidad.
+    capacity = _build_capacity_by_league(db, course_id)
     _validate_assignment_capacity(payload.assignments, capacity)
 
     delete_query = text("DELETE FROM professor_course_assignments WHERE course_id = :course_id")
