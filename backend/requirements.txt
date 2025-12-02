@@ -6,7 +6,6 @@ python-multipart==0.0.6
 # Authentication
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
-python-multipart==0.0.6
 
 # Database
 SQLAlchemy==2.0.23
@@ -51,8 +50,3 @@ mypy==1.7.1
 # Optional: Jupyter for data analysis
 jupyter==1.0.0
 ipykernel==6.26.0
-
-# CORS and security
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-bcrypt==4.1.2
