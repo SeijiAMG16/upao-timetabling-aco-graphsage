@@ -68,26 +68,26 @@ async def ejecutar_generacion_completa():
         
         logger.info(f"[DEBUG] Ejecutando script: {aco_script}")
         logger.info(f"[DEBUG] Directorio de trabajo: {backend_dir}")
-        logger.info(f"[DEBUG] Parámetros: 10 hormigas, 20 iteraciones")
+        logger.info(f"[DEBUG] Parámetros: 3 hormigas, 8 iteraciones (optimizado para cloud)")
         
-        # Usar stdout=None y stderr=None para ver los logs en tiempo real
+        # Parámetros reducidos para evitar OOM en DigitalOcean App Platform
         result_aco = subprocess.run(
             [
                 "python", str(aco_script),
-                "--hormigas", "10",           # 10 ants per iteration
-                "--iteraciones", "20",        # 20 max iterations
+                "--hormigas", "3",            # Reducido de 10 a 3 (menos memoria)
+                "--iteraciones", "8",         # Reducido de 20 a 8 (más rápido)
                 "--alpha", "1.0",              # Pheromone weight
                 "--beta", "2.3",               # Neural heuristic weight
                 "--rho", "0.2",                # Evaporation rate
                 "--q0", "0.88",                # Exploitation probability
-                "--patiencia", "6",            # Early stopping patience
-                "--max-candidatos", "600",     # Max candidate combinations
-                "--max-profesores", "6",       # Max professors per section
-                "--max-aulas", "12",           # Max classrooms per section
-                "--max-timeslots", "12"        # Max starting timeslots per section
+                "--patiencia", "4",            # Reducido de 6 a 4
+                "--max-candidatos", "300",     # Reducido de 600 a 300
+                "--max-profesores", "4",       # Reducido de 6 a 4
+                "--max-aulas", "8",            # Reducido de 12 a 8
+                "--max-timeslots", "8"         # Reducido de 12 a 8
             ],
             cwd=backend_dir,
-            timeout=600  # 10 minutes timeout
+            timeout=300  # 5 minutes timeout (reducido)
         )
         
         logger.info(f"[DEBUG] Script completado con código: {result_aco.returncode}")
