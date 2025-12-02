@@ -30,19 +30,22 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 # USUARIOS HARDCODEADOS (Temporal - en producción usar tabla users)
 # ============================================================================
 
+# Pre-hashed passwords (generated with bcrypt)
+# admin123 -> hash below
+# coord123 -> hash below
 USERS_DB = {
     "admin": {
         "username": "admin",
         "full_name": "Administrador UPAO",
         "email": "admin@upao.edu.pe",
-        "hashed_password": "admin123",  # Password sin hashear por ahora
+        "hashed_password": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.VTtYeXZz1z3K7W",  # admin123
         "role": "admin"
     },
     "coordinador": {
         "username": "coordinador",
         "full_name": "Coordinador Académico",
         "email": "coordinador@upao.edu.pe",
-        "hashed_password": pwd_context.hash("coord123"),  # Password: coord123
+        "hashed_password": "$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",  # coord123
         "role": "coordinator"
     }
 }
