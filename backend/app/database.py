@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.engine.url import make_url
 import os
+import ssl
 from typing import Generator
 
 # Database configuration
@@ -15,11 +16,28 @@ DATABASE_URL = os.getenv(
     "mysql+pymysql://root:sistemas@localhost:3306/upao_timetabling"
 )
 
+# Clean up URL for pymysql compatibility
+# DigitalOcean uses ssl-mode=REQUIRED but pymysql expects different SSL config
+if "ssl-mode=" in DATABASE_URL or "ssl_mode=" in DATABASE_URL:
+    # Remove ssl-mode parameter from URL, we'll handle SSL via connect_args
+    import re
+    DATABASE_URL = re.sub(r'[\?&]ssl[-_]mode=[^&]*', '', DATABASE_URL)
+    # Clean up any double ? or trailing ?
+    DATABASE_URL = DATABASE_URL.replace('?&', '?').rstrip('?')
+
 # Validamos que la URL de base de datos no use SQLite, ya que debemos operar solo con la BD oficial
 if make_url(DATABASE_URL).get_backend_name().startswith("sqlite"):
     raise RuntimeError(
         "DATABASE_URL apunta a SQLite; configure credenciales MySQL para usar la base de datos oficial"
     )
+
+# Configure SSL for DigitalOcean Managed MySQL
+ssl_args = {}
+if "ondigitalocean.com" in DATABASE_URL or "REQUIRE" in os.getenv("DATABASE_URL", ""):
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    ssl_args = {"ssl": ssl_context}
 
 # Engine configuration
 engine = create_engine(
@@ -27,6 +45,7 @@ engine = create_engine(
     echo=False,  # Disabled for ACO execution (too much output)
     pool_pre_ping=True,
     pool_recycle=300,
+    connect_args=ssl_args,
 )
 
 # Session factory
