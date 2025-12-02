@@ -33,10 +33,13 @@ app = FastAPI(
 
 # CORS middleware
 # Obtener origins desde variable de entorno o usar defaults para desarrollo
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:5173").split(",")
+default_origins = "http://localhost:3000,http://localhost:3001,http://localhost:5173,https://upao-timetabling-99157d62b924.herokuapp.com"
+cors_origins = os.getenv("CORS_ORIGINS", default_origins).split(",")
+# En producción, permitir cualquier origen de herokuapp.com
+cors_origins.append("https://*.herokuapp.com")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=["*"],  # Temporarily allow all origins for testing
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

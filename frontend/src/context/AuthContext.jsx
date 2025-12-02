@@ -1,6 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -26,7 +28,7 @@ export const AuthProvider = ({ children }) => {
       formData.append('username', username);
       formData.append('password', password);
 
-      const response = await axios.post('http://localhost:8001/api/auth/login', formData, {
+      const response = await axios.post(`${API_BASE}/api/auth/login`, formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       });
 

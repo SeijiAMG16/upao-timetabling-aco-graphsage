@@ -11,7 +11,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import BlockIcon from '@mui/icons-material/Block';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8001/api';
+const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}/api`;
 
 export default function ProfessorsUpload() {
   const [file, setFile] = useState(null);
