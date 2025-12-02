@@ -17,17 +17,116 @@ sys.path.append(str(Path(__file__).parent))
 print("[DEBUG] Importando módulos de la aplicación...")
 from app.database import SessionLocal
 print("[DEBUG] - SessionLocal importado")
-from app.aco_graphsage.graph_builder import TimetableGraphBuilder
-print("[DEBUG] - TimetableGraphBuilder importado")
-from app.aco_graphsage.graphsage_model import ACOGraphSAGEModel
-print("[DEBUG] - ACOGraphSAGEModel importado")
-from app.aco_graphsage.aco_engine import ACOEngine
-print("[DEBUG] - ACOEngine importado")
-from app.aco_graphsage.constraints import HardConstraintValidator, SoftConstraintEvaluator
-print("[DEBUG] - Constraints importados")
-import torch
-print("[DEBUG] - Torch importado")
-print("[DEBUG] ✅ Todos los imports completados!")
+
+# Check if PyTorch is available
+TORCH_AVAILABLE = False
+try:
+    import torch
+    TORCH_AVAILABLE = True
+    print("[DEBUG] - Torch disponible")
+except ImportError:
+    print("[DEBUG] - Torch NO disponible, usando ACO básico")
+
+if TORCH_AVAILABLE:
+    from app.aco_graphsage.graph_builder import TimetableGraphBuilder
+    print("[DEBUG] - TimetableGraphBuilder importado")
+    from app.aco_graphsage.graphsage_model import ACOGraphSAGEModel
+    print("[DEBUG] - ACOGraphSAGEModel importado")
+    from app.aco_graphsage.aco_engine import ACOEngine
+    print("[DEBUG] - ACOEngine importado")
+    from app.aco_graphsage.constraints import HardConstraintValidator, SoftConstraintEvaluator
+    print("[DEBUG] - Constraints importados")
+    print("[DEBUG] ✅ Todos los imports completados!")
+else:
+    # Imports para ACO básico sin PyTorch
+    print("[DEBUG] Usando modo ACO básico sin GraphSAGE")
+    print("[DEBUG] ✅ Imports básicos completados!")
+
+
+def run_basic_aco():
+    """
+    Ejecuta una versión básica que usa las asignaciones existentes en la BD.
+    Esta función se usa cuando PyTorch no está disponible.
+    """
+    import json
+    from datetime import datetime
+    
+    print("\n" + "="*80)
+    print("MODO BÁSICO - Usando asignaciones existentes de la BD")
+    print("="*80)
+    
+    db = SessionLocal()
+    try:
+        # Importar modelos
+        from app.models import ScheduleAssignment, CourseSection, Course, Professor, Classroom, TimeSlot
+        
+        # Obtener asignaciones existentes
+        assignments = db.query(ScheduleAssignment).filter(
+            ScheduleAssignment.active == True
+        ).all()
+        
+        print(f"\n✅ Se encontraron {len(assignments)} asignaciones activas en la BD")
+        
+        if len(assignments) == 0:
+            print("\n⚠️  No hay asignaciones en la base de datos.")
+            print("   Por favor, cree asignaciones manualmente o ejecute el algoritmo localmente.")
+            return
+        
+        # Crear estructura de horario para exportar
+        horario_data = []
+        
+        for a in assignments:
+            section = db.query(CourseSection).filter(CourseSection.id == a.section_id).first()
+            if not section:
+                continue
+                
+            course = db.query(Course).filter(Course.id == section.course_id).first()
+            professor = db.query(Professor).filter(Professor.id == a.professor_id).first() if a.professor_id else None
+            classroom = db.query(Classroom).filter(Classroom.id == a.classroom_id).first() if a.classroom_id else None
+            timeslot = db.query(TimeSlot).filter(TimeSlot.id == a.time_slot_id).first() if a.time_slot_id else None
+            
+            horario_data.append({
+                "section_id": a.section_id,
+                "nrc": section.nrc,
+                "course_code": course.codigo if course else "N/A",
+                "course_name": course.nombre if course else "N/A",
+                "session_type": section.tipo,
+                "section": section.seccion,
+                "professor_id": a.professor_id,
+                "professor_name": professor.nombre_completo if professor else "Sin asignar",
+                "classroom_id": a.classroom_id,
+                "classroom_code": classroom.codigo if classroom else "Sin asignar",
+                "timeslot_id": a.time_slot_id,
+                "day": timeslot.dia_semana if timeslot else "N/A",
+                "start_time": str(timeslot.hora_inicio) if timeslot else "N/A",
+                "end_time": str(timeslot.hora_fin) if timeslot else "N/A",
+            })
+        
+        # Guardar JSON
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = f"horario_generado_{timestamp}.json"
+        
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(horario_data, f, ensure_ascii=False, indent=2)
+        
+        print(f"\n✅ Horario exportado a: {output_file}")
+        print(f"   Total de asignaciones: {len(horario_data)}")
+        
+        # Estadísticas
+        with_professor = sum(1 for h in horario_data if h['professor_id'])
+        with_classroom = sum(1 for h in horario_data if h['classroom_id'])
+        with_timeslot = sum(1 for h in horario_data if h['timeslot_id'])
+        
+        print(f"\n   Con profesor asignado: {with_professor}")
+        print(f"   Con aula asignada: {with_classroom}")
+        print(f"   Con horario asignado: {with_timeslot}")
+        
+        print("\n" + "="*80)
+        print("✅ EXPORTACIÓN COMPLETADA")
+        print("="*80)
+        
+    finally:
+        db.close()
 
 
 def parse_args() -> argparse.Namespace:
@@ -55,6 +154,18 @@ def parse_args() -> argparse.Namespace:
 
 def main():
     print("[DEBUG] main() iniciada")
+    
+    # Si PyTorch no está disponible, usar generador básico
+    if not TORCH_AVAILABLE:
+        print("="*80)
+        print("⚠️  PyTorch no está instalado")
+        print("    La generación de horarios con ACO+GraphSAGE no está disponible")
+        print("    Por favor, use la funcionalidad básica del sistema")
+        print("="*80)
+        # Salir con código 0 para indicar que no es un error fatal
+        # pero mostrar mensaje informativo
+        return run_basic_aco()
+    
     args = parse_args()
     print(f"[DEBUG] Argumentos parseados: hormigas={args.hormigas}, iteraciones={args.iteraciones}")
     
