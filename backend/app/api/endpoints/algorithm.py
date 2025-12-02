@@ -18,6 +18,7 @@ from app.aco_graphsage import (
     generate_timetable,
     ACO_PARAMS,
     LOCAL_SEARCH_PARAMS,
+    TORCH_AVAILABLE,
 )
 
 
@@ -120,6 +121,14 @@ async def execute_algorithm(
     
     La ejecución se realiza en background. Use /status/{id} para monitorear.
     """
+    # Verificar si PyTorch está disponible
+    if not TORCH_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="El algoritmo ACO+GraphSAGE requiere PyTorch, que no está instalado en este servidor. "
+                   "Contacte al administrador para habilitar esta funcionalidad."
+        )
+    
     from app.models import AlgorithmExecution
     
     # Crear registro de ejecución
@@ -247,6 +256,14 @@ async def train_model(
     
     El entrenamiento se realiza en background.
     """
+    # Verificar si PyTorch está disponible
+    if not TORCH_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="El entrenamiento GraphSAGE requiere PyTorch, que no está instalado en este servidor. "
+                   "Contacte al administrador para habilitar esta funcionalidad."
+        )
+    
     from app.models import AlgorithmExecution
     
     # Crear registro
@@ -284,6 +301,20 @@ async def get_parameters():
     return {
         'aco': ACO_PARAMS,
         'local_search': LOCAL_SEARCH_PARAMS,
+        'torch_available': TORCH_AVAILABLE,
+    }
+
+
+@router.get("/health")
+async def algorithm_health():
+    """
+    Verifica el estado del módulo de algoritmo.
+    """
+    return {
+        'status': 'available' if TORCH_AVAILABLE else 'limited',
+        'torch_available': TORCH_AVAILABLE,
+        'message': 'ACO+GraphSAGE completamente funcional' if TORCH_AVAILABLE 
+                   else 'PyTorch no instalado - funcionalidad de algoritmo deshabilitada',
     }
 
 
