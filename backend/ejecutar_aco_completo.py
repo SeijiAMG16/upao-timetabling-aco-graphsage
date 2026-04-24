@@ -149,6 +149,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--log-limit", type=int, default=200, help="Máximo de líneas de log por sección depurada.")
     parser.add_argument("--sin-early", action="store_true", help="Desactiva el early stopping por falta de mejoras.")
     parser.add_argument("--verbose", action="store_true", help="Muestra logs detallados de construcción de soluciones.")
+    parser.add_argument("--model-path", type=str, default="", help="Ruta de un modelo preentrenado (.pt) a cargar.")
     return parser.parse_args()
 
 
@@ -217,6 +218,15 @@ def main():
             hidden_dim=hidden_dim,
             metadata=graph.metadata()
         ).to(device)
+        if args.model_path:
+            try:
+                checkpoint = torch.load(args.model_path, map_location=device)
+                state_dict = checkpoint.get("model_state_dict", checkpoint)
+                model.load_state_dict(state_dict)
+                print(f"   [DEBUG] ✅ Pesos del modelo precargados exitosamente desde {args.model_path}")
+            except Exception as e:
+                print(f"   [ERROR] No se pudo cargar el modelo desde {args.model_path}: {e}")
+                print("   [DEBUG] Continuando con pesos inicializados al azar.")
         
         print(f"  Modelo creado con hidden_dim={hidden_dim}")
         print("   [DEBUG] Modelo GNN listo!")
@@ -336,6 +346,7 @@ def main():
             league_session_types=builder.league_session_types,
             section_session_types=builder.section_session_types,
             sections_by_block=builder.sections_by_block,
+            section_modalities=builder.section_modalities,
         )
         
         # 4. Crear evaluador de restricciones suaves

@@ -109,6 +109,8 @@ class ACOEngine:
         self.beta = self.params["beta"]
         self.rho = self.params["rho"]
         self.q0 = self.params["q0"]
+        self.use_graphsage_heuristic = bool(self.params.get("use_graphsage_heuristic", True))
+        self.collect_log_probs = bool(self.params.get("collect_log_probs", False))
         self.enforce_league_coherence = self.params.get("enforce_league_coherence", False)
 
         # Debugging helpers
@@ -137,6 +139,10 @@ class ACOEngine:
         self.iteration_best: List[float] = []
         self.iteration_avg: List[float] = []
         self.completed_iterations: int = 0
+        self.last_solution_log_probs: List[torch.Tensor] = []
+        self._solution_log_probs_map: Dict[int, List[torch.Tensor]] = {}
+        self._current_solution_log_probs: List[torch.Tensor] = []
+        self._last_selection_log_prob: Optional[torch.Tensor] = None
         
         # Cache de candidatos por sección
         self._candidate_cache: Dict[int, List[Tuple[int, int, int]]] = {}
@@ -167,16 +173,57 @@ class ACOEngine:
         - Sección es tipo laboratorio (requiere 4 bloques consecutivos)
         """
         # Contar días restringidos por profesor
-        prof_restricted_days: Dict[int, Set[str]] = defaultdict(set)
+        prof_restricted_days: Dict[int, Set[Any]] = defaultdict(set)
         
         for prof_id, restrictions in self.hard_validator.professor_restrictions.items():
             for restriction in restrictions:
+                start_time = getattr(restriction, "hora_inicio", None)
+                end_time = getattr(restriction, "hora_fin", None)
+                day_value = getattr(restriction, "dia_semana", None)
+
+                if start_time is None:
+                    start_time = getattr(restriction, "start_time", None)
+                if end_time is None:
+                    end_time = getattr(restriction, "end_time", None)
+                if day_value is None:
+                    day_value = getattr(restriction, "day", None)
+
                 # Contar día como "restringido" si tiene bloqueo significativo (>= 6 horas)
-                if restriction.hora_inicio and restriction.hora_fin:
-                    duracion_horas = (datetime.combine(datetime.today(), restriction.hora_fin) - 
-                                     datetime.combine(datetime.today(), restriction.hora_inicio)).total_seconds() / 3600
-                    if duracion_horas >= 6.0:
-                        prof_restricted_days[prof_id].add(restriction.dia_semana)
+                if start_time and end_time:
+                    try:
+                        from datetime import datetime, time as dt_time
+
+                        def _to_time(value):
+                            if value is None:
+                                return None
+                            if isinstance(value, dt_time):
+                                return value
+                            if isinstance(value, str):
+                                text = value.strip()
+                                for fmt in ("%H:%M", "%H:%M:%S"):
+                                    try:
+                                        return datetime.strptime(text, fmt).time()
+                                    except ValueError:
+                                        continue
+                            if hasattr(value, "hour") and hasattr(value, "minute"):
+                                return dt_time(hour=int(value.hour) % 24, minute=int(value.minute) % 60)
+                            return None
+
+                        st_time = _to_time(start_time)
+                        et_time = _to_time(end_time)
+                        if st_time is None or et_time is None:
+                            continue
+
+                        st = datetime.combine(datetime.min.date(), st_time)
+                        et = datetime.combine(datetime.min.date(), et_time)
+                        if et < st:
+                            et = et.replace(day=et.day + 1)
+
+                        duracion_horas = (et - st).total_seconds() / 3600
+                        if duracion_horas >= 6.0:
+                            prof_restricted_days[prof_id].add(day_value)
+                    except (ValueError, TypeError):
+                        pass
         
         # Identificar secciones de profesores altamente restringidos
         for sec_id in self.graph_builder.section_id_to_idx.keys():
@@ -219,11 +266,15 @@ class ACOEngine:
         """
         n_iters = max_iterations or self.n_iteraciones
         self.completed_iterations = 0
+        self.last_solution_log_probs = []
+        self._solution_log_probs_map = {}
         
         print(f"\n{'='*80}")
         print(f"Iniciando ACO con {self.n_hormigas} hormigas, {n_iters} iteraciones")
         print(f"Alpha={self.alpha}, Beta={self.beta}, Rho={self.rho}, Q0={self.q0}")
         print(f"{'='*80}\n")
+
+        allow_partial_solutions = bool(self.params.get("allow_partial_solutions", True))
         
         for iteration in range(n_iters):
             iteration_index = iteration + 1
@@ -231,7 +282,7 @@ class ACOEngine:
             solutions = []
             for ant_id in range(self.n_hormigas):
                 solution = self._construct_solution(ant_id, iteration)
-                if solution.is_valid:
+                if solution.is_valid or allow_partial_solutions:
                     solutions.append(solution)
             
             if not solutions:
@@ -249,6 +300,9 @@ class ACOEngine:
             # Actualizar mejor global
             if self.best_solution is None or iteration_best_solution.total_cost < self.best_solution.total_cost:
                 self.best_solution = iteration_best_solution
+                self.last_solution_log_probs = list(
+                    self._solution_log_probs_map.get(id(iteration_best_solution), [])
+                )
                 self._iterations_without_improvement = 0  # Reset contador
                 print(f"Iteración {iteration_index}/{n_iters}: [OK] Nueva mejor solución: {self.best_solution.total_cost:.2f}")
             else:
@@ -291,6 +345,7 @@ class ACOEngine:
         """
         assignments = []
         construction_log = []
+        self._current_solution_log_probs = []
         
         # Obtener todas las secciones a asignar
         section_ids = list(self.graph_builder.section_id_to_idx.keys())
@@ -388,7 +443,8 @@ class ACOEngine:
         
         # Determinar si la solución es válida basado en cobertura
         coverage = len(assignments) / len(sorted_section_ids) if sorted_section_ids else 0.0
-        is_valid = coverage >= 0.90  # BAJADO de 0.95 a 0.90 - aceptar soluciones con 90%+ cobertura
+        coverage_threshold = float(self.params.get("coverage_threshold", 0.90))
+        is_valid = coverage >= coverage_threshold
         
         # Modo verbose: imprimir TODOS los logs de construcción
         if self.verbose:
@@ -418,13 +474,15 @@ class ACOEngine:
         if not is_valid:
             total_cost += 1000.0 * len(failed_sections)  # Penalización por secciones faltantes
         
-        return Solution(
+        solution = Solution(
             assignments=assignments,
             total_cost=total_cost,
             soft_penalties=penalties,
             is_valid=is_valid,
             construction_log=construction_log,
         )
+        self._solution_log_probs_map[id(solution)] = list(self._current_solution_log_probs)
+        return solution
     
     def _assign_section(
         self,
@@ -790,6 +848,8 @@ class ACOEngine:
 
                 # Seleccionar usando feromona + heurística (regla de transición ACO)
                 selected = self._select_assignment(section_id, valid_candidates, ant_id)
+                if self.collect_log_probs and self._last_selection_log_prob is not None:
+                    self._current_solution_log_probs.append(self._last_selection_log_prob)
                 prof_id = self.graph_builder.idx_to_professor_id[selected[0]]
                 classroom_id_str = "VIRTUAL (sin aula)" if selected[1] == -1 else str(self.graph_builder.idx_to_classroom_id[selected[1]])
                 timeslot_id = self.graph_builder.idx_to_timeslot_id[selected[2]]
@@ -1172,43 +1232,124 @@ class ACOEngine:
         Con probabilidad q0: elegir la mejor (explotación)
         Con probabilidad 1-q0: elegir probabilísticamente (exploración)
         """
+        self._last_selection_log_prob = None
+
         # Obtener valores de feromona
         pheromones = np.array([
             self.pheromones.get(section_id, candidate)
             for candidate in candidates
-        ])
-        
-        # OPTIMIZACIÓN TEMPORAL: Usar solo feromonas sin GNN (muy lento en CPU)
-        # Heurística simple basada en disponibilidad
+        ], dtype=np.float32)
+
         sec_idx = self.graph_builder.section_id_to_idx[section_id]
-        
-        # Heurística simple: preferir primeros timeslots disponibles
-        heuristics = np.array([
-            1.0 / (1.0 + timeslot_idx * 0.01)  # Decae levemente con timeslot más tardíos
+
+        fallback_heuristics = np.array([
+            1.0 / (1.0 + timeslot_idx * 0.01)
             for _, _, timeslot_idx in candidates
-        ])
-        
-        # DESCOMENTAR para usar GraphSAGE (requiere GPU o mucho tiempo):
-        # heuristics = self.model.get_heuristic_matrix(self.graph, sec_idx, candidates)
-        
-        # Calcular probabilidades: P ∝ τ^α · η^β
-        values = (pheromones ** self.alpha) * (heuristics ** self.beta)
-        
-        # Evitar división por cero
-        if values.sum() == 0:
-            values = np.ones_like(values)
-        
-        probabilities = values / values.sum()
-        
-        # Regla de transición
-        if random.random() < self.q0:
-            # Explotación: elegir el mejor
-            selected_idx = np.argmax(probabilities)
+        ], dtype=np.float32)
+
+        heuristics_np, heuristics_tensor = self._compute_candidate_heuristics(
+            section_idx=sec_idx,
+            candidates=candidates,
+            fallback_heuristics=fallback_heuristics,
+            requires_grad=self.collect_log_probs,
+        )
+
+        if self.collect_log_probs and heuristics_tensor is not None:
+            device = heuristics_tensor.device
+            pheromone_tensor = torch.tensor(pheromones, dtype=torch.float32, device=device)
+            values = (pheromone_tensor ** self.alpha) * (heuristics_tensor ** self.beta)
+            values = torch.clamp(values, min=1e-12)
+
+            prob_sum = values.sum()
+            if not torch.isfinite(prob_sum) or prob_sum.item() <= 0.0:
+                probabilities = torch.ones_like(values) / max(1, values.numel())
+            else:
+                probabilities = values / prob_sum
+
+            if random.random() < self.q0:
+                selected_idx = int(torch.argmax(probabilities).item())
+            else:
+                selected_idx = int(torch.multinomial(probabilities, num_samples=1).item())
+
+            self._last_selection_log_prob = torch.log(torch.clamp(probabilities[selected_idx], min=1e-12))
         else:
-            # Exploración: muestreo probabilístico
-            selected_idx = np.random.choice(len(candidates), p=probabilities)
-        
+            values = (pheromones ** self.alpha) * (heuristics_np ** self.beta)
+
+            if values.sum() == 0:
+                values = np.ones_like(values)
+
+            probabilities = values / values.sum()
+
+            if random.random() < self.q0:
+                selected_idx = np.argmax(probabilities)
+            else:
+                selected_idx = np.random.choice(len(candidates), p=probabilities)
+
         return candidates[selected_idx]
+
+    def _compute_candidate_heuristics(
+        self,
+        section_idx: int,
+        candidates: List[Tuple[int, int, int]],
+        fallback_heuristics: np.ndarray,
+        requires_grad: bool,
+    ) -> Tuple[np.ndarray, Optional[torch.Tensor]]:
+        """Calcula heurísticas por candidato usando GraphSAGE con fallback seguro."""
+        if not self.use_graphsage_heuristic:
+            return fallback_heuristics, None
+
+        valid_positions = [index for index, (_, classroom_idx, _) in enumerate(candidates) if classroom_idx >= 0]
+        if not valid_positions:
+            return fallback_heuristics, None
+
+        valid_candidates = [candidates[index] for index in valid_positions]
+
+        if not requires_grad:
+            try:
+                self.model.eval()
+                neural_values = self.model.get_heuristic_matrix(
+                    self.graph,
+                    section_idx,
+                    valid_candidates,
+                )
+                merged = fallback_heuristics.copy()
+                for local_pos, global_pos in enumerate(valid_positions):
+                    merged[global_pos] = max(float(neural_values[local_pos]), 1e-8)
+                return merged, None
+            except Exception:
+                return fallback_heuristics, None
+
+        try:
+            self.model.train()
+            device = next(self.model.parameters()).device
+
+            n_candidates = len(valid_candidates)
+            section_batch = torch.full((n_candidates,), section_idx, dtype=torch.long, device=device)
+            professor_batch = torch.tensor([candidate[0] for candidate in valid_candidates], dtype=torch.long, device=device)
+            classroom_batch = torch.tensor([candidate[1] for candidate in valid_candidates], dtype=torch.long, device=device)
+            timeslot_batch = torch.tensor([candidate[2] for candidate in valid_candidates], dtype=torch.long, device=device)
+
+            scores = self.model.forward(
+                self.graph,
+                section_batch,
+                professor_batch,
+                classroom_batch,
+                timeslot_batch,
+            )
+            neural_probs = torch.softmax(scores, dim=0)
+
+            fallback_tensor = torch.tensor(
+                np.clip(fallback_heuristics, 1e-8, None),
+                dtype=torch.float32,
+                device=device,
+            )
+            full_tensor = fallback_tensor.clone()
+            valid_positions_tensor = torch.tensor(valid_positions, dtype=torch.long, device=device)
+            full_tensor[valid_positions_tensor] = neural_probs
+
+            return full_tensor.detach().cpu().numpy(), full_tensor
+        except Exception:
+            return fallback_heuristics, None
 
     def _get_consecutive_timeslots(self, day: int, start_order: int, duration: int) -> Optional[List[int]]:
         """Obtiene una secuencia de bloques consecutivos para una sección."""
@@ -1423,6 +1564,7 @@ def create_aco_engine(
         league_session_types=graph_builder.league_session_types,
         section_session_types=graph_builder.section_session_types,
         sections_by_block=graph_builder.sections_by_block,
+        section_modalities=graph_builder.section_modalities,
     )
     
     soft_evaluator = SoftConstraintEvaluator(

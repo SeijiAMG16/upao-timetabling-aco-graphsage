@@ -15,7 +15,7 @@ Restricciones BLANDAS:
 
 from typing import List, Dict, Set, Tuple, Optional, Any
 from collections import defaultdict
-from datetime import time
+from datetime import time, datetime, timedelta
 import re
 from .config import CONSTRAINT_WEIGHTS, HARD_CONSTRAINTS
 
@@ -128,6 +128,7 @@ class HardConstraintValidator:
         league_session_types: Dict[Tuple[str, int], Set[str]],
         section_session_types: Dict[int, str],
         sections_by_block: Optional[Dict[str, List[int]]] = None,
+        section_modalities: Optional[Dict[int, str]] = None,
     ):
         self.timeslots = timeslots
         self.classrooms = classrooms
@@ -136,6 +137,8 @@ class HardConstraintValidator:
         self.league_session_types = league_session_types
         self.section_session_types = section_session_types
         self.sections_by_block = sections_by_block or {}
+        # Modalidad de cada sección (PRESENCIAL/NO_PRESENCIAL); default PRESENCIAL si falta
+        self.section_modalities = section_modalities or {}
     
     def _normalize_classroom_type(self, raw_type: Optional[str]) -> str:
         """Normaliza tipos de aula de la BD a formato estándar"""
@@ -187,6 +190,11 @@ class HardConstraintValidator:
         valid, detail = self._validate_no_curriculum_conflict(assignment, current_schedule)
         if not valid:
             return _result(False, "Conflicto con otra sección del mismo ciclo", detail)
+
+        # Nueva restricción dura: separar cursos virtuales de cualquier presencial al menos 1 franja
+        valid, detail = self._validate_virtual_spacing(assignment, current_schedule)
+        if not valid:
+            return _result(False, "Curso virtual debe tener 1 franja de separación de presenciales", detail)
 
         # RE-HABILIT ADAS - Son necesarias para correctitud pero optimizadas
         valid, detail = self._validate_block_cohesion(assignment, current_schedule)
@@ -495,6 +503,82 @@ class HardConstraintValidator:
                         return False, detail
 
         return True, detail
+
+    def _is_virtual(self, section_id: int, classroom_id: Optional[int]) -> bool:
+        """Determina si la sección es virtual considerando modalidad y ausencia de aula."""
+        modality = self.section_modalities.get(section_id)
+        if modality is not None:
+            return modality.strip().upper() == "NO_PRESENCIAL"
+        return classroom_id is None
+
+    def _validate_virtual_spacing(
+        self,
+        assignment: Assignment,
+        current_schedule: List[Assignment],
+    ) -> Tuple[bool, Dict[str, Any]]:
+        """Evita adyacencia virtual/presencial para el mismo profesor en un mismo día."""
+        detail: Dict[str, Any] = {}
+
+        if not assignment.timeslot_ids:
+            return True, detail
+
+        assignment_is_virtual = self._is_virtual(assignment.section_id, assignment.classroom_id)
+
+        # Rango de franjas del bloque en evaluación por día
+        primary_ts = [self.timeslots.get(tid) for tid in assignment.timeslot_ids if self.timeslots.get(tid)]
+        if not primary_ts:
+            return True, detail
+
+        # Agrupar por día porque el bloque podría tener múltiples días en casos inusuales
+        by_day_primary: Dict[int, Tuple[int, int]] = {}
+        for ts in primary_ts:
+            low, high = by_day_primary.get(ts.dia_semana, (ts.orden, ts.orden))
+            by_day_primary[ts.dia_semana] = (min(low, ts.orden), max(high, ts.orden))
+
+        for other in current_schedule:
+            if not other.timeslot_ids:
+                continue
+
+            # Solo aplica cuando es el mismo docente (transición real entre modalidades)
+            if other.professor_id != assignment.professor_id:
+                continue
+
+            other_is_virtual = self._is_virtual(other.section_id, other.classroom_id)
+
+            # Solo importa la dupla virtual-presencial
+            if assignment_is_virtual == other_is_virtual:
+                continue
+
+            other_ts_list = [self.timeslots.get(tid) for tid in other.timeslot_ids if self.timeslots.get(tid)]
+            if not other_ts_list:
+                continue
+
+            by_day_other: Dict[int, Tuple[int, int]] = {}
+            for ts in other_ts_list:
+                low, high = by_day_other.get(ts.dia_semana, (ts.orden, ts.orden))
+                by_day_other[ts.dia_semana] = (min(low, ts.orden), max(high, ts.orden))
+
+            # Comparar rangos en días coincidentes
+            for day, (v_low, v_high) in by_day_primary.items():
+                if day not in by_day_other:
+                    continue
+                o_low, o_high = by_day_other[day]
+
+                # Requerimos al menos una franja libre entre rangos -> distancias estrictas
+                # v_high + 1 < o_low  OR  o_high + 1 < v_low  para ser válidos
+                if v_high + 1 < o_low or o_high + 1 < v_low:
+                    continue
+
+                detail.update({
+                    "virtual_section_id": assignment.section_id if assignment_is_virtual else other.section_id,
+                    "presencial_section_id": other.section_id if assignment_is_virtual else assignment.section_id,
+                    "dia": day,
+                    "rango_virtual": (v_low, v_high) if assignment_is_virtual else (o_low, o_high),
+                    "rango_presencial": (o_low, o_high) if assignment_is_virtual else (v_low, v_high),
+                })
+                return False, detail
+
+        return True, detail
     
     def _is_before(self, ts1: TimeSlotInfo, ts2: TimeSlotInfo) -> bool:
         """Compara si ts1 ocurre antes que ts2 en la semana."""
@@ -529,19 +613,43 @@ class HardConstraintValidator:
             ts = self.timeslots[timeslot_id]
 
             for restriction in restrictions:
+                dia_num = getattr(restriction, "dia_semana", None)
+                hora_inicio = getattr(restriction, "hora_inicio", None)
+                hora_fin = getattr(restriction, "hora_fin", None)
+
+                if dia_num is None and hasattr(restriction, "day"):
+                    day_str = str(getattr(restriction, "day", "")).lower()
+                    if "lun" in day_str or "mon" in day_str:
+                        dia_num = 1
+                    elif "mar" in day_str or "tue" in day_str:
+                        dia_num = 2
+                    elif "mie" in day_str or "mié" in day_str or "wed" in day_str:
+                        dia_num = 3
+                    elif "jue" in day_str or "thu" in day_str:
+                        dia_num = 4
+                    elif "vie" in day_str or "fri" in day_str:
+                        dia_num = 5
+                    elif "sab" in day_str or "sáb" in day_str or "sat" in day_str:
+                        dia_num = 6
+
+                if hora_inicio is None:
+                    hora_inicio = getattr(restriction, "start_time", None)
+                if hora_fin is None:
+                    hora_fin = getattr(restriction, "end_time", None)
+
                 if (
-                    restriction.dia_semana == ts.dia_semana and
+                    dia_num == ts.dia_semana and
                     self._time_overlaps(
                         ts.hora_inicio, ts.hora_fin,
-                        restriction.hora_inicio, restriction.hora_fin
+                        hora_inicio, hora_fin
                     )
                 ):
                     detail.update({
                         "timeslot_id": timeslot_id,
                         "restriction": {
-                            "dia_semana": restriction.dia_semana,
-                            "hora_inicio": str(restriction.hora_inicio),
-                            "hora_fin": str(restriction.hora_fin),
+                            "dia_semana": dia_num,
+                            "hora_inicio": str(hora_inicio),
+                            "hora_fin": str(hora_fin),
                         },
                     })
                     return False, detail
@@ -724,12 +832,59 @@ class HardConstraintValidator:
     
     def _time_overlaps(
         self,
-        start1: time, end1: time,
-        start2: time, end2: time
+        start1, end1,
+        start2, end2
     ) -> bool:
         """Verifica si dos rangos de tiempo se solapan"""
-        return start1 < end2 and start2 < end1
+        if not all([start1, end1, start2, end2]):
+            return False
 
+        def to_minutes(value: Any) -> Optional[int]:
+            if value is None:
+                return None
+
+            if isinstance(value, timedelta):
+                return int(value.total_seconds() // 60)
+
+            if isinstance(value, datetime):
+                return value.hour * 60 + value.minute
+
+            if isinstance(value, time):
+                return value.hour * 60 + value.minute
+
+            if isinstance(value, (int, float)):
+                return int(value)
+
+            if isinstance(value, str):
+                raw = value.strip()
+                if not raw:
+                    return None
+
+                if raw.isdigit():
+                    return int(raw)
+
+                hhmmss_match = re.match(r"^(\d{1,2}):(\d{2})(?::\d{2})?$", raw)
+                if hhmmss_match:
+                    hours = int(hhmmss_match.group(1))
+                    minutes = int(hhmmss_match.group(2))
+                    return hours * 60 + minutes
+
+                return None
+
+            hour = getattr(value, "hour", None)
+            minute = getattr(value, "minute", None)
+            if hour is not None and minute is not None:
+                return int(hour) * 60 + int(minute)
+
+            return None
+
+        s1, e1 = to_minutes(start1), to_minutes(end1)
+        s2, e2 = to_minutes(start2), to_minutes(end2)
+
+        if None in (s1, e1, s2, e2):
+            return False
+
+        return s1 < e2 and s2 < e1
 
 # ============================================================================
 # CALCULADOR DE PENALIZACIONES (RESTRICCIONES BLANDAS)

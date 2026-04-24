@@ -102,6 +102,7 @@ class TimetableGraphBuilder:
         self.section_durations: Dict[int, int] = {}  # section_id -> n_bloques
         self.section_projected_students: Dict[int, int] = {}
         self.section_metadata: Dict[int, Dict[str, object]] = {}
+        self.section_modalities: Dict[int, Optional[str]] = {}
         self.section_candidate_stats: Dict[int, Dict[str, int]] = {}
         self.sections_by_league: Dict[Tuple[str, int], List[int]] = {}
         self.league_session_types: Dict[Tuple[str, int], Set[str]] = {}
@@ -110,6 +111,8 @@ class TimetableGraphBuilder:
         self.prof_assign_by_league: Dict[Tuple[int, str, int], List[int]] = {}
         self.prof_assign_by_type: Dict[Tuple[int, str], List[int]] = {}
         self.prof_assign_by_course: Dict[int, List[int]] = {}
+        self.professor_code_to_id: Dict[str, int] = {}
+        self.placeholder_professor_id: Optional[int] = None
         self.course_session_durations: Dict[Tuple[int, str], int] = {}
         self.virtual_to_real_section: Dict[int, int] = {}
         self.section_virtual_groups: Dict[int, List[int]] = {}
@@ -196,6 +199,10 @@ class TimetableGraphBuilder:
         for idx, prof in enumerate(professors):
             self.professor_id_to_idx[prof.id] = idx
             self.idx_to_professor_id[idx] = prof.id
+            if getattr(prof, "codigo", None):
+                self.professor_code_to_id[str(prof.codigo).strip().upper()] = prof.id
+
+        self.placeholder_professor_id = self.professor_code_to_id.get("PROF_032")
         
         return professors
     
@@ -367,6 +374,9 @@ class TimetableGraphBuilder:
                     "block_id": block_id,
                     "franja_index": block_index,
                 }
+
+                # Mantener mapeo directo sección -> modalidad para validaciones duras
+                self.section_modalities[instance.id] = course_modalidad
 
                 self.section_candidate_stats[instance.id] = {
                     "professors": 0,
@@ -934,15 +944,15 @@ class TimetableGraphBuilder:
 
     def _candidate_professors_for_section(self, section: CourseSection) -> List[int]:
         """
-        Obtiene profesores candidatos para una sección, respetando ESTRICTAMENTE 
-        las asignaciones por liga cuando existan.
+        Obtiene profesores candidatos para una sección.
         
-        ESTRATEGIA CORRECTA (2024-10-22 v5 - FINAL):
-        1. Si existe asignación exacta por (curso, tipo, liga) -> devolver SOLO esa (ESTRICTO)
-        2. Si NO hay asignación por liga, buscar por (curso, tipo) general
-        3. Si NO hay por tipo, buscar por curso
+        Estrategia de cobertura (híbrida):
+        1. Priorizar asignación exacta por (curso, tipo, liga)
+        2. Ampliar con profesores del mismo (curso, tipo) en otras ligas
+        3. Fallback por (curso, tipo) general y luego por curso
+        4. Último fallback: cualquier profesor activo (evita secciones sin candidatos)
         
-        OBJETIVO: Respetar 100% las ligas definidas en professor_course_assignments.
+        Nota: Las restricciones duras reales (solapes/disponibilidad) se validan en `constraints.py`.
         """
         course_id = section.course_id
         session_type = self._map_section_type(section)
@@ -951,8 +961,15 @@ class TimetableGraphBuilder:
         # PASO 1: Buscar asignación exacta por (curso, tipo, liga)
         key_league = (course_id, session_type, league)
         if key_league in self.prof_assign_by_league:
-            # Hay asignación específica para esta liga -> usar SOLO esa (100% estricto)
-            return sorted(self.prof_assign_by_league[key_league])
+            # Partir de asignación específica de liga
+            candidates = set(self.prof_assign_by_league[key_league])
+
+            # Expansión controlada: incluir profesores del mismo curso/tipo en otras ligas
+            for (c_id, s_type, _lg), prof_list in self.prof_assign_by_league.items():
+                if c_id == course_id and s_type == session_type:
+                    candidates.update(prof_list)
+
+            return sorted(candidates)
 
         # PASO 2: Buscar asignaciones por (curso, tipo) genérico (cursos sin diferenciación de liga)
         key_type = (course_id, session_type)
@@ -963,8 +980,12 @@ class TimetableGraphBuilder:
         if course_id in self.prof_assign_by_course:
             return sorted(self.prof_assign_by_course[course_id])
 
-        # Sin asignaciones manuales = sin candidatos
-        return []
+        # PASO 4: Último fallback explícito: PROF_032 (placeholder controlado)
+        if self.placeholder_professor_id is not None:
+            return [self.placeholder_professor_id]
+
+        # Resguardo defensivo si no existe PROF_032 en BD
+        return sorted(self.professor_id_to_idx.keys())
 
     def _map_section_type(self, section: CourseSection) -> str:
         return self._normalize_session_type(section.tipo)

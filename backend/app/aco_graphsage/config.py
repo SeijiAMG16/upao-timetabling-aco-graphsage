@@ -26,6 +26,8 @@ ACO_PARAMS = {
     "tau_min": 0.01,  # Límite inferior de feromona
     "tau_max": 10.0,  # Límite superior de feromona
     "tau_init": 1.0,  # Feromona inicial
+    "use_graphsage_heuristic": True,  # Activar heurística neural GraphSAGE en selección ACO
+    "allow_partial_solutions": True,  # Permitir seleccionar la mejor solución parcial si no hay cobertura completa
     
     # Estrategia de actualización
     "elitist_weight": 0.5,  # Peso de la mejor solución global vs. mejor de iteración
@@ -104,27 +106,63 @@ CONSTRAINT_WEIGHTS = {
 # PARÁMETROS DE ENTRENAMIENTO (Reinforcement Learning)
 # ============================================================================
 TRAINING_PARAMS = {
+    # Perfil de recursos: safe_lite | lite | balanced | aggressive
+    # safe_lite: para laptops con <8GB RAM libre (recomendado para entrenamiento local)
+    # lite:      para laptops con 8-12GB RAM libre
+    # balanced:  para máquinas con >12GB RAM (puede saturar laptops)
+    # aggressive: máximo rendimiento, solo en servidores
+    "resource_mode": "safe_lite",
+    "torch_num_threads": 2,
+
     # REINFORCE Policy Gradient
-    "n_episodes": 500,  # Número de episodios de entrenamiento
-    "batch_size": 32,  # Tamaño de batch para actualización
-    "gamma": 0.99,  # Factor de descuento para recompensas futuras
-    
+    "n_episodes": 150,   # Reducido: con early_stopping=30 suele converger antes
+    "batch_size": 16,    # Reducido para menos uso de memoria en el backward pass
+    "gamma": 0.99,
+
     # Baseline para reducir varianza
-    "use_baseline": True,  # Usar baseline (valor promedio)
-    "baseline_decay": 0.95,  # Decaimiento exponencial del baseline
-    
+    "use_baseline": True,
+    "baseline_decay": 0.95,
+
     # Exploración
-    "epsilon_start": 0.3,  # Exploración inicial
-    "epsilon_end": 0.05,  # Exploración final
-    "epsilon_decay": 0.995,  # Decaimiento de epsilon por episodio
-    
-    # Checkpointing
-    "save_every": 50,  # Guardar modelo cada N episodios
-    "eval_every": 10,  # Evaluar en validación cada N episodios
-    
-    # Early stopping
-    "patience": 50,  # Episodios sin mejora antes de detener
-    "min_improvement": 0.01,  # Mejora mínima requerida (1%)
+    "epsilon_start": 0.35,   # Ligeramente más exploración al inicio
+    "epsilon_end": 0.05,
+    "epsilon_decay": 0.990,  # Decaimiento más rápido (converge antes)
+
+    # Tamaño del rollout ACO por episodio de entrenamiento
+    # safe_lite/lite usan sus propios valores en _get_resource_profile()
+    "train_aco_ants": 1,
+    "train_aco_iterations": 2,
+    "train_aco_ants_end": 3,
+    "train_aco_iterations_end": 6,
+
+    # Candidatos base (balanced/aggressive)
+    # safe_lite y lite los reducen en _get_resource_profile()
+    "train_max_candidate_combinations": 1800,
+    "train_max_professors_per_section": 10,
+    "train_max_classrooms_per_section": 16,
+    "train_max_timeslots_per_section": 16,
+    "train_pedagogical_relaxation_attempts": 6,
+    "train_pedagogical_relaxation_rank_step": 50,
+
+    # Currículo de factibilidad (penalización creciente)
+    "coverage_target_start": 0.80,  # Empezar más alto → presionar cobertura desde ep.1
+    "coverage_target_end": 0.95,
+    "strict_phase_start": 0.80,     # Exigir factibilidad desde el 80% del entrenamiento
+    "missing_section_penalty_start": 500.0,   # Penalizar secciones faltantes más fuerte
+    "missing_section_penalty_end": 4000.0,
+    "hard_violation_penalty": 1_000_000.0,
+    "strict_infeasible_penalty": 2_000_000.0,
+
+    # Priorizar cobertura (tesis: 95% asignación)
+    "soft_cost_weight": 0.02,  # Reducido: blandas importan menos que cobertura
+
+    # Checkpointing frecuente para poder resumir
+    "save_every": 25,
+    "eval_every": 10,
+
+    # Early stopping más agresivo en local
+    "patience": 30,
+    "min_improvement": 0.005,
 }
 
 # ============================================================================

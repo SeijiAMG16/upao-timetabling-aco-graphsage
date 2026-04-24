@@ -1,0 +1,73 @@
+{
+  "n_episodes": 1,
+  "episode_costs": [
+    59257.86072789278
+  ],
+  "episode_rewards": [
+    -2167962.893036395
+  ],
+  "episode_coverages": [
+    0.8231511254019293
+  ],
+  "episode_hard_violations": [
+    0
+  ],
+  "episode_missing_sections": [
+    55
+  ],
+  "episode_training_objective": [
+    2167962.893036395
+  ],
+  "episode_strict_feasible": [
+    false
+  ],
+  "best_objective": 2167962.893036395,
+  "best_signature": [
+    0.0,
+    55.0,
+    2167962.893036395
+  ],
+  "best_metrics": {
+    "hard_violations": 0,
+    "coverage": 0.8231511254019293,
+    "missing_sections": 55,
+    "training_objective": 2167962.893036395,
+    "strict_feasible": false
+  },
+  "final_epsilon": 0.2985,
+  "training_params": {
+    "resource_mode": "lite",
+    "torch_num_threads": 2,
+    "n_episodes": 500,
+    "batch_size": 32,
+    "gamma": 0.99,
+    "use_baseline": true,
+    "baseline_decay": 0.95,
+    "epsilon_start": 0.3,
+    "epsilon_end": 0.05,
+    "epsilon_decay": 0.995,
+    "train_aco_ants": 1,
+    "train_aco_iterations": 3,
+    "train_aco_ants_end": 4,
+    "train_aco_iterations_end": 10,
+    "train_max_candidate_combinations": 4000,
+    "train_max_professors_per_section": 12,
+    "train_max_classrooms_per_section": 24,
+    "train_max_timeslots_per_section": 24,
+    "train_pedagogical_relaxation_attempts": 8,
+    "train_pedagogical_relaxation_rank_step": 40,
+    "coverage_target_start": 0.7,
+    "coverage_target_end": 0.95,
+    "strict_phase_start": 0.9,
+    "missing_section_penalty_start": 200.0,
+    "missing_section_penalty_end": 3000.0,
+    "hard_violation_penalty": 1000000.0,
+    "strict_infeasible_penalty": 2000000.0,
+    "soft_cost_weight": 0.05,
+    "save_every": 50,
+    "eval_every": 10,
+    "patience": 50,
+    "min_improvement": 0.01
+  },
+  "timestamp": "2026-04-20T23:25:47.918702"
+}

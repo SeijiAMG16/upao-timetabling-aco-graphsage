@@ -1,0 +1,63 @@
+{
+  "n_episodes": 1,
+  "episode_costs": [
+    62805.075872229936
+  ],
+  "episode_rewards": [
+    -5180140.253793611
+  ],
+  "episode_coverages": [
+    0.8102893890675241
+  ],
+  "episode_hard_violations": [
+    0
+  ],
+  "episode_missing_sections": [
+    59
+  ],
+  "episode_training_objective": [
+    5180140.253793611
+  ],
+  "episode_strict_feasible": [
+    false
+  ],
+  "best_objective": 5180140.253793611,
+  "best_signature": [
+    0.0,
+    59.0,
+    5180140.253793611
+  ],
+  "best_metrics": {
+    "hard_violations": 0,
+    "coverage": 0.8102893890675241,
+    "missing_sections": 59,
+    "training_objective": 5180140.253793611,
+    "strict_feasible": false
+  },
+  "final_epsilon": 0.2985,
+  "training_params": {
+    "n_episodes": 500,
+    "batch_size": 32,
+    "gamma": 0.99,
+    "use_baseline": true,
+    "baseline_decay": 0.95,
+    "epsilon_start": 0.3,
+    "epsilon_end": 0.05,
+    "epsilon_decay": 0.995,
+    "train_aco_ants": 3,
+    "train_aco_iterations": 5,
+    "coverage_target_start": 0.7,
+    "coverage_target_end": 0.95,
+    "strict_phase_start": 0.7,
+    "missing_section_penalty_start": 200.0,
+    "missing_section_penalty_end": 3000.0,
+    "hard_violation_penalty": 1000000.0,
+    "strict_infeasible_penalty": 5000000.0,
+    "soft_cost_weight": 0.05,
+    "save_every": 9999,
+    "eval_every": 10,
+    "patience": 50,
+    "min_improvement": 0.01
+  },
+  "timestamp": "2026-04-20T22:16:50.968244"
+}
