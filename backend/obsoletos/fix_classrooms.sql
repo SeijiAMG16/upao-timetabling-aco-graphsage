@@ -1,4 +1,0 @@
-ALTER TABLE classrooms 
-ADD COLUMN tiene_computadoras BOOLEAN DEFAULT FALSE,
-ADD COLUMN numero_computadoras INT DEFAULT 0,
-ADD COLUMN active BOOLEAN DEFAULT TRUE;
