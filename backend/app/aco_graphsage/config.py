@@ -85,19 +85,25 @@ HARD_CONSTRAINTS = [
 # Restricciones BLANDAS (violación = penalización en función objetivo)
 # Valores basados en prioridades confirmadas por el usuario
 CONSTRAINT_WEIGHTS = {
-    # PRIORIDAD ALTA: Experiencia del estudiante
+    # PRIORIDAD ALTA: Experiencia del estudiante y docentes
+    "profesor_baja_prioridad": 50.0,  # Respetar disponibilidad docente si no es bloqueo duro
     "huecos_estudiantes": 10.0,  # Minimizar espacios libres en horario de ciclo
     
-    # PRIORIDAD MEDIA: Logística de movilidad
+    # PRIORIDAD MEDIA-ALTA: Turnos y pedagogía
+    "preferencia_franja": 25.0,  # Turnos mañana/tarde por ciclo y sábado de 1er ciclo
+    "dispersion_teoria_practica": 25.0,  # Regla pedagógica fundamental
+    
+    # PRIORIDAD MEDIA: Infraestructura y salud mental
+    "preferencia_laboratorio": 15.0,  # Uso del Pabellón F
+    "fatiga_bloques_largos": 15.0,  # Salud mental de alumnos/docentes
     "cambio_edificio": 5.0,  # Minimizar cambios de edificio por ciclo/día
     "compacidad_dia": 5.0,  # Preferir horarios compactos en el día
     
-    # PRIORIDAD BAJA: Preferencias docentes
+    # PRIORIDAD BAJA: Preferencias docentes y administrativas
     "huecos_profesores": 2.0,  # Minimizar espacios libres en horario de profesor
     "distribucion_profesor": 2.0,  # Distribuir carga del profesor en la semana
     
-    # PRIORIDAD MUY BAJA: Preferencias administrativas
-    "preferencia_franja": 1.0,  # Penalizar franjas menos deseables (última del día)
+    # PRIORIDAD MUY BAJA: Balance y alineación
     "equilibrio_aulas": 1.0,  # Balancear uso de aulas
     "alineacion_franja": 8.0,  # Favorecer que cada bloque respete su franja objetivo
 }

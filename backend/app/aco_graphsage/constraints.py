@@ -13,11 +13,11 @@ Restricciones BLANDAS:
 - Violación = penalización en función objetivo
 """
 
-from typing import List, Dict, Set, Tuple, Optional, Any
+from typing import Any, Dict, List, Optional, Set, Tuple
 from collections import defaultdict
 from datetime import time, datetime, timedelta
 import re
-from .config import CONSTRAINT_WEIGHTS, HARD_CONSTRAINTS
+from .config import CONSTRAINT_WEIGHTS
 
 
 # ============================================================================
@@ -57,6 +57,56 @@ class Assignment:
         self.split_group_count = split_group_count
         self.block_id = block_id
         self.franja_index = franja_index
+
+    @staticmethod
+    def _parse_ciclo_number(ciclo_str: str) -> int:
+        """
+        Extrae el numero de ciclo desde representaciones como ``ISIA-V`` o ``I``.
+
+        Retorna 0 cuando no se puede inferir el ciclo.
+        """
+        raw_value = (ciclo_str or "").strip().upper()
+        if not raw_value:
+            return 0
+
+        roman_values: Dict[str, int] = {
+            "I": 1,
+            "V": 5,
+            "X": 10,
+            "L": 50,
+            "C": 100,
+            "D": 500,
+            "M": 1000,
+        }
+
+        def _roman_to_int(value: str) -> int:
+            total = 0
+            previous = 0
+            for char in reversed(value):
+                current = roman_values.get(char)
+                if current is None:
+                    return 0
+                if current < previous:
+                    total -= current
+                else:
+                    total += current
+                    previous = current
+            return total
+
+        tokens = [token for token in re.split(r"[^A-Z0-9]+", raw_value) if token]
+        for token in reversed(tokens):
+            if token.isdigit():
+                return int(token)
+            if re.fullmatch(r"[IVXLCDM]+", token):
+                return _roman_to_int(token)
+
+        if raw_value.isdigit():
+            return int(raw_value)
+
+        if re.fullmatch(r"[IVXLCDM]+", raw_value):
+            return _roman_to_int(raw_value)
+
+        return 0
 
 
 class TimeSlotInfo:
@@ -105,11 +155,13 @@ class ProfessorRestrictionInfo:
         dia_semana: int,
         hora_inicio: time,
         hora_fin: time,
+        es_baja_prioridad: bool = False,
     ):
         self.professor_id = professor_id
         self.dia_semana = dia_semana
         self.hora_inicio = hora_inicio
         self.hora_fin = hora_fin
+        self.es_baja_prioridad = es_baja_prioridad
 
 
 # ============================================================================
@@ -220,10 +272,6 @@ class HardConstraintValidator:
         valid, detail = self._validate_classroom_type(assignment)
         if not valid:
             return _result(False, "El tipo de aula no es apropiado para esta sesión", detail)
-
-        valid, detail = self._validate_lab_building_rule(assignment)
-        if not valid:
-            return _result(False, "Laboratorio asignado al edificio incorrecto", detail)
 
         return _result(True, "", {"validated": True})
 
@@ -613,6 +661,9 @@ class HardConstraintValidator:
             ts = self.timeslots[timeslot_id]
 
             for restriction in restrictions:
+                if getattr(restriction, "es_baja_prioridad", False):
+                    continue
+
                 dia_num = getattr(restriction, "dia_semana", None)
                 hora_inicio = getattr(restriction, "hora_inicio", None)
                 hora_fin = getattr(restriction, "hora_fin", None)
@@ -703,39 +754,6 @@ class HardConstraintValidator:
 
         return True, detail
 
-    def _validate_lab_building_rule(self, assignment: Assignment) -> Tuple[bool, Dict[str, Any]]:
-        """Restringe laboratorios según edificio y cantidad de estudiantes."""
-        # Cursos virtuales (sin aula) NO necesitan validación de edificio
-        if assignment.classroom_id is None:
-            return True, {"virtual_course": True, "no_classroom_required": True}
-        
-        detail: Dict[str, Any] = {
-            "classroom_id": assignment.classroom_id,
-            "session_type": assignment.session_type,
-            "alumnos_proyectados": assignment.alumnos_proyectados,
-        }
-
-        if assignment.session_type != "L":
-            return True, detail
-
-        classroom = self.classrooms.get(assignment.classroom_id)
-        if classroom is None:
-            detail["reason"] = "classroom_not_registered"
-            return False, detail
-
-        building = (classroom.edificio or "").strip().upper()
-        estudiantes = assignment.alumnos_proyectados or 0
-        detail["classroom_building"] = building
-
-        expected_building = "F" if estudiantes <= 20 else "G"
-        detail["expected_building"] = expected_building
-        detail["threshold"] = 20
-
-        if building != expected_building:
-            detail["reason"] = "lab_building_mismatch"
-            return False, detail
-
-        return True, detail
 
     def validate_schedule(
         self,
@@ -897,11 +915,20 @@ class SoftConstraintEvaluator:
         self,
         timeslots: Dict[int, TimeSlotInfo],
         classrooms: Dict[int, ClassroomInfo],
-        weights: Dict[str, float] = None,
+        weights: Optional[Dict[str, float]] = None,
+        professor_restrictions: Optional[Dict[int, List[ProfessorRestrictionInfo]]] = None,
     ):
         self.timeslots = timeslots
         self.classrooms = classrooms
-        self.weights = weights or CONSTRAINT_WEIGHTS
+        default_weights: Dict[str, float] = dict(CONSTRAINT_WEIGHTS)
+        default_weights.update({
+            "preferencia_laboratorio": 1.0,
+            "dispersion_teoria_practica": 1.0,
+            "fatiga_bloques_largos": 1.0,
+            "profesor_baja_prioridad": 1.0,
+        })
+        self.weights = {**default_weights, **(weights or {})}
+        self.professor_restrictions = professor_restrictions or {}
     
     def calculate_total_penalty(
         self,
@@ -913,7 +940,7 @@ class SoftConstraintEvaluator:
         Returns:
             (total_penalty, penalty_breakdown)
         """
-        penalties = {}
+        penalties: Dict[str, float] = {}
         
         # 1. Huecos en horarios de estudiantes (PRIORIDAD ALTA)
         penalties["huecos_estudiantes"] = self._calculate_student_gaps(schedule)
@@ -932,8 +959,20 @@ class SoftConstraintEvaluator:
         
         # 6. Preferencia de franjas horarias (PRIORIDAD MUY BAJA)
         penalties["preferencia_franja"] = self._calculate_timeslot_preference(schedule)
+
+        # 7. Preferencias de laboratorios de Sistemas
+        penalties["preferencia_laboratorio"] = self._calculate_lab_preference(schedule)
+
+        # 8. Separacion entre teoria y practica del mismo curso
+        penalties["dispersion_teoria_practica"] = self._calculate_theory_practice_spread(schedule)
+
+        # 9. Fatiga por bloques demasiado largos
+        penalties["fatiga_bloques_largos"] = self._calculate_long_block_fatigue(schedule)
+
+        # 10. Incumplimiento de restricciones docentes de baja prioridad
+        penalties["profesor_baja_prioridad"] = self._calculate_professor_low_priority(schedule)
         
-        # 7. Equilibrio de uso de aulas (PRIORIDAD MUY BAJA)
+        # 11. Equilibrio de uso de aulas (PRIORIDAD MUY BAJA)
         penalties["equilibrio_aulas"] = self._calculate_classroom_balance(schedule)
         penalties["alineacion_franja"] = self._calculate_block_alignment(schedule)
         
@@ -979,6 +1018,8 @@ class SoftConstraintEvaluator:
         by_ciclo_day = defaultdict(lambda: defaultdict(set))
         
         for assign in schedule:
+            if assign.classroom_id is None or assign.classroom_id not in self.classrooms:
+                continue
             classroom = self.classrooms[assign.classroom_id]
             for ts_id in assign.timeslot_ids:
                 ts = self.timeslots[ts_id]
@@ -1066,30 +1107,215 @@ class SoftConstraintEvaluator:
             total_penalty += variance
         
         return total_penalty
-    
-    def _calculate_timeslot_preference(self, schedule: List[Assignment]) -> float:
-        """Penaliza franjas menos deseables (ej: última hora del día)"""
-        penalty = 0
-        
+
+    def _calculate_lab_preference(self, schedule: List[Assignment]) -> float:
+        """Penaliza laboratorios pequenos fuera del edificio F."""
+        penalty = 0.0
+
+        for assign in schedule:
+            if assign.session_type != "L":
+                continue
+            if assign.classroom_id is None:
+                continue
+            if assign.alumnos_proyectados > 20:
+                continue
+
+            classroom = self.classrooms.get(assign.classroom_id)
+            if classroom is None:
+                continue
+
+            if (classroom.edificio or "").strip().upper() != "F":
+                penalty += 15.0
+
+        return penalty
+
+    def _calculate_theory_practice_spread(self, schedule: List[Assignment]) -> float:
+        """Penaliza teoria y practica del mismo curso cuando caen en el mismo dia."""
+        assignments_by_course: Dict[str, List[Assignment]] = defaultdict(list)
+        penalty = 0.0
+
+        for assign in schedule:
+            assignments_by_course[assign.course_code].append(assign)
+
+        for course_assignments in assignments_by_course.values():
+            theory_assignments = [assign for assign in course_assignments if assign.session_type == "T"]
+            practice_assignments = [assign for assign in course_assignments if assign.session_type == "P"]
+
+            if not theory_assignments or not practice_assignments:
+                continue
+
+            for theory in theory_assignments:
+                theory_days = self._get_assignment_days(theory)
+                if not theory_days:
+                    continue
+
+                for practice in practice_assignments:
+                    if theory_days & self._get_assignment_days(practice):
+                        penalty += 20.0
+
+        return penalty
+
+    def _calculate_long_block_fatigue(self, schedule: List[Assignment]) -> float:
+        """Penaliza dias en los que una misma seccion supera cuatro franjas."""
+        slots_by_section_day: Dict[int, Dict[int, Set[int]]] = defaultdict(lambda: defaultdict(set))
+
         for assign in schedule:
             for ts_id in assign.timeslot_ids:
                 ts = self.timeslots[ts_id]
-                
-                # Penalizar última franja del periodo
-                if ts.periodo == "noche" or ts.orden >= 14:
-                    penalty += 1.0
-                
-                # Penalizar sábados
-                if ts.dia_semana == 6:
-                    penalty += 0.5
-        
+                slots_by_section_day[assign.section_id][ts.dia_semana].add(ts.orden)
+
+        penalty = 0.0
+        for days in slots_by_section_day.values():
+            for orders in days.values():
+                slot_count = len(orders)
+                if slot_count > 4:
+                    penalty += float((slot_count - 4) * 10)
+
         return penalty
+
+    def _calculate_professor_low_priority(self, schedule: List[Assignment]) -> float:
+        """Penaliza asignaciones que caen en restricciones docentes de baja prioridad."""
+        penalty = 0.0
+
+        for assign in schedule:
+            restrictions = self.professor_restrictions.get(assign.professor_id, [])
+            if not restrictions:
+                continue
+
+            low_priority_restrictions = [
+                restriction
+                for restriction in restrictions
+                if getattr(restriction, "es_baja_prioridad", False)
+            ]
+            if not low_priority_restrictions:
+                continue
+
+            for ts_id in assign.timeslot_ids:
+                ts = self.timeslots[ts_id]
+                for restriction in low_priority_restrictions:
+                    if (
+                        restriction.dia_semana == ts.dia_semana and
+                        self._time_overlaps(
+                            ts.hora_inicio,
+                            ts.hora_fin,
+                            restriction.hora_inicio,
+                            restriction.hora_fin,
+                        )
+                    ):
+                        penalty += 50.0
+                        break
+
+        return penalty
+
+    def _get_assignment_days(self, assignment: Assignment) -> Set[int]:
+        """Retorna el conjunto de dias usados por una asignacion."""
+        return {
+            self.timeslots[ts_id].dia_semana
+            for ts_id in assignment.timeslot_ids
+            if ts_id in self.timeslots
+        }
+
+    def _normalize_text(self, value: str) -> str:
+        """Normaliza texto libre a una forma comparable y sin acentos."""
+        normalized = (value or "").strip().lower()
+        normalized = normalized.replace("\u00e1", "a")
+        normalized = normalized.replace("\u00e9", "e")
+        normalized = normalized.replace("\u00ed", "i")
+        normalized = normalized.replace("\u00f3", "o")
+        normalized = normalized.replace("\u00fa", "u")
+        normalized = normalized.replace("\u00f1", "n")
+        normalized = normalized.replace("á", "a")
+        normalized = normalized.replace("é", "e")
+        normalized = normalized.replace("í", "i")
+        normalized = normalized.replace("ó", "o")
+        normalized = normalized.replace("ú", "u")
+        normalized = normalized.replace("ñ", "n")
+        normalized = normalized.replace("Ã¡", "a")
+        normalized = normalized.replace("Ã©", "e")
+        normalized = normalized.replace("Ã­", "i")
+        normalized = normalized.replace("Ã³", "o")
+        normalized = normalized.replace("Ãº", "u")
+        normalized = normalized.replace("Ã±", "n")
+        return normalized
+
+    def _time_overlaps(
+        self,
+        start1: Any,
+        end1: Any,
+        start2: Any,
+        end2: Any,
+    ) -> bool:
+        """Verifica si dos rangos de tiempo se solapan."""
+        if not all([start1, end1, start2, end2]):
+            return False
+
+        def to_minutes(value: Any) -> Optional[int]:
+            if value is None:
+                return None
+            if isinstance(value, timedelta):
+                return int(value.total_seconds() // 60)
+            if isinstance(value, datetime):
+                return value.hour * 60 + value.minute
+            if isinstance(value, time):
+                return value.hour * 60 + value.minute
+            if isinstance(value, (int, float)):
+                return int(value)
+            if isinstance(value, str):
+                raw = value.strip()
+                if not raw:
+                    return None
+                if raw.isdigit():
+                    return int(raw)
+                hhmmss_match = re.match(r"^(\d{1,2}):(\d{2})(?::\d{2})?$", raw)
+                if hhmmss_match:
+                    hours = int(hhmmss_match.group(1))
+                    minutes = int(hhmmss_match.group(2))
+                    return hours * 60 + minutes
+                return None
+
+            hour = getattr(value, "hour", None)
+            minute = getattr(value, "minute", None)
+            if hour is not None and minute is not None:
+                return int(hour) * 60 + int(minute)
+            return None
+
+        s1, e1 = to_minutes(start1), to_minutes(end1)
+        s2, e2 = to_minutes(start2), to_minutes(end2)
+
+        if None in (s1, e1, s2, e2):
+            return False
+
+        return s1 < e2 and s2 < e1
+    
+    def _calculate_timeslot_preference(self, schedule: List[Assignment]) -> float:
+        """Penaliza franjas menos deseables (ej: última hora del día)"""
+        penalty = 0.0
+        
+        for assign in schedule:
+            ciclo_num = Assignment._parse_ciclo_number(assign.ciclo)
+            for ts_id in assign.timeslot_ids:
+                ts = self.timeslots[ts_id]
+                periodo = self._normalize_text(ts.periodo)
+
+                if ciclo_num > 0:
+                    if ciclo_num % 2 == 1 and periodo != "manana":
+                        penalty += 5.0
+                    elif ciclo_num % 2 == 0 and periodo != "tarde":
+                        penalty += 5.0
+
+                    if ciclo_num == 1 and ts.dia_semana == 6:
+                        penalty += 25.0
+                
+        
+        return float(penalty)
     
     def _calculate_classroom_balance(self, schedule: List[Assignment]) -> float:
         """Penaliza desbalance en el uso de aulas"""
         classroom_usage = defaultdict(int)
         
         for assign in schedule:
+            if assign.classroom_id is None:
+                continue
             classroom_usage[assign.classroom_id] += len(assign.timeslot_ids)
         
         if len(classroom_usage) == 0:
@@ -1143,8 +1369,7 @@ class SoftConstraintEvaluator:
 
     def _infer_franja_from_timeslot(self, timeslot: TimeSlotInfo) -> Optional[int]:
         """Mapea la franja horaria real a un índice ordinal consistente."""
-        periodo = (timeslot.periodo or "").strip().lower()
-        periodo = periodo.replace("á", "a")
+        periodo = self._normalize_text(timeslot.periodo)
 
         if periodo == "manana":
             return 1

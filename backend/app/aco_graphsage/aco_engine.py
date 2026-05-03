@@ -1552,6 +1552,7 @@ def create_aco_engine(
                 dia_semana=day_num,
                 hora_inicio=start_time,
                 hora_fin=end_time,
+                es_baja_prioridad=bool(getattr(r, "es_baja_prioridad", False)),
             )
         )
     
@@ -1570,6 +1571,7 @@ def create_aco_engine(
     soft_evaluator = SoftConstraintEvaluator(
         timeslots=timeslots,
         classrooms=classrooms,
+        professor_restrictions=dict(professor_restrictions),
     )
     
     # Crear engine
