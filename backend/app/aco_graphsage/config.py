@@ -10,9 +10,9 @@ confirmadas del proyecto UPAO y las mejores prácticas de la literatura.
 # ============================================================================
 ACO_PARAMS = {
     # Colonia
-    "n_hormigas": 50,  # Número de hormigas por iteración
-    "n_iteraciones": 100,  # Iteraciones del algoritmo
-    "early_stopping_patience": 12,  # Iteraciones sin mejora antes de detener
+    "n_hormigas": 15,  # Número de hormigas por iteración
+    "n_iteraciones": 30,  # Iteraciones del algoritmo
+    "early_stopping_patience": 5,  # Iteraciones sin mejora antes de detener
     
     # Pesos de la función de probabilidad P(i,j) ∝ [τ]^α · [Φ]^β
     "alpha": 1.0,  # Influencia de la feromona

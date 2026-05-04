@@ -60,10 +60,13 @@ def run_basic_aco():
         # Importar modelos
         from app.models import ScheduleAssignment, CourseSection, Course, Professor, Classroom, TimeSlot
         
-        # Obtener asignaciones existentes
-        assignments = db.query(ScheduleAssignment).filter(
-            ScheduleAssignment.active == True
-        ).all()
+        # Obtener asignaciones existentes (compatibilidad con esquemas antiguos/nuevos)
+        query = db.query(ScheduleAssignment)
+        if hasattr(ScheduleAssignment, "active"):
+            query = query.filter(ScheduleAssignment.active == True)
+        elif hasattr(ScheduleAssignment, "estado"):
+            query = query.filter(ScheduleAssignment.estado != "cancelado")
+        assignments = query.all()
         
         print(f"\n✅ Se encontraron {len(assignments)} asignaciones activas en la BD")
         
@@ -76,27 +79,29 @@ def run_basic_aco():
         horario_data = []
         
         for a in assignments:
-            section = db.query(CourseSection).filter(CourseSection.id == a.section_id).first()
+            section_id = getattr(a, "section_id", None) or getattr(a, "course_section_id", None)
+            section = db.query(CourseSection).filter(CourseSection.id == section_id).first() if section_id else None
             if not section:
                 continue
                 
-            course = db.query(Course).filter(Course.id == section.course_id).first()
-            professor = db.query(Professor).filter(Professor.id == a.professor_id).first() if a.professor_id else None
-            classroom = db.query(Classroom).filter(Classroom.id == a.classroom_id).first() if a.classroom_id else None
-            timeslot = db.query(TimeSlot).filter(TimeSlot.id == a.time_slot_id).first() if a.time_slot_id else None
+            course_id = getattr(a, "course_id", None) or getattr(section, "course_id", None)
+            course = db.query(Course).filter(Course.id == course_id).first() if course_id else None
+            professor = db.query(Professor).filter(Professor.id == a.professor_id).first() if getattr(a, "professor_id", None) else None
+            classroom = db.query(Classroom).filter(Classroom.id == a.classroom_id).first() if getattr(a, "classroom_id", None) else None
+            timeslot = db.query(TimeSlot).filter(TimeSlot.id == a.time_slot_id).first() if getattr(a, "time_slot_id", None) else None
             
             horario_data.append({
-                "section_id": a.section_id,
-                "nrc": section.nrc,
+                "section_id": section_id,
+                "nrc": getattr(section, "nrc", None),
                 "course_code": course.codigo if course else "N/A",
                 "course_name": course.nombre if course else "N/A",
-                "session_type": section.tipo,
-                "section": section.seccion,
-                "professor_id": a.professor_id,
+                "session_type": getattr(section, "tipo", "N/A"),
+                "section": getattr(section, "seccion", "N/A"),
+                "professor_id": getattr(a, "professor_id", None),
                 "professor_name": professor.nombre_completo if professor else "Sin asignar",
-                "classroom_id": a.classroom_id,
+                "classroom_id": getattr(a, "classroom_id", None),
                 "classroom_code": classroom.codigo if classroom else "Sin asignar",
-                "timeslot_id": a.time_slot_id,
+                "timeslot_id": getattr(a, "time_slot_id", None),
                 "day": timeslot.dia_semana if timeslot else "N/A",
                 "start_time": str(timeslot.hora_inicio) if timeslot else "N/A",
                 "end_time": str(timeslot.hora_fin) if timeslot else "N/A",
@@ -355,6 +360,7 @@ def main():
         soft_evaluator = SoftConstraintEvaluator(
             timeslots=timeslots_dict,
             classrooms=classrooms_dict,
+            professor_restrictions=dict(professor_restrictions),
         )
         
         # 5. Crear motor ACO

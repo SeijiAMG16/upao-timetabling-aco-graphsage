@@ -59,13 +59,19 @@ class Assignment:
         self.franja_index = franja_index
 
     @staticmethod
-    def _parse_ciclo_number(ciclo_str: str) -> int:
+    def _parse_ciclo_number(ciclo_str: Any) -> int:
         """
         Extrae el numero de ciclo desde representaciones como ``ISIA-V`` o ``I``.
 
         Retorna 0 cuando no se puede inferir el ciclo.
         """
-        raw_value = (ciclo_str or "").strip().upper()
+        if ciclo_str is None:
+            raw_value = ""
+        elif isinstance(ciclo_str, (int, float)):
+            # Soporta ciclos enviados como numericos desde la BD/modelo.
+            raw_value = str(int(ciclo_str))
+        else:
+            raw_value = str(ciclo_str).strip().upper()
         if not raw_value:
             return 0
 
@@ -920,13 +926,8 @@ class SoftConstraintEvaluator:
     ):
         self.timeslots = timeslots
         self.classrooms = classrooms
+        # Mantener pesos calibrados de negocio definidos en config.
         default_weights: Dict[str, float] = dict(CONSTRAINT_WEIGHTS)
-        default_weights.update({
-            "preferencia_laboratorio": 1.0,
-            "dispersion_teoria_practica": 1.0,
-            "fatiga_bloques_largos": 1.0,
-            "profesor_baja_prioridad": 1.0,
-        })
         self.weights = {**default_weights, **(weights or {})}
         self.professor_restrictions = professor_restrictions or {}
     
