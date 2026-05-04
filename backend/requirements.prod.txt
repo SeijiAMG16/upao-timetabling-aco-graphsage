@@ -1,0 +1,40 @@
+# FastAPI and web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+httpx==0.25.2
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+PyJWT==2.8.0
+
+# Database
+SQLAlchemy==2.0.23
+alembic==1.12.1
+pymysql==1.1.0
+mysql-connector-python==8.2.0
+
+# Data processing
+pandas==2.1.3
+numpy==1.25.2
+openpyxl==3.1.2
+xlrd==2.0.1
+
+# Machine Learning (GraphSAGE optional)
+scikit-learn==1.3.2
+networkx==3.2.1
+
+# ACO Algorithm dependencies
+scipy==1.11.4
+matplotlib==3.8.2
+
+# Utilities
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.0.3
+
+# Async and background tasks
+celery==5.3.4
+redis==5.0.1
