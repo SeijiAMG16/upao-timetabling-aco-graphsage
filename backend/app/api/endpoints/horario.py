@@ -41,7 +41,7 @@ def reset_status():
         "completed_at": None
     }
 
-async def ejecutar_generacion_completa():
+def ejecutar_generacion_completa():
     """
     Execute the complete schedule generation process:
     1. Run ACO+GraphSAGE algorithm (ejecutar_aco_completo.py)
@@ -68,26 +68,26 @@ async def ejecutar_generacion_completa():
         
         logger.info(f"[DEBUG] Ejecutando script: {aco_script}")
         logger.info(f"[DEBUG] Directorio de trabajo: {backend_dir}")
-        logger.info(f"[DEBUG] Parámetros: 3 hormigas, 8 iteraciones (optimizado para cloud)")
+        logger.info(f"[DEBUG] Parámetros: 15 hormigas, 15 iteraciones (Ajustado para Cloud)")
         
-        # Parámetros reducidos para evitar OOM en DigitalOcean App Platform
+        # Parámetros restaurados para alta calidad (Tesis)
         result_aco = subprocess.run(
             [
                 "python", str(aco_script),
-                "--hormigas", "3",            # Reducido de 10 a 3 (menos memoria)
-                "--iteraciones", "8",         # Reducido de 20 a 8 (más rápido)
-                "--alpha", "1.0",              # Pheromone weight
-                "--beta", "2.3",               # Neural heuristic weight
-                "--rho", "0.2",                # Evaporation rate
-                "--q0", "0.88",                # Exploitation probability
-                "--patiencia", "4",            # Reducido de 6 a 4
-                "--max-candidatos", "300",     # Reducido de 600 a 300
-                "--max-profesores", "4",       # Reducido de 6 a 4
-                "--max-aulas", "8",            # Reducido de 12 a 8
-                "--max-timeslots", "8"         # Reducido de 12 a 8
+                "--hormigas", "15",           # Balanceado
+                "--iteraciones", "15",        # Balanceado
+                "--alpha", "1.0",
+                "--beta", "5.0",               # Neural heuristic weight (Mejor resultado Exp 10)
+                "--rho", "0.2",
+                "--q0", "0.88",
+                "--patiencia", "6",            # Paciencia media
+                "--max-candidatos", "500",
+                "--max-profesores", "6",
+                "--max-aulas", "12",
+                "--max-timeslots", "12"
             ],
             cwd=backend_dir,
-            timeout=300  # 5 minutes timeout (reducido)
+            timeout=10800  # 3 hours timeout (para estar seguros)
         )
         
         logger.info(f"[DEBUG] Script completado con código: {result_aco.returncode}")
@@ -131,6 +131,22 @@ async def ejecutar_generacion_completa():
         excel_filename = os.path.basename(latest_excel)
         
         logger.info(f"✅ Archivo Excel generado: {excel_filename}")
+        
+        # Move files to generated_dir for persistence
+        import shutil
+        generated_dir = backend_dir / "horarios_generados"
+        if not os.path.exists(generated_dir):
+            os.makedirs(generated_dir)
+            
+        for f_path in glob.glob(str(backend_dir / "horario_generado_*")):
+            try:
+                shutil.move(f_path, str(generated_dir / os.path.basename(f_path)))
+                logger.info(f"Archivo movido a persistencia: {os.path.basename(f_path)}")
+            except Exception as e:
+                logger.warning(f"No se pudo mover {f_path}: {e}")
+        
+        # Update filename to the new location (relative for the API)
+        excel_filename = os.path.basename(latest_excel)
         
         # Update status - SUCCESS
         generation_status["is_running"] = False
@@ -239,9 +255,14 @@ async def descargar_horario(filename: str):
     if not any(valid_patterns):
         raise HTTPException(status_code=400, detail="Nombre de archivo no válido")
     
-    # Get backend directory
+    # Get backend directory and generated schedules directory
     backend_dir = Path(__file__).parent.parent.parent.parent
-    file_path = backend_dir / filename
+    generated_dir = backend_dir / "horarios_generados"
+    file_path = generated_dir / filename
+    
+    # Fallback to backend root if not in generated_dir (for legacy files)
+    if not file_path.exists():
+        file_path = backend_dir / filename
     
     # Check if file exists
     if not file_path.exists():
@@ -268,9 +289,16 @@ async def listar_archivos():
     - List of available Excel files with metadata
     """
     backend_dir = Path(__file__).parent.parent.parent.parent
+    generated_dir = backend_dir / "horarios_generados"
     
-    # Buscar archivos con ambos patrones
+    # Asegurar que el directorio existe
+    if not os.path.exists(generated_dir):
+        os.makedirs(generated_dir)
+    
+    # Buscar archivos en el directorio específico y en la raíz (compatibilidad)
     excel_files = []
+    excel_files.extend(glob.glob(str(generated_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
+    excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*_formato_profesores.xlsx")))
     excel_files.extend(glob.glob(str(backend_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
     excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*_formato_profesores.xlsx")))
     
