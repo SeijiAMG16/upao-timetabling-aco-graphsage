@@ -9,6 +9,7 @@ import logging
 import subprocess
 import os
 import glob
+import shutil
 from datetime import datetime
 from pathlib import Path
 import json
@@ -68,26 +69,26 @@ def ejecutar_generacion_completa():
         
         logger.info(f"[DEBUG] Ejecutando script: {aco_script}")
         logger.info(f"[DEBUG] Directorio de trabajo: {backend_dir}")
-        logger.info(f"[DEBUG] Parámetros: 15 hormigas, 15 iteraciones (Ajustado para Cloud)")
+        logger.info(f"[DEBUG] Parámetros: 15 hormigas, 15 iteraciones (Sincronizado con config.py)")
         
         # Parámetros restaurados para alta calidad (Tesis)
         result_aco = subprocess.run(
             [
                 "python", str(aco_script),
-                "--hormigas", "15",           # Balanceado
-                "--iteraciones", "15",        # Balanceado
+                "--hormigas", "15",
+                "--iteraciones", "15",
                 "--alpha", "1.0",
-                "--beta", "5.0",               # Neural heuristic weight (Mejor resultado Exp 10)
-                "--rho", "0.2",
-                "--q0", "0.88",
-                "--patiencia", "6",            # Paciencia media
-                "--max-candidatos", "500",
+                "--beta", "5.0",               # Siguiendo Exp 10 (Mejor resultado)
+                "--rho", "0.1",                # Sincronizado con config.py
+                "--q0", "0.9",                 # Sincronizado con config.py
+                "--patiencia", "5",            # Sincronizado con config.py
+                "--max-candidatos", "600",     # Sincronizado con config.py
                 "--max-profesores", "6",
                 "--max-aulas", "12",
                 "--max-timeslots", "12"
             ],
             cwd=backend_dir,
-            timeout=10800  # 3 hours timeout (para estar seguros)
+            timeout=10800  # 3 hours timeout
         )
         
         logger.info(f"[DEBUG] Script completado con código: {result_aco.returncode}")
@@ -133,7 +134,6 @@ def ejecutar_generacion_completa():
         logger.info(f"✅ Archivo Excel generado: {excel_filename}")
         
         # Move files to generated_dir for persistence
-        import shutil
         generated_dir = backend_dir / "horarios_generados"
         if not os.path.exists(generated_dir):
             os.makedirs(generated_dir)
@@ -205,12 +205,12 @@ async def generar_horario(background_tasks: BackgroundTasks):
         "algorithm": "ACO + GraphSAGE",
         "estimated_time_minutes": 3,
         "parameters": {
-            "hormigas": 10,
-            "iteraciones": 20,
+            "hormigas": 15,
+            "iteraciones": 15,
             "alpha": 1.0,
-            "beta": 2.3,
-            "rho": 0.2,
-            "q0": 0.88
+            "beta": 5.0,
+            "rho": 0.1,
+            "q0": 0.9
         }
     }
 
