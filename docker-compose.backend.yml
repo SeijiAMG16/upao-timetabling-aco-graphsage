@@ -1,6 +1,36 @@
 version: "3.8"
 
 services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: upao_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: upao_root_password
+      MYSQL_DATABASE: upao_timetabling
+      MYSQL_USER: upao_user
+      MYSQL_PASSWORD: upao_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - upao_network
+
+  # Redis for Celery
+  redis:
+    image: redis:7-alpine
+    container_name: upao_redis
+    restart: unless-stopped
+    networks:
+      - upao_network
+
+  # Backend FastAPI
   backend:
     build:
       context: ./backend
@@ -9,12 +39,28 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env
+    environment:
+      - DATABASE_URL=mysql+pymysql://upao_user:upao_password@mysql:3306/upao_timetabling
+      - REDIS_URL=redis://redis:6379/0
     ports:
       - "8000:8000"
     volumes:
       - ./inputs:/app/inputs
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - upao_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+
+networks:
+  upao_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
