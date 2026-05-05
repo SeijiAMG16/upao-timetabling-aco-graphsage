@@ -18,13 +18,17 @@ if [ ! -f "backend/.env" ]; then
     exit 1
 fi
 
-# 3. Levantar contenedores
-echo "🐳 Construyendo y levantando contenedores con Docker Compose..."
-docker-compose -f docker-compose.backend.yml up -d --build
+# 3. Limpiar contenedores previos si existen (para evitar errores de ContainerConfig)
+echo "🧹 Limpiando instalaciones previas..."
+docker compose -f docker-compose.backend.yml down --remove-orphans 2>/dev/null || true
 
-# 4. Verificar estado
+# 4. Levantar contenedores
+echo "🐳 Construyendo y levantando contenedores con Docker Compose V2..."
+docker compose -f docker-compose.backend.yml up -d --build
+
+# 5. Verificar estado
 echo "📊 Estado de los contenedores:"
-docker-compose -f docker-compose.backend.yml ps
+docker compose -f docker-compose.backend.yml ps
 
 echo "✅ Despliegue completado!"
-echo "📺 Puedes ver los logs con: docker-compose -f docker-compose.backend.yml logs -f backend"
+echo "📺 Puedes ver los logs con: docker compose -f docker-compose.backend.yml logs -f backend"
