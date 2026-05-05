@@ -6,7 +6,7 @@ import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import BlockIcon from '@mui/icons-material/Block';
 import axios from 'axios';
 
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}/api`;
+const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api`;
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ professors: 0, courses: 0, classrooms: 0, restrictions: 0 });

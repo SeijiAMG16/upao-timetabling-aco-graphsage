@@ -1,0 +1,4163 @@
+{
+  "metadata": {
+    "timestamp": "20260503_184622",
+    "total_secciones": 281,
+    "costo_total": 85642.22240596024,
+    "es_valida": true,
+    "penalizaciones": {
+      "huecos_estudiantes": 98.0,
+      "cambio_edificio": 31.0,
+      "compacidad_dia": 10.800588300588302,
+      "huecos_profesores": 286.0,
+      "distribucion_profesor": 206.09194444444444,
+      "preferencia_franja": 2615.0,
+      "preferencia_laboratorio": 0.0,
+      "dispersion_teoria_practica": 660.0,
+      "fatiga_bloques_largos": 0.0,
+      "profesor_baja_prioridad": 0.0,
+      "equilibrio_aulas": 8.035575568411916,
+      "alineacion_franja": 198.25
+    }
+  },
+  "asignaciones": [
+    {
+      "section_id": 1705,
+      "course_code": "ICSI521",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 322,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        2,
+        3
+      ],
+      "alumnos_proyectados": 34
+    },
+    {
+      "section_id": 1741,
+      "course_code": "ISIA112",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 322,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        4,
+        5
+      ],
+      "alumnos_proyectados": 59
+    },
+    {
+      "section_id": 1704,
+      "course_code": "ICSI521",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 322,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 34
+    },
+    {
+      "section_id": 1772,
+      "course_code": "ISIA115",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 322,
+      "classroom_id": 75,
+      "timeslot_ids": [
+        21,
+        22
+      ],
+      "alumnos_proyectados": 37
+    },
+    {
+      "section_id": 1774,
+      "course_code": "ISIA115",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 322,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": -10,
+      "course_code": "ISIA115",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 322,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "alumnos_proyectados": 7
+    },
+    {
+      "section_id": 1771,
+      "course_code": "ISIA115",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 322,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        54,
+        55
+      ],
+      "alumnos_proyectados": 38
+    },
+    {
+      "section_id": -9,
+      "course_code": "ISIA115",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 322,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        58,
+        59,
+        60,
+        61
+      ],
+      "alumnos_proyectados": 8
+    },
+    {
+      "section_id": 1742,
+      "course_code": "ISIA112",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 322,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        67,
+        68
+      ],
+      "alumnos_proyectados": 59
+    },
+    {
+      "section_id": 1768,
+      "course_code": "ISIA111",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 322,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        70,
+        71
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1773,
+      "course_code": "ISIA115",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 322,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        74,
+        75,
+        76,
+        77
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1770,
+      "course_code": "ISIA111",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 322,
+      "classroom_id": 64,
+      "timeslot_ids": [
+        79,
+        80
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1649,
+      "course_code": "ICSI673",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 323,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        77,
+        78,
+        79,
+        80
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1745,
+      "course_code": "ISIA114",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 324,
+      "classroom_id": 81,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 43
+    },
+    {
+      "section_id": 1633,
+      "course_code": "ICSI672",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 324,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        3,
+        4
+      ],
+      "alumnos_proyectados": 43
+    },
+    {
+      "section_id": 1746,
+      "course_code": "ISIA114",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 324,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 42
+    },
+    {
+      "section_id": 1634,
+      "course_code": "ICSI672",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 324,
+      "classroom_id": 81,
+      "timeslot_ids": [
+        30,
+        31
+      ],
+      "alumnos_proyectados": 42
+    },
+    {
+      "section_id": 1594,
+      "course_code": "ADMI779",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 326,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        18,
+        19
+      ],
+      "alumnos_proyectados": 49
+    },
+    {
+      "section_id": 1597,
+      "course_code": "ADMI779",
+      "session_type": "T",
+      "league_id": 4,
+      "ciclo": 2,
+      "professor_id": 326,
+      "classroom_id": 82,
+      "timeslot_ids": [
+        20,
+        21
+      ],
+      "alumnos_proyectados": 48
+    },
+    {
+      "section_id": 1601,
+      "course_code": "ADMI779",
+      "session_type": "P",
+      "league_id": 4,
+      "ciclo": 2,
+      "professor_id": 326,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        22,
+        23,
+        24,
+        25
+      ],
+      "alumnos_proyectados": 48
+    },
+    {
+      "section_id": 1802,
+      "course_code": "ICSI679",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 9,
+      "professor_id": 327,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        30,
+        31
+      ],
+      "alumnos_proyectados": 42
+    },
+    {
+      "section_id": 1804,
+      "course_code": "ICSI679",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 9,
+      "professor_id": 327,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        87,
+        88,
+        89,
+        90
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1803,
+      "course_code": "ICSI679",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 9,
+      "professor_id": 327,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        91,
+        92,
+        93,
+        94
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1837,
+      "course_code": "ISIA125",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 328,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        2,
+        3
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1838,
+      "course_code": "ISIA125",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 10,
+      "professor_id": 328,
+      "classroom_id": 74,
+      "timeslot_ids": [
+        4,
+        5
+      ],
+      "alumnos_proyectados": 16
+    },
+    {
+      "section_id": 1839,
+      "course_code": "ISIA125",
+      "session_type": "T",
+      "league_id": 4,
+      "ciclo": 10,
+      "professor_id": 328,
+      "classroom_id": 73,
+      "timeslot_ids": [
+        8,
+        9
+      ],
+      "alumnos_proyectados": 16
+    },
+    {
+      "section_id": 1841,
+      "course_code": "ISIA125",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 328,
+      "classroom_id": 71,
+      "timeslot_ids": [
+        18,
+        19
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1836,
+      "course_code": "ISIA125",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 328,
+      "classroom_id": 73,
+      "timeslot_ids": [
+        21,
+        22
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1840,
+      "course_code": "ISIA125",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 328,
+      "classroom_id": 83,
+      "timeslot_ids": [
+        29,
+        30
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1843,
+      "course_code": "ISIA125",
+      "session_type": "P",
+      "league_id": 4,
+      "ciclo": 10,
+      "professor_id": 328,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        66,
+        67
+      ],
+      "alumnos_proyectados": 16
+    },
+    {
+      "section_id": 1848,
+      "course_code": "ICSI676",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        2,
+        3
+      ],
+      "alumnos_proyectados": 19
+    },
+    {
+      "section_id": 1734,
+      "course_code": "ICSI676",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 69,
+      "timeslot_ids": [
+        4,
+        5
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1736,
+      "course_code": "ICSI676",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": -6,
+      "course_code": "ICSI676",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "alumnos_proyectados": 10
+    },
+    {
+      "section_id": 1849,
+      "course_code": "ICSI676",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 72,
+      "timeslot_ids": [
+        20,
+        21
+      ],
+      "alumnos_proyectados": 19
+    },
+    {
+      "section_id": -5,
+      "course_code": "ICSI676",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        33,
+        34,
+        35,
+        36
+      ],
+      "alumnos_proyectados": 10
+    },
+    {
+      "section_id": 1737,
+      "course_code": "ICSI676",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        40,
+        41,
+        42,
+        43
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1735,
+      "course_code": "ICSI676",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 329,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        67,
+        68
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1689,
+      "course_code": "ISIA104",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 330,
+      "classroom_id": 84,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1690,
+      "course_code": "ISIA104",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 330,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        3,
+        4
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1681,
+      "course_code": "ISIA103",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 330,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1850,
+      "course_code": "ISIA104",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 330,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        31,
+        32
+      ],
+      "alumnos_proyectados": 10
+    },
+    {
+      "section_id": 1680,
+      "course_code": "ISIA103",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 330,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        36,
+        37
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1692,
+      "course_code": "ISIA104",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 330,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        38,
+        39
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1691,
+      "course_code": "ISIA104",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 330,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        41,
+        42
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1693,
+      "course_code": "ISIA104",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 330,
+      "classroom_id": 53,
+      "timeslot_ids": [
+        68,
+        69
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1623,
+      "course_code": "ICSI671",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 332,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 39
+    },
+    {
+      "section_id": 1622,
+      "course_code": "ICSI671",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 332,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 39
+    },
+    {
+      "section_id": 1625,
+      "course_code": "ICSI671",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 332,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        21,
+        22,
+        23,
+        24
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1624,
+      "course_code": "ICSI671",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 332,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1626,
+      "course_code": "ICSI671",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 332,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        54,
+        55,
+        56,
+        57
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1628,
+      "course_code": "ICSI671",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 332,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1627,
+      "course_code": "ICSI671",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 332,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        72,
+        73,
+        74,
+        75
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1603,
+      "course_code": "ICSI509",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 333,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        18,
+        19
+      ],
+      "alumnos_proyectados": 52
+    },
+    {
+      "section_id": 1602,
+      "course_code": "ICSI509",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 333,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        21,
+        22
+      ],
+      "alumnos_proyectados": 52
+    },
+    {
+      "section_id": 1612,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 333,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        23,
+        24,
+        25,
+        26
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1611,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 333,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        69,
+        70,
+        71,
+        72
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1663,
+      "course_code": "ISIA102",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 82,
+      "timeslot_ids": [
+        2,
+        3
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1665,
+      "course_code": "ISIA102",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "alumnos_proyectados": 14
+    },
+    {
+      "section_id": 1669,
+      "course_code": "ISIA102",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        13,
+        14,
+        15,
+        16
+      ],
+      "alumnos_proyectados": 13
+    },
+    {
+      "section_id": 1666,
+      "course_code": "ISIA102",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 52,
+      "timeslot_ids": [
+        23,
+        24,
+        25,
+        26
+      ],
+      "alumnos_proyectados": 14
+    },
+    {
+      "section_id": 1668,
+      "course_code": "ISIA102",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        50,
+        51,
+        52,
+        53
+      ],
+      "alumnos_proyectados": 13
+    },
+    {
+      "section_id": 1667,
+      "course_code": "ISIA102",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        54,
+        55,
+        56,
+        57
+      ],
+      "alumnos_proyectados": 14
+    },
+    {
+      "section_id": 1664,
+      "course_code": "ISIA102",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        72,
+        73
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1670,
+      "course_code": "ISIA102",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 334,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        77,
+        78,
+        79,
+        80
+      ],
+      "alumnos_proyectados": 13
+    },
+    {
+      "section_id": 1694,
+      "course_code": "ISIA106A",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 335,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        14,
+        15
+      ],
+      "alumnos_proyectados": 32
+    },
+    {
+      "section_id": 1710,
+      "course_code": "ISIA109",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 335,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 52
+    },
+    {
+      "section_id": 1695,
+      "course_code": "ISIA106A",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 335,
+      "classroom_id": 78,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 31
+    },
+    {
+      "section_id": 1711,
+      "course_code": "ISIA109",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 335,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        29,
+        30
+      ],
+      "alumnos_proyectados": 52
+    },
+    {
+      "section_id": 1762,
+      "course_code": "ISIA110",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 336,
+      "classroom_id": 84,
+      "timeslot_ids": [
+        3,
+        4
+      ],
+      "alumnos_proyectados": 33
+    },
+    {
+      "section_id": 1708,
+      "course_code": "ICSI521",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 336,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1766,
+      "course_code": "ISIA110",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 336,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1767,
+      "course_code": "ISIA110",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 336,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        13,
+        14,
+        15,
+        16
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1761,
+      "course_code": "ISIA110",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 336,
+      "classroom_id": 82,
+      "timeslot_ids": [
+        18,
+        19
+      ],
+      "alumnos_proyectados": 33
+    },
+    {
+      "section_id": 1653,
+      "course_code": "ICSI673",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 336,
+      "classroom_id": 53,
+      "timeslot_ids": [
+        22,
+        23,
+        24,
+        25
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1706,
+      "course_code": "ICSI521",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 336,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        26,
+        27,
+        28,
+        29
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1709,
+      "course_code": "ICSI521",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 336,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        38,
+        39,
+        40,
+        41
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1652,
+      "course_code": "ICSI673",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 336,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        43,
+        44,
+        45,
+        46
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1707,
+      "course_code": "ICSI521",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 336,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        50,
+        51,
+        52,
+        53
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1654,
+      "course_code": "ICSI673",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 336,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        54,
+        55,
+        56,
+        57
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1764,
+      "course_code": "ISIA110",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 336,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        58,
+        59,
+        60,
+        61
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1650,
+      "course_code": "ICSI673",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 336,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1651,
+      "course_code": "ICSI673",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 336,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1763,
+      "course_code": "ISIA110",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 336,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        74,
+        75,
+        76,
+        77
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1685,
+      "course_code": "ISIA106",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 338,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 32
+    },
+    {
+      "section_id": 1722,
+      "course_code": "ISIA108",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 338,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1684,
+      "course_code": "ISIA106",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 338,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        22,
+        23
+      ],
+      "alumnos_proyectados": 33
+    },
+    {
+      "section_id": 1724,
+      "course_code": "ISIA108",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 338,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        24,
+        25
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1686,
+      "course_code": "ISIA106",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 338,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        30,
+        31
+      ],
+      "alumnos_proyectados": 22
+    },
+    {
+      "section_id": 1723,
+      "course_code": "ISIA108",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 338,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        54,
+        55
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1687,
+      "course_code": "ISIA106",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 338,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        66,
+        67
+      ],
+      "alumnos_proyectados": 22
+    },
+    {
+      "section_id": 1688,
+      "course_code": "ISIA106",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 338,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        69,
+        70
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1726,
+      "course_code": "ISIA108",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 338,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        72,
+        73
+      ],
+      "alumnos_proyectados": 25
+    },
+    {
+      "section_id": 1725,
+      "course_code": "ISIA108",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 338,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        76,
+        77
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1727,
+      "course_code": "ISIA108",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 338,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        78,
+        79
+      ],
+      "alumnos_proyectados": 25
+    },
+    {
+      "section_id": 1780,
+      "course_code": "ICSI546",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 339,
+      "classroom_id": 81,
+      "timeslot_ids": [
+        18
+      ],
+      "alumnos_proyectados": 35
+    },
+    {
+      "section_id": 1606,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 339,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        22,
+        23,
+        24,
+        25
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1605,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 339,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1779,
+      "course_code": "ICSI546",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 339,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        33
+      ],
+      "alumnos_proyectados": 35
+    },
+    {
+      "section_id": 1798,
+      "course_code": "ISIA120",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 9,
+      "professor_id": 339,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        34,
+        35
+      ],
+      "alumnos_proyectados": 55
+    },
+    {
+      "section_id": 1775,
+      "course_code": "ISIA116",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 339,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        36,
+        37
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1777,
+      "course_code": "ISIA116",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 339,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        38,
+        39,
+        40,
+        41
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1781,
+      "course_code": "ICSI546",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 339,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        45,
+        46
+      ],
+      "alumnos_proyectados": 35
+    },
+    {
+      "section_id": 1782,
+      "course_code": "ICSI546",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 339,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        50,
+        51
+      ],
+      "alumnos_proyectados": 35
+    },
+    {
+      "section_id": 1608,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 339,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        53,
+        54,
+        55,
+        56
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1778,
+      "course_code": "ISIA116",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 339,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        58,
+        59,
+        60,
+        61
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1607,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 339,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1551,
+      "course_code": "ICSI506",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 339,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 16
+    },
+    {
+      "section_id": 1613,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 339,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        77,
+        78,
+        79,
+        80
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1550,
+      "course_code": "ICSI506",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 339,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        83,
+        84,
+        85,
+        86
+      ],
+      "alumnos_proyectados": 16
+    },
+    {
+      "section_id": 1552,
+      "course_code": "ICSI506",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 339,
+      "classroom_id": 62,
+      "timeslot_ids": [
+        87,
+        88,
+        89,
+        90
+      ],
+      "alumnos_proyectados": 16
+    },
+    {
+      "section_id": 1609,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 339,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        91,
+        92,
+        93,
+        94
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1700,
+      "course_code": "CIEN746",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 33
+    },
+    {
+      "section_id": 1701,
+      "course_code": "CIEN746",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        22,
+        23
+      ],
+      "alumnos_proyectados": 32
+    },
+    {
+      "section_id": 1851,
+      "course_code": "ISIA106A",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 81,
+      "timeslot_ids": [
+        25,
+        26
+      ],
+      "alumnos_proyectados": 3
+    },
+    {
+      "section_id": 1696,
+      "course_code": "ISIA106A",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        35,
+        36
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1753,
+      "course_code": "ISIA113",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 340,
+      "classroom_id": 48,
+      "timeslot_ids": [
+        41,
+        42
+      ],
+      "alumnos_proyectados": 2
+    },
+    {
+      "section_id": 1698,
+      "course_code": "ISIA106A",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        45,
+        46
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1699,
+      "course_code": "ISIA106A",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        47,
+        48
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1713,
+      "course_code": "ISIA109",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 340,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        49,
+        50,
+        51,
+        52
+      ],
+      "alumnos_proyectados": 26
+    },
+    {
+      "section_id": 1712,
+      "course_code": "ISIA109",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 340,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        53,
+        54,
+        55,
+        56
+      ],
+      "alumnos_proyectados": 26
+    },
+    {
+      "section_id": 1715,
+      "course_code": "ISIA109",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 340,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        58,
+        59,
+        60,
+        61
+      ],
+      "alumnos_proyectados": 26
+    },
+    {
+      "section_id": 1703,
+      "course_code": "CIEN746",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        67,
+        68
+      ],
+      "alumnos_proyectados": 32
+    },
+    {
+      "section_id": 1714,
+      "course_code": "ISIA109",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 340,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 26
+    },
+    {
+      "section_id": 1697,
+      "course_code": "ISIA106A",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        74,
+        75
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1702,
+      "course_code": "CIEN746",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 5,
+      "professor_id": 340,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        78,
+        79
+      ],
+      "alumnos_proyectados": 33
+    },
+    {
+      "section_id": 1660,
+      "course_code": "ICSI674",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 341,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        3,
+        4
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1810,
+      "course_code": "ISIA127",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 341,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1604,
+      "course_code": "ICSI509",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 341,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        18,
+        19
+      ],
+      "alumnos_proyectados": 51
+    },
+    {
+      "section_id": 1610,
+      "course_code": "ICSI509",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 341,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        21,
+        22,
+        23,
+        24
+      ],
+      "alumnos_proyectados": 17
+    },
+    {
+      "section_id": 1659,
+      "course_code": "ICSI674",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 341,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        27,
+        28
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1661,
+      "course_code": "ICSI674",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 341,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        31,
+        32
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1811,
+      "course_code": "ISIA127",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 341,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        49,
+        50,
+        51,
+        52
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1662,
+      "course_code": "ICSI674",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 341,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        66,
+        67
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1842,
+      "course_code": "ISIA125",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 10,
+      "professor_id": 342,
+      "classroom_id": 78,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 16
+    },
+    {
+      "section_id": 1793,
+      "course_code": "ISIA117",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 8,
+      "professor_id": 342,
+      "classroom_id": 69,
+      "timeslot_ids": [
+        20,
+        21
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1830,
+      "course_code": "ISIA126",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 342,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        23
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1831,
+      "course_code": "ISIA126",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 342,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        30
+      ],
+      "alumnos_proyectados": 49
+    },
+    {
+      "section_id": 1833,
+      "course_code": "ISIA126",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 342,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        54,
+        55,
+        56,
+        57
+      ],
+      "alumnos_proyectados": 25
+    },
+    {
+      "section_id": 1832,
+      "course_code": "ISIA126",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 342,
+      "classroom_id": 78,
+      "timeslot_ids": [
+        66,
+        67,
+        68,
+        69
+      ],
+      "alumnos_proyectados": 25
+    },
+    {
+      "section_id": 1834,
+      "course_code": "ISIA126",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 342,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        71,
+        72,
+        73,
+        74
+      ],
+      "alumnos_proyectados": 25
+    },
+    {
+      "section_id": 1835,
+      "course_code": "ISIA126",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 342,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        75,
+        76,
+        77,
+        78
+      ],
+      "alumnos_proyectados": 24
+    },
+    {
+      "section_id": 1824,
+      "course_code": "ISIA124",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 344,
+      "classroom_id": 83,
+      "timeslot_ids": [
+        2
+      ],
+      "alumnos_proyectados": 38
+    },
+    {
+      "section_id": 1827,
+      "course_code": "ISIA124",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 344,
+      "classroom_id": 83,
+      "timeslot_ids": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "alumnos_proyectados": 19
+    },
+    {
+      "section_id": 1783,
+      "course_code": "ICSI678",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 344,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        20,
+        21
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1784,
+      "course_code": "ICSI678",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 344,
+      "classroom_id": 83,
+      "timeslot_ids": [
+        22,
+        23
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1825,
+      "course_code": "ISIA124",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 344,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        24
+      ],
+      "alumnos_proyectados": 37
+    },
+    {
+      "section_id": 1785,
+      "course_code": "ICSI678",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 344,
+      "classroom_id": 64,
+      "timeslot_ids": [
+        31,
+        32
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1829,
+      "course_code": "ISIA124",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 344,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        50,
+        51,
+        52,
+        53
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1828,
+      "course_code": "ISIA124",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 10,
+      "professor_id": 344,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        54,
+        55,
+        56,
+        57
+      ],
+      "alumnos_proyectados": 19
+    },
+    {
+      "section_id": -13,
+      "course_code": "ICSI678",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 344,
+      "classroom_id": 64,
+      "timeslot_ids": [
+        67,
+        68
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1826,
+      "course_code": "ISIA124",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 344,
+      "classroom_id": 83,
+      "timeslot_ids": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 19
+    },
+    {
+      "section_id": 1822,
+      "course_code": "ISIA132",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 344,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        77,
+        78,
+        79,
+        80
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1648,
+      "course_code": "ICSI673",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 346,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        21,
+        22
+      ],
+      "alumnos_proyectados": 52
+    },
+    {
+      "section_id": 1647,
+      "course_code": "ICSI673",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 346,
+      "classroom_id": 68,
+      "timeslot_ids": [
+        59,
+        60
+      ],
+      "alumnos_proyectados": 53
+    },
+    {
+      "section_id": 1808,
+      "course_code": "ISIA122",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 9,
+      "professor_id": 349,
+      "classroom_id": 79,
+      "timeslot_ids": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "alumnos_proyectados": 24
+    },
+    {
+      "section_id": 1748,
+      "course_code": "ISIA114",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 349,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        20,
+        21
+      ],
+      "alumnos_proyectados": 28
+    },
+    {
+      "section_id": 1749,
+      "course_code": "ISIA114",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 349,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        22,
+        23
+      ],
+      "alumnos_proyectados": 28
+    },
+    {
+      "section_id": 1747,
+      "course_code": "ISIA114",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 349,
+      "classroom_id": 64,
+      "timeslot_ids": [
+        65,
+        66
+      ],
+      "alumnos_proyectados": 29
+    },
+    {
+      "section_id": 1809,
+      "course_code": "ISIA122",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 9,
+      "professor_id": 349,
+      "classroom_id": 82,
+      "timeslot_ids": [
+        68,
+        69,
+        70,
+        71
+      ],
+      "alumnos_proyectados": 24
+    },
+    {
+      "section_id": 1756,
+      "course_code": "ICSI677",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 350,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 42
+    },
+    {
+      "section_id": 1755,
+      "course_code": "ICSI677",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 350,
+      "classroom_id": 81,
+      "timeslot_ids": [
+        22,
+        23
+      ],
+      "alumnos_proyectados": 42
+    },
+    {
+      "section_id": 1757,
+      "course_code": "ICSI677",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 350,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1758,
+      "course_code": "ICSI677",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 350,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        54,
+        55,
+        56,
+        57
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1759,
+      "course_code": "ICSI677",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 350,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        66,
+        67,
+        68,
+        69
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1760,
+      "course_code": "ICSI677",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 350,
+      "classroom_id": 64,
+      "timeslot_ids": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1563,
+      "course_code": "ISIA100",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 351,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        6,
+        7
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1564,
+      "course_code": "ISIA100",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 351,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        8,
+        9
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1596,
+      "course_code": "ADMI779",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 351,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        21,
+        22
+      ],
+      "alumnos_proyectados": 48
+    },
+    {
+      "section_id": 1595,
+      "course_code": "ADMI779",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 351,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        30,
+        31
+      ],
+      "alumnos_proyectados": 48
+    },
+    {
+      "section_id": 1599,
+      "course_code": "ADMI779",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 351,
+      "classroom_id": 84,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 48
+    },
+    {
+      "section_id": 1598,
+      "course_code": "ADMI779",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 351,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 49
+    },
+    {
+      "section_id": 1600,
+      "course_code": "ADMI779",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 351,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        86,
+        87,
+        88,
+        89
+      ],
+      "alumnos_proyectados": 48
+    },
+    {
+      "section_id": 1565,
+      "course_code": "ISIA100",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 354,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        54,
+        55,
+        56,
+        57
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1566,
+      "course_code": "ISIA100",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 354,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1675,
+      "course_code": "ISIA103",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 355,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        6,
+        7
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1677,
+      "course_code": "ISIA103",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 355,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        13,
+        14
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1674,
+      "course_code": "ISIA103",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 355,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        38,
+        39
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1636,
+      "course_code": "ICSI672",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 355,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        70,
+        71
+      ],
+      "alumnos_proyectados": 42
+    },
+    {
+      "section_id": 1640,
+      "course_code": "ICSI672",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 355,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        84,
+        85
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1639,
+      "course_code": "ICSI672",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 355,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        86,
+        87
+      ],
+      "alumnos_proyectados": 21
+    },
+    {
+      "section_id": 1676,
+      "course_code": "ISIA103",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 355,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        89,
+        90
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1635,
+      "course_code": "ICSI672",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 355,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        95,
+        96
+      ],
+      "alumnos_proyectados": 43
+    },
+    {
+      "section_id": 1751,
+      "course_code": "ISIA113",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 356,
+      "classroom_id": 79,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 35
+    },
+    {
+      "section_id": 1790,
+      "course_code": "ISIA117",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 8,
+      "professor_id": 356,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        4,
+        5
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1750,
+      "course_code": "ISIA113",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 356,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        13,
+        14
+      ],
+      "alumnos_proyectados": 35
+    },
+    {
+      "section_id": 1789,
+      "course_code": "ISIA117",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 356,
+      "classroom_id": 80,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1752,
+      "course_code": "ISIA113",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 7,
+      "professor_id": 356,
+      "classroom_id": 54,
+      "timeslot_ids": [
+        24,
+        25
+      ],
+      "alumnos_proyectados": 2
+    },
+    {
+      "section_id": 1754,
+      "course_code": "ISIA113",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 7,
+      "professor_id": 356,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        51,
+        52
+      ],
+      "alumnos_proyectados": 1
+    },
+    {
+      "section_id": 1788,
+      "course_code": "ISIA117",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 356,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        65,
+        66
+      ],
+      "alumnos_proyectados": 19
+    },
+    {
+      "section_id": 1792,
+      "course_code": "ISIA117",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 356,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        67,
+        68
+      ],
+      "alumnos_proyectados": 18
+    },
+    {
+      "section_id": 1791,
+      "course_code": "ISIA117",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 356,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        72,
+        73
+      ],
+      "alumnos_proyectados": 19
+    },
+    {
+      "section_id": 1805,
+      "course_code": "ISIA123",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 9,
+      "professor_id": 356,
+      "classroom_id": 69,
+      "timeslot_ids": [
+        76,
+        77
+      ],
+      "alumnos_proyectados": 42
+    },
+    {
+      "section_id": 1546,
+      "course_code": "ICSI506",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 357,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1548,
+      "course_code": "ICSI506",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 357,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1776,
+      "course_code": "ISIA116",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 358,
+      "classroom_id": 78,
+      "timeslot_ids": [
+        3,
+        4
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": -12,
+      "course_code": "ISIA116",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 8,
+      "professor_id": 358,
+      "classroom_id": 52,
+      "timeslot_ids": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1717,
+      "course_code": "ISIA107",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1716,
+      "course_code": "ISIA107",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        29,
+        30
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": -4,
+      "course_code": "ISIA107",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        33,
+        34,
+        35,
+        36
+      ],
+      "alumnos_proyectados": 15
+    },
+    {
+      "section_id": 1721,
+      "course_code": "ISIA107",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        45,
+        46,
+        47,
+        48
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1720,
+      "course_code": "ISIA107",
+      "session_type": "L",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        49,
+        50,
+        51,
+        52
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": -2,
+      "course_code": "ISIA107",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 15
+    },
+    {
+      "section_id": 1846,
+      "course_code": "ISIA107",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        79,
+        80
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": -1,
+      "course_code": "ISIA107",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 61,
+      "timeslot_ids": [
+        82,
+        83,
+        84,
+        85
+      ],
+      "alumnos_proyectados": 15
+    },
+    {
+      "section_id": 1718,
+      "course_code": "ISIA107",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        86,
+        87,
+        88,
+        89
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1847,
+      "course_code": "ISIA107",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        90,
+        91
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1719,
+      "course_code": "ISIA107",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 358,
+      "classroom_id": 66,
+      "timeslot_ids": [
+        92,
+        93,
+        94,
+        95
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1618,
+      "course_code": "ISIA101",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 360,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1619,
+      "course_code": "ISIA101",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 360,
+      "classroom_id": 81,
+      "timeslot_ids": [
+        3,
+        4
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1621,
+      "course_code": "ISIA101",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 360,
+      "classroom_id": 79,
+      "timeslot_ids": [
+        19,
+        20,
+        21
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1620,
+      "course_code": "ISIA101",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 360,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1814,
+      "course_code": "ISIA129",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 361,
+      "classroom_id": 74,
+      "timeslot_ids": [
+        17,
+        18,
+        19,
+        20
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1815,
+      "course_code": "ISIA129",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 361,
+      "classroom_id": 60,
+      "timeslot_ids": [
+        86,
+        87,
+        88,
+        89
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1582,
+      "course_code": "HUMA1181",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 362,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1581,
+      "course_code": "HUMA1181",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 362,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        26,
+        27
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1585,
+      "course_code": "HUMA1181",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 362,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        31,
+        32
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1580,
+      "course_code": "HUMA1181",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 362,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        82,
+        83
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1584,
+      "course_code": "HUMA1181",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 362,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        84,
+        85
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1583,
+      "course_code": "HUMA1181",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 362,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        95,
+        96
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1587,
+      "course_code": "CIEN768",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1591,
+      "course_code": "CIEN768",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1586,
+      "course_code": "CIEN768",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        26,
+        27
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1588,
+      "course_code": "CIEN768",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        29,
+        30
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1592,
+      "course_code": "CIEN768",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1589,
+      "course_code": "CIEN768",
+      "session_type": "T",
+      "league_id": 4,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        69,
+        70
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1593,
+      "course_code": "CIEN768",
+      "session_type": "P",
+      "league_id": 4,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        72,
+        73,
+        74,
+        75
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1590,
+      "course_code": "CIEN768",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 363,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        85,
+        86,
+        87,
+        88
+      ],
+      "alumnos_proyectados": 58
+    },
+    {
+      "section_id": 1629,
+      "course_code": "CIEN769",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 364,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        6,
+        7
+      ],
+      "alumnos_proyectados": 55
+    },
+    {
+      "section_id": 1630,
+      "course_code": "CIEN769",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 364,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        86,
+        87,
+        88,
+        89
+      ],
+      "alumnos_proyectados": 55
+    },
+    {
+      "section_id": 1631,
+      "course_code": "CIEN769",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 364,
+      "classroom_id": 65,
+      "timeslot_ids": [
+        90,
+        91,
+        92,
+        93
+      ],
+      "alumnos_proyectados": 28
+    },
+    {
+      "section_id": 1682,
+      "course_code": "HUMA1183",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 365,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        17
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1683,
+      "course_code": "HUMA1183",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 365,
+      "classroom_id": 78,
+      "timeslot_ids": [
+        21,
+        22
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1844,
+      "course_code": "HUMA1183",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 365,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        26
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1845,
+      "course_code": "HUMA1183",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 365,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        30,
+        31
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1786,
+      "course_code": "ISIA118",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 366,
+      "classroom_id": 84,
+      "timeslot_ids": [
+        18,
+        19
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1787,
+      "course_code": "ISIA118",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 8,
+      "professor_id": 366,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        24,
+        25
+      ],
+      "alumnos_proyectados": 30
+    },
+    {
+      "section_id": 1568,
+      "course_code": "HUMA900",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 368,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        11
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1567,
+      "course_code": "HUMA900",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 368,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        15
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1570,
+      "course_code": "HUMA900",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 368,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        26,
+        27
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1569,
+      "course_code": "HUMA900",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 368,
+      "classroom_id": 87,
+      "timeslot_ids": [
+        49,
+        50
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1555,
+      "course_code": "CIEN753",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 372,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        2,
+        3
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1556,
+      "course_code": "CIEN753",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 372,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        5,
+        6
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1572,
+      "course_code": "CIEN754",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 372,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        13,
+        14
+      ],
+      "alumnos_proyectados": 53
+    },
+    {
+      "section_id": 1557,
+      "course_code": "CIEN753",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 372,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        25,
+        26,
+        27,
+        28
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1558,
+      "course_code": "CIEN753",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 372,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1573,
+      "course_code": "CIEN754",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 372,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        54,
+        55
+      ],
+      "alumnos_proyectados": 53
+    },
+    {
+      "section_id": 1575,
+      "course_code": "CIEN754",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 372,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "alumnos_proyectados": 53
+    },
+    {
+      "section_id": 1576,
+      "course_code": "CIEN754",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 372,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        82,
+        83,
+        84,
+        85
+      ],
+      "alumnos_proyectados": 53
+    },
+    {
+      "section_id": 1574,
+      "course_code": "CIEN754",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 372,
+      "classroom_id": 90,
+      "timeslot_ids": [
+        89,
+        90,
+        91,
+        92
+      ],
+      "alumnos_proyectados": 53
+    },
+    {
+      "section_id": 1571,
+      "course_code": "CIEN754",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 373,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        2,
+        3
+      ],
+      "alumnos_proyectados": 53
+    },
+    {
+      "section_id": 1560,
+      "course_code": "HUMA1179",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 374,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1559,
+      "course_code": "HUMA1179",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 374,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        17,
+        18
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1562,
+      "course_code": "HUMA1179",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 374,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        22,
+        23,
+        24,
+        25
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1579,
+      "course_code": "HUMA1180",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 2,
+      "professor_id": 374,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        49,
+        50,
+        51,
+        52
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1577,
+      "course_code": "HUMA1180",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 2,
+      "professor_id": 374,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        53,
+        54,
+        55,
+        56
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1578,
+      "course_code": "HUMA1180",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 2,
+      "professor_id": 374,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        87,
+        88,
+        89,
+        90
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1561,
+      "course_code": "HUMA1179",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 374,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        91,
+        92,
+        93,
+        94
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1730,
+      "course_code": "HUMA1185",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 375,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        1,
+        2
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1731,
+      "course_code": "HUMA1185",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 375,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        5,
+        6
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1733,
+      "course_code": "HUMA1185",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 6,
+      "professor_id": 375,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        21,
+        22
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1732,
+      "course_code": "HUMA1185",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 6,
+      "professor_id": 375,
+      "classroom_id": 84,
+      "timeslot_ids": [
+        27,
+        28
+      ],
+      "alumnos_proyectados": 50
+    },
+    {
+      "section_id": 1642,
+      "course_code": "HUMA1182",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 376,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        5
+      ],
+      "alumnos_proyectados": 27
+    },
+    {
+      "section_id": 1641,
+      "course_code": "HUMA1182",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 376,
+      "classroom_id": 79,
+      "timeslot_ids": [
+        18
+      ],
+      "alumnos_proyectados": 27
+    },
+    {
+      "section_id": 1645,
+      "course_code": "HUMA1182",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 376,
+      "classroom_id": 84,
+      "timeslot_ids": [
+        22,
+        23
+      ],
+      "alumnos_proyectados": 27
+    },
+    {
+      "section_id": 1644,
+      "course_code": "HUMA1182",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 376,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        26,
+        27
+      ],
+      "alumnos_proyectados": 27
+    },
+    {
+      "section_id": 1643,
+      "course_code": "HUMA1182",
+      "session_type": "T",
+      "league_id": 3,
+      "ciclo": 3,
+      "professor_id": 376,
+      "classroom_id": 77,
+      "timeslot_ids": [
+        62
+      ],
+      "alumnos_proyectados": 26
+    },
+    {
+      "section_id": 1646,
+      "course_code": "HUMA1182",
+      "session_type": "P",
+      "league_id": 3,
+      "ciclo": 3,
+      "professor_id": 376,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        65,
+        66
+      ],
+      "alumnos_proyectados": 26
+    },
+    {
+      "section_id": 1816,
+      "course_code": "ISIA131",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 377,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        82,
+        83,
+        84,
+        85
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1817,
+      "course_code": "ISIA131",
+      "session_type": "L",
+      "league_id": 1,
+      "ciclo": 10,
+      "professor_id": 377,
+      "classroom_id": 63,
+      "timeslot_ids": [
+        91,
+        92,
+        93,
+        94
+      ],
+      "alumnos_proyectados": 20
+    },
+    {
+      "section_id": 1543,
+      "course_code": "CIEN752",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 378,
+      "classroom_id": 91,
+      "timeslot_ids": [
+        3,
+        4
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1615,
+      "course_code": "CIEN755",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 378,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        6,
+        7
+      ],
+      "alumnos_proyectados": 34
+    },
+    {
+      "section_id": 1545,
+      "course_code": "CIEN752",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 1,
+      "professor_id": 378,
+      "classroom_id": 83,
+      "timeslot_ids": [
+        18,
+        19,
+        20,
+        21
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1542,
+      "course_code": "CIEN752",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 378,
+      "classroom_id": 89,
+      "timeslot_ids": [
+        22,
+        23
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1617,
+      "course_code": "CIEN755",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 3,
+      "professor_id": 378,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "alumnos_proyectados": 34
+    },
+    {
+      "section_id": 1544,
+      "course_code": "CIEN752",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 1,
+      "professor_id": 378,
+      "classroom_id": 93,
+      "timeslot_ids": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "alumnos_proyectados": 40
+    },
+    {
+      "section_id": 1614,
+      "course_code": "CIEN755",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 3,
+      "professor_id": 378,
+      "classroom_id": 92,
+      "timeslot_ids": [
+        83,
+        84
+      ],
+      "alumnos_proyectados": 35
+    },
+    {
+      "section_id": 1656,
+      "course_code": "HUMA1184",
+      "session_type": "T",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 379,
+      "classroom_id": 81,
+      "timeslot_ids": [
+        19,
+        20
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1655,
+      "course_code": "HUMA1184",
+      "session_type": "T",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 379,
+      "classroom_id": 82,
+      "timeslot_ids": [
+        29,
+        30
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1658,
+      "course_code": "HUMA1184",
+      "session_type": "P",
+      "league_id": 2,
+      "ciclo": 4,
+      "professor_id": 379,
+      "classroom_id": 86,
+      "timeslot_ids": [
+        69,
+        70
+      ],
+      "alumnos_proyectados": 60
+    },
+    {
+      "section_id": 1657,
+      "course_code": "HUMA1184",
+      "session_type": "P",
+      "league_id": 1,
+      "ciclo": 4,
+      "professor_id": 379,
+      "classroom_id": 88,
+      "timeslot_ids": [
+        86,
+        87
+      ],
+      "alumnos_proyectados": 60
+    }
+  ]
+}

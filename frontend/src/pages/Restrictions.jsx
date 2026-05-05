@@ -12,7 +12,7 @@ import {
 } from '@mui/icons-material';
 import axios from 'axios';
 
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}/api/assignments`;
+const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/assignments`;
 
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const TIME_SLOTS = [
@@ -56,7 +56,7 @@ export default function Restrictions() {
   const fetchProfessors = async () => {
     try {
       // Endpoint correcto para profesores
-      const API_PROFESSORS = `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}/api/professors`;
+      const API_PROFESSORS = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/professors`;
       const response = await axios.get(API_PROFESSORS);
       setProfessors(response.data.professors || []);
     } catch (error) {

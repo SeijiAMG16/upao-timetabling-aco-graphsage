@@ -14,7 +14,7 @@ import {
 } from '@mui/icons-material';
 import axios from 'axios';
 
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}/api/professors`;
+const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/professors`;
 
 export default function Professors() {
   const [professors, setProfessors] = useState([]);
