@@ -263,11 +263,7 @@ async def descargar_horario(filename: str):
     generated_dir = backend_dir / "horarios_generados"
     file_path = generated_dir / filename
     
-    # Fallback to backend root if not in generated_dir (for legacy files)
-    if not file_path.exists():
-        file_path = backend_dir / filename
-    
-    # Check if file exists
+    # Check if file exists in the production directory
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
     
@@ -306,16 +302,12 @@ async def listar_archivos():
     if not os.path.exists(generated_dir):
         os.makedirs(generated_dir)
     
-    # Buscar archivos en el directorio específico y en la raíz (compatibilidad)
+    # Buscar archivos SOLAMENTE en el directorio de producción (horarios_generados)
     excel_files = []
     excel_files.extend(glob.glob(str(generated_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
     excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*_formato_profesores.xlsx")))
     excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*.json")))
     excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*.csv")))
-    excel_files.extend(glob.glob(str(backend_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
-    excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*_formato_profesores.xlsx")))
-    excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*.json")))
-    excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*.csv")))
     
     files = []
     for file_path in excel_files:
