@@ -251,7 +251,9 @@ async def descargar_horario(filename: str):
     # Check if filename matches expected pattern (acepta ambos formatos)
     valid_patterns = [
         filename.startswith("HORARIOS_PROFESORES_UPAO_") and filename.endswith(".xlsx"),
-        filename.startswith("horario_generado_") and filename.endswith("_formato_profesores.xlsx")
+        filename.startswith("horario_generado_") and filename.endswith("_formato_profesores.xlsx"),
+        filename.startswith("horario_generado_") and filename.endswith(".json"),
+        filename.startswith("horario_generado_") and filename.endswith(".csv")
     ]
     if not any(valid_patterns):
         raise HTTPException(status_code=400, detail="Nombre de archivo no válido")
@@ -269,10 +271,18 @@ async def descargar_horario(filename: str):
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
     
+    # Determine media type
+    if filename.endswith(".json"):
+        media_type = "application/json"
+    elif filename.endswith(".csv"):
+        media_type = "text/csv"
+    else:
+        media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
     # Return file
     return FileResponse(
         path=file_path,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        media_type=media_type,
         filename=filename,
         headers={
             "Content-Disposition": f"attachment; filename={filename}",
@@ -300,8 +310,12 @@ async def listar_archivos():
     excel_files = []
     excel_files.extend(glob.glob(str(generated_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
     excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*_formato_profesores.xlsx")))
+    excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*.json")))
+    excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*.csv")))
     excel_files.extend(glob.glob(str(backend_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
     excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*_formato_profesores.xlsx")))
+    excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*.json")))
+    excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*.csv")))
     
     files = []
     for file_path in excel_files:

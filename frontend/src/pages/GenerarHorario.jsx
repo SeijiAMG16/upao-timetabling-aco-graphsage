@@ -34,7 +34,9 @@ import {
   Description as FileIcon,
   Refresh as RefreshIcon,
   History as HistoryIcon,
-  Assessment as AssessmentIcon
+  Assessment as AssessmentIcon,
+  Code as CodeIcon,
+  TableView as TableViewIcon
 } from '@mui/icons-material';
 import axios from 'axios';
 
@@ -315,7 +317,13 @@ export default function GenerarHorario() {
                       {index > 0 && <Divider />}
                       <ListItem sx={{ px: 1 }}>
                         <ListItemIcon sx={{ minWidth: 40 }}>
-                          <FileIcon color="primary" />
+                          {file.filename.endsWith('.json') ? (
+                            <CodeIcon color="warning" />
+                          ) : file.filename.endsWith('.csv') ? (
+                            <TableViewIcon color="success" />
+                          ) : (
+                            <FileIcon color="primary" />
+                          )}
                         </ListItemIcon>
                         <ListItemText
                           primary={
