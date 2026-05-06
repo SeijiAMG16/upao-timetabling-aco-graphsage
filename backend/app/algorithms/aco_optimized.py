@@ -91,7 +91,7 @@ class OptimizedACOTimetabling:
                  beta: float = 2.0,
                  rho: float = 0.15,
                  q: float = 100.0,
-                 max_iterations: int = 20,  # Reducido de 100
+                 max_iterations: int = 4,  # Reducido de 20
                  num_ants: int = 10):       # Reducido de 20
         
         self.courses = courses
@@ -572,7 +572,7 @@ def main():
         professors=professors,
         classrooms=classrooms,
         time_slots=time_slots,
-        max_iterations=20,  # Reducido significativamente
+        max_iterations=4,  # Reducido significativamente
         num_ants=10,        # Reducido significativamente
         alpha=1.0,
         beta=2.0,

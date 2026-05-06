@@ -142,7 +142,7 @@ def parse_args() -> argparse.Namespace:
         epilog="Ejemplo: python ejecutar_aco_completo.py --hormigas 40 --iteraciones 150 --max-timeslots 24 --debug 1554,1598",
     )
     parser.add_argument("--hormigas", type=int, default=10, help="Número de hormigas por iteración.")
-    parser.add_argument("--iteraciones", type=int, default=50, help="Número máximo de iteraciones ACO.")
+    parser.add_argument("--iteraciones", type=int, default=4, help="Número máximo de iteraciones ACO.")
     parser.add_argument("--alpha", type=float, default=1.0, help="Peso de feromona.")
     parser.add_argument("--beta", type=float, default=2.3, help="Peso de heurística neural.")
     parser.add_argument("--rho", type=float, default=0.2, help="Tasa de evaporación de feromona.")

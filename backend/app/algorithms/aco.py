@@ -183,7 +183,7 @@ class ACOTimetabling:
                  beta: float = 2.0,     # Importancia de heurística
                  rho: float = 0.1,      # Tasa de evaporación
                  q: float = 100.0,      # Constante de actualización
-                 max_iterations: int = 100,
+                 max_iterations: int = 4,
                  num_ants: int = 20):
         
         self.courses = courses
@@ -532,7 +532,7 @@ def main():
         alpha=1.0,
         beta=2.0,
         rho=0.1,
-        max_iterations=50,
+        max_iterations=4,
         num_ants=15
     )
     

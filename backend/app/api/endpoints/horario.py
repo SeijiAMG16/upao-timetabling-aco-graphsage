@@ -69,15 +69,15 @@ def ejecutar_generacion_completa():
         
         logger.info(f"[DEBUG] Ejecutando script: {aco_script}")
         logger.info(f"[DEBUG] Directorio de trabajo: {backend_dir}")
-        logger.info(f"[DEBUG] Parámetros: 10 hormigas, 5 iteraciones (Optimizado para evitar OOM)")
+        logger.info(f"[DEBUG] Parámetros: 15 hormigas, 4 iteraciones (Optimizado para evitar OOM)")
         
         # Parámetros optimizados para producción (Equilibrio entre calidad y recursos)
-        # Sincronizado con config.py: 15 hormigas, 7 iteraciones
+        # Sincronizado con config.py: 15 hormigas, 4 iteraciones
         result_aco = subprocess.run(
             [
                 "python", str(aco_script),
                 "--hormigas", "15",
-                "--iteraciones", "7",
+                "--iteraciones", "4",
                 "--alpha", "1.0",
                 "--beta", "2.0",               # Sincronizado con config.py
                 "--rho", "0.2",                # Sincronizado con config.py
@@ -204,10 +204,10 @@ async def generar_horario(background_tasks: BackgroundTasks):
         "message": "Generación de horario iniciada",
         "status": "started",
         "algorithm": "ACO + GraphSAGE",
-        "estimated_time_minutes": 3,
+        "estimated_time_minutes": 2,
         "parameters": {
             "hormigas": 15,
-            "iteraciones": 7,
+            "iteraciones": 4,
             "alpha": 1.0,
             "beta": 2.0,
             "rho": 0.2,

@@ -201,7 +201,7 @@ export default function GenerarHorario() {
                 fullWidth
                 sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 600 }}
               >
-                {isGenerating ? 'Generando Horario...' : 'Generar Horario Completo (ACO + GraphSAGE)'}
+                {isGenerating ? 'Generando Horario...' : 'Generar Horario Completo (4 Iteraciones)'}
               </Button>
 
               <Box sx={{ mt: 3, p: 2, backgroundColor: '#f8faff', borderRadius: 2, border: '1px solid #e3f2fd' }}>

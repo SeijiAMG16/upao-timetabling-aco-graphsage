@@ -11,7 +11,7 @@ confirmadas del proyecto UPAO y las mejores prácticas de la literatura.
 ACO_PARAMS = {
     # Colonia
     "n_hormigas": 15,  # Número de hormigas por iteración
-    "n_iteraciones": 30,  # Iteraciones del algoritmo
+    "n_iteraciones": 4,  # Iteraciones del algoritmo
     "early_stopping_patience": 5,  # Iteraciones sin mejora antes de detener
     
     # Pesos de la función de probabilidad P(i,j) ∝ [τ]^α · [Φ]^β
