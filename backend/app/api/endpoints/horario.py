@@ -72,12 +72,12 @@ def ejecutar_generacion_completa():
         logger.info(f"[DEBUG] Parámetros: 10 hormigas, 5 iteraciones (Optimizado para evitar OOM)")
         
         # Parámetros optimizados para producción (Equilibrio entre calidad y recursos)
-        # Sincronizado con config.py: 15 hormigas, 30 iteraciones
+        # Sincronizado con config.py: 15 hormigas, 7 iteraciones
         result_aco = subprocess.run(
             [
                 "python", str(aco_script),
                 "--hormigas", "15",
-                "--iteraciones", "30",
+                "--iteraciones", "7",
                 "--alpha", "1.0",
                 "--beta", "2.0",               # Sincronizado con config.py
                 "--rho", "0.2",                # Sincronizado con config.py
@@ -207,7 +207,7 @@ async def generar_horario(background_tasks: BackgroundTasks):
         "estimated_time_minutes": 3,
         "parameters": {
             "hormigas": 15,
-            "iteraciones": 30,
+            "iteraciones": 7,
             "alpha": 1.0,
             "beta": 2.0,
             "rho": 0.2,
