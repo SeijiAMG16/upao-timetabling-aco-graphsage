@@ -327,6 +327,12 @@ class ACOEngine:
         print(f"\n{'='*80}")
         if self.best_solution is not None:
             print(f"[OK] Optimización completada. Costo final: {self.best_solution.total_cost:.2f}")
+            
+            # REPARACIÓN GREEDY
+            total_sections = len(self.graph_builder.section_id_to_idx)
+            if len(self.best_solution.assignments) < total_sections:
+                print(f"[REPARACIÓN] Cobertura parcial ({len(self.best_solution.assignments)}/{total_sections}). Iniciando reparación greedy...")
+                self.best_solution = self._greedy_repair(self.best_solution)
         else:
             print(f"[WARN] Optimización completada SIN soluciones válidas encontradas")
         print(f"{'='*80}\n")
@@ -1459,6 +1465,66 @@ class ACOEngine:
             current = self.pheromones.get(assignment.section_id, key)
             new_value = current + delta_tau
             self.pheromones.set(assignment.section_id, key, new_value)
+
+    def _greedy_repair(self, partial_solution: Solution) -> Solution:
+        """
+        Fase de reparación greedy para asegurar asignación del 100%.
+        Toma una solución parcial y fuerza la asignación de las secciones faltantes.
+        """
+        assignments = list(partial_solution.assignments)
+        assigned_section_ids = {a.section_id for a in assignments}
+        all_section_ids = list(self.graph_builder.section_id_to_idx.keys())
+        missing_sections = [sec_id for sec_id in all_section_ids if sec_id not in assigned_section_ids]
+        
+        if not missing_sections:
+            return partial_solution
+            
+        construction_log = list(partial_solution.construction_log)
+        construction_log.append(f"\n[GREEDY REPAIR] Iniciando reparación para {len(missing_sections)} secciones.")
+        
+        repaired_count = 0
+        for sec_id in missing_sections:
+            candidates = self._get_candidate_assignments(sec_id, is_critical=True)
+            # Mezclar candidatos para exploración
+            import random
+            candidates_list = list(candidates)
+            random.shuffle(candidates_list)
+            
+            assigned = False
+            for prof_idx, classroom_idx, timeslot_idx in candidates_list:
+                assignment = self._build_assignment_object(
+                    sec_id, prof_idx, classroom_idx, timeslot_idx
+                )
+                
+                is_valid, _ = self.hard_validator.validate_all(assignment, assignments)
+                if is_valid:
+                    assignments.append(assignment)
+                    repaired_count += 1
+                    assigned = True
+                    construction_log.append(f"[GREEDY] Reparada sección {sec_id}")
+                    break
+                    
+            if not assigned:
+                construction_log.append(f"[GREEDY ERROR] No se pudo reparar sección {sec_id} sin violar restricciones duras.")
+                
+        total_cost, penalties = self.soft_evaluator.calculate_total_penalty(assignments)
+        
+        coverage = len(assignments) / len(all_section_ids) if all_section_ids else 0.0
+        coverage_threshold = float(self.params.get("coverage_threshold", 0.90))
+        is_valid_final = coverage >= coverage_threshold
+        
+        if not is_valid_final:
+             total_cost += 1000.0 * (len(all_section_ids) - len(assignments))
+             
+        construction_log.append(f"[GREEDY REPAIR] Finalizado. Reparadas: {repaired_count}/{len(missing_sections)}.")
+        
+        return Solution(
+            assignments=assignments,
+            total_cost=total_cost,
+            soft_penalties=penalties,
+            is_valid=is_valid_final,
+            construction_log=construction_log,
+        )
 
 
 # ============================================================================

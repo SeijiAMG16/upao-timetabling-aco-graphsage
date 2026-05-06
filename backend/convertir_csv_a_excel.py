@@ -313,7 +313,7 @@ def convertir_csv_a_excel(csv_path):
             ws_index[f'C{row_idx}'] = prof_data['total_horas']
             row_idx += 1
             
-            print(f"  ✓ {prof_data['nombre']}: {len(asignaciones)} asignaciones, {prof_data['total_horas']} horas")
+            print(f"  [OK] {prof_data['nombre']}: {len(asignaciones)} asignaciones, {prof_data['total_horas']} horas")
         
         # Ajustar anchos índice
         ws_index.column_dimensions['A'].width = 40
@@ -323,7 +323,7 @@ def convertir_csv_a_excel(csv_path):
         # Guardar
         output_path = csv_path.replace('.csv', '_formato_profesores.xlsx')
         wb.save(output_path)
-        print(f"\n✅ Archivo Excel creado: {output_path}")
+        print(f"\n[OK] Archivo Excel creado: {output_path}")
         print(f"   Total profesores: {len(asignaciones_por_profesor)}")
         
         return output_path
@@ -339,7 +339,7 @@ if __name__ == "__main__":
         # Buscar el CSV más reciente
         csv_files = [f for f in os.listdir('.') if f.startswith('horario_generado_') and f.endswith('.csv')]
         if not csv_files:
-            print("❌ No se encontró ningún archivo CSV de horario generado")
+            print("[ERR] No se encontró ningún archivo CSV de horario generado")
             sys.exit(1)
         csv_file = max(csv_files, key=os.path.getctime)
     

@@ -102,6 +102,7 @@ CONSTRAINT_WEIGHTS = {
     # PRIORIDAD BAJA: Preferencias docentes y administrativas
     "huecos_profesores": 2.0,  # Minimizar espacios libres en horario de profesor
     "distribucion_profesor": 2.0,  # Distribuir carga del profesor en la semana
+    "concentracion_cursos": 20.0,  # Penalizar acaparamiento de múltiples grupos del mismo curso
     
     # PRIORIDAD MUY BAJA: Balance y alineación
     "equilibrio_aulas": 1.0,  # Balancear uso de aulas

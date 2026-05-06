@@ -71,21 +71,22 @@ def ejecutar_generacion_completa():
         logger.info(f"[DEBUG] Directorio de trabajo: {backend_dir}")
         logger.info(f"[DEBUG] Parámetros: 10 hormigas, 5 iteraciones (Optimizado para evitar OOM)")
         
-        # Parámetros ajustados para evitar Out of Memory en Droplet de 4GB
+        # Parámetros optimizados para producción (Equilibrio entre calidad y recursos)
+        # Sincronizado con config.py: 15 hormigas, 30 iteraciones
         result_aco = subprocess.run(
             [
                 "python", str(aco_script),
-                "--hormigas", "10",
-                "--iteraciones", "5",
+                "--hormigas", "15",
+                "--iteraciones", "30",
                 "--alpha", "1.0",
-                "--beta", "5.0",               # Siguiendo Exp 10 (Mejor resultado)
-                "--rho", "0.1",                # Sincronizado con config.py
+                "--beta", "2.0",               # Sincronizado con config.py
+                "--rho", "0.2",                # Sincronizado con config.py
                 "--q0", "0.9",                 # Sincronizado con config.py
-                "--patiencia", "5",            # Sincronizado con config.py
-                "--max-candidatos", "600",     # Sincronizado con config.py
-                "--max-profesores", "6",
-                "--max-aulas", "12",
-                "--max-timeslots", "12"
+                "--patiencia", "8",            # Mayor paciencia para evitar cortes prematuros
+                "--max-candidatos", "600",
+                "--max-profesores", "8",
+                "--max-aulas", "15",
+                "--max-timeslots", "15"
             ],
             cwd=backend_dir,
             timeout=10800  # 3 hours timeout
@@ -205,11 +206,11 @@ async def generar_horario(background_tasks: BackgroundTasks):
         "algorithm": "ACO + GraphSAGE",
         "estimated_time_minutes": 3,
         "parameters": {
-            "hormigas": 10,
-            "iteraciones": 5,
+            "hormigas": 15,
+            "iteraciones": 30,
             "alpha": 1.0,
-            "beta": 5.0,
-            "rho": 0.1,
+            "beta": 2.0,
+            "rho": 0.2,
             "q0": 0.9
         }
     }

@@ -977,6 +977,9 @@ class SoftConstraintEvaluator:
         penalties["equilibrio_aulas"] = self._calculate_classroom_balance(schedule)
         penalties["alineacion_franja"] = self._calculate_block_alignment(schedule)
         
+        # 12. Concentración de cursos por profesor (Prioridad Baja pero Importante para distribución equitativa)
+        penalties["concentracion_cursos"] = self._calculate_professor_course_concentration(schedule)
+        
         # Calcular total ponderado
         total = sum(
             penalties[key] * self.weights.get(key, 0.0)
@@ -1387,3 +1390,28 @@ class SoftConstraintEvaluator:
         if order <= 12:
             return 2
         return 3
+
+    def _calculate_professor_course_concentration(self, schedule: List[Assignment]) -> float:
+        """
+        Penaliza si un profesor concentra múltiples grupos del mismo curso
+        y tipo de sesión, para fomentar la distribución equitativa de carga
+        entre los profesores disponibles.
+        """
+        # Estructura: dict[course_code][session_type][professor_id] = count
+        course_prof_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        
+        for assign in schedule:
+            if assign.professor_id is not None:
+                course_prof_counts[assign.course_code][assign.session_type][assign.professor_id] += 1
+                
+        penalty = 0.0
+        
+        for course_code, session_types in course_prof_counts.items():
+            for session_type, prof_counts in session_types.items():
+                for prof_id, count in prof_counts.items():
+                    # Si un profesor tiene más de 1 grupo del mismo curso/tipo,
+                    # agregamos una penalización cuadrática para disuadir fuertemente
+                    if count > 1:
+                        penalty += ((count - 1) ** 2) * 10.0
+                        
+        return penalty

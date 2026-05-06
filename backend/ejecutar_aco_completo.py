@@ -7,6 +7,7 @@ print("[DEBUG] Script iniciado - imports comenzando...")
 
 import argparse
 import sys
+import time
 from pathlib import Path
 from datetime import timedelta, time as datetime_time
 
@@ -16,7 +17,8 @@ sys.path.append(str(Path(__file__).parent))
 
 print("[DEBUG] Importando módulos de la aplicación...")
 from app.database import SessionLocal
-print("[DEBUG] - SessionLocal importado")
+from app.models import AlgorithmExecution
+print("[DEBUG] - SessionLocal y AlgorithmExecution importados")
 
 # Check if PyTorch is available
 TORCH_AVAILABLE = False
@@ -36,11 +38,11 @@ if TORCH_AVAILABLE:
     print("[DEBUG] - ACOEngine importado")
     from app.aco_graphsage.constraints import HardConstraintValidator, SoftConstraintEvaluator
     print("[DEBUG] - Constraints importados")
-    print("[DEBUG] ✅ Todos los imports completados!")
+    print("[DEBUG] [OK] Todos los imports completados!")
 else:
     # Imports para ACO básico sin PyTorch
     print("[DEBUG] Usando modo ACO básico sin GraphSAGE")
-    print("[DEBUG] ✅ Imports básicos completados!")
+    print("[DEBUG] [OK] Imports básicos completados!")
 
 
 def run_basic_aco():
@@ -68,10 +70,10 @@ def run_basic_aco():
             query = query.filter(ScheduleAssignment.estado != "cancelado")
         assignments = query.all()
         
-        print(f"\n✅ Se encontraron {len(assignments)} asignaciones activas en la BD")
+        print(f"\n[OK] Se encontraron {len(assignments)} asignaciones activas en la BD")
         
         if len(assignments) == 0:
-            print("\n⚠️  No hay asignaciones en la base de datos.")
+            print("\n[WARN] No hay asignaciones en la base de datos.")
             print("   Por favor, cree asignaciones manualmente o ejecute el algoritmo localmente.")
             return
         
@@ -114,7 +116,7 @@ def run_basic_aco():
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(horario_data, f, ensure_ascii=False, indent=2)
         
-        print(f"\n✅ Horario exportado a: {output_file}")
+        print(f"\n[FILE] Horario exportado a: {output_file}")
         print(f"   Total de asignaciones: {len(horario_data)}")
         
         # Estadísticas
@@ -127,7 +129,7 @@ def run_basic_aco():
         print(f"   Con horario asignado: {with_timeslot}")
         
         print("\n" + "="*80)
-        print("✅ EXPORTACIÓN COMPLETADA")
+        print("[OK] EXPORTACIÓN COMPLETADA")
         print("="*80)
         
     finally:
@@ -160,11 +162,12 @@ def parse_args() -> argparse.Namespace:
 
 def main():
     print("[DEBUG] main() iniciada")
+    start_time_exec = time.time()
     
     # Si PyTorch no está disponible, usar generador básico
     if not TORCH_AVAILABLE:
         print("="*80)
-        print("⚠️  PyTorch no está instalado")
+        print("    [WARN] PyTorch no está instalado")
         print("    La generación de horarios con ACO+GraphSAGE no está disponible")
         print("    Por favor, use la funcionalidad básica del sistema")
         print("="*80)
@@ -177,7 +180,7 @@ def main():
     
     print("[DEBUG] Creando sesión de base de datos...")
     db = SessionLocal()
-    print("[DEBUG] ✅ Sesión de BD creada")
+    print("[DEBUG] [OK] Sesión de BD creada")
     
     try:
         print("="*80)
@@ -190,7 +193,7 @@ def main():
         builder = TimetableGraphBuilder(db)
         print("   [DEBUG] Llamando a build_graph()...")
         graph = builder.build_graph()
-        print("   [DEBUG] Grafo construido exitosamente!")
+        print("   [DEBUG] [OK] Grafo construido exitosamente!")
         
         print(f"\nGrafo construido:")
         print(f"  Secciones: {graph['section'].x.shape[0]}")
@@ -228,7 +231,7 @@ def main():
                 checkpoint = torch.load(args.model_path, map_location=device)
                 state_dict = checkpoint.get("model_state_dict", checkpoint)
                 model.load_state_dict(state_dict)
-                print(f"   [DEBUG] ✅ Pesos del modelo precargados exitosamente desde {args.model_path}")
+                print(f"   [DEBUG] [OK] Pesos del modelo precargados exitosamente desde {args.model_path}")
             except Exception as e:
                 print(f"   [ERROR] No se pudo cargar el modelo desde {args.model_path}: {e}")
                 print("   [DEBUG] Continuando con pesos inicializados al azar.")
@@ -306,7 +309,7 @@ def main():
                 professor_restrictions[r.professor_id] = []
             dia_num = day_map.get(r.day, 0)
             if dia_num == 0:
-                print(f"  ⚠️ WARNING: Día no reconocido '{r.day}' para profesor ID={r.professor_id}")
+                print(f"  [WARN] WARNING: Día no reconocido '{r.day}' para profesor ID={r.professor_id}")
             
             # Convertir timedelta a time si es necesario
             if isinstance(r.start_time, timedelta):
@@ -445,6 +448,8 @@ def main():
             
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_file = f"horario_generado_{timestamp}.json"
+            execution_time_seconds = time.time() - start_time_exec
+            print(f"\n[TIEMPO] Duración de ejecución: {execution_time_seconds:.2f} segundos")
             
             # Convertir assignments a formato serializable
             horario_data = {
@@ -453,7 +458,8 @@ def main():
                     "total_secciones": len(best_solution.assignments),
                     "costo_total": best_solution.total_cost,
                     "es_valida": best_solution.is_valid,
-                    "penalizaciones": best_solution.soft_penalties
+                    "penalizaciones": best_solution.soft_penalties,
+                    "duracion_segundos": execution_time_seconds
                 },
                 "asignaciones": []
             }
@@ -483,6 +489,33 @@ def main():
                 json.dump(horario_data, f, indent=2, ensure_ascii=False)
             
             print(f"\n[GUARDADO] Horario guardado en: {output_file}")
+
+            # Guardar en base de datos
+            try:
+                print("\n[BD] Registrando ejecución en la base de datos...")
+                execution = AlgorithmExecution(
+                    algoritmo="ACO+GraphSAGE (Script)",
+                    semestre="2025-II",  # Semestre objetivo
+                    parametros=json.dumps({
+                        "n_hormigas": args.hormigas,
+                        "n_iteraciones": args.iteraciones,
+                        "version": "v2_reparacion_greedy",
+                        "metrics": horario_data["metadata"]
+                    }),
+                    estado="completed",
+                    tiempo_ejecucion=execution_time_seconds,
+                    funcion_objetivo=best_solution.total_cost,
+                    restricciones_violadas=0 if best_solution.is_valid else (len(builder.section_id_to_idx) - len(best_solution.assignments)),
+                    conflictos_profesor=best_solution.soft_penalties.get("concentracion_cursos", 0), # Usamos concentración como indicador clave
+                    conflictos_aula=best_solution.soft_penalties.get("cambio_edificio", 0),
+                    log_ejecucion=f"Archivo generado: {output_file} | Cobertura: {len(best_solution.assignments)}/{len(builder.section_id_to_idx)}",
+                    terminado_en=datetime.now()
+                )
+                db.add(execution)
+                db.commit()
+                print(f"[BD] [OK] Ejecución registrada con ID: {execution.id}")
+            except Exception as e:
+                print(f"[BD] [ERR] Error al registrar en BD: {e}")
             
             # También guardar en CSV para Excel
             import csv
@@ -515,9 +548,9 @@ def main():
             try:
                 from convertir_csv_a_excel import convertir_csv_a_excel
                 excel_file = convertir_csv_a_excel(csv_file)
-                print(f"[EXCEL] ✅ Archivo Excel creado: {excel_file}")
+                print(f"[EXCEL] [OK] Archivo Excel creado: {excel_file}")
             except Exception as e:
-                print(f"[EXCEL] ❌ Error al convertir a Excel: {e}")
+                print(f"[EXCEL] [ERR] Error al convertir a Excel: {e}")
         else:
             print("\n[X] No se encontró ninguna solución")
         

@@ -418,7 +418,7 @@ def _build_capacity_by_league(
     _session_summary, _league_details, capacity = _build_course_layout(desired_counts, sections_by_type)
     
     # DEBUG: Print what capacity was built
-    print(f"\n🔍 DEBUG _build_capacity_by_league:")
+    print(f"\n[DEBUG] _build_capacity_by_league:")
     print(f"   Built capacity: {capacity}")
     
     # Convert capacity keys from short codes to full names to match validator
@@ -488,7 +488,7 @@ def _validate_assignment_capacity(
     """Ensure assignments respect the per-league capacity derived from NRC counts."""
 
     # DEBUG: Print capacity dict
-    print(f"\n🔍 DEBUG _validate_assignment_capacity:")
+    print(f"\n[DEBUG] _validate_assignment_capacity:")
     print(f"   Capacity dict: {capacity}")
     print(f"   Assignments count: {len(list(assignments)) if hasattr(assignments, '__len__') else 'N/A'}")
     

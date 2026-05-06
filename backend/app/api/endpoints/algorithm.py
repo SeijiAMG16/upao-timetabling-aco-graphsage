@@ -226,8 +226,8 @@ async def list_executions(
     
     executions = (
         db.query(AlgorithmExecution)
-        .filter(AlgorithmExecution.algoritmo == "ACO+GraphSAGE")
-        .order_by(AlgorithmExecution.created_at.desc())
+        .filter(AlgorithmExecution.algoritmo.like("ACO+GraphSAGE%"))
+        .order_by(AlgorithmExecution.iniciado_en.desc())
         .limit(limit)
         .offset(offset)
         .all()
@@ -239,7 +239,7 @@ async def list_executions(
             'estado': e.estado,
             'funcion_objetivo': e.funcion_objetivo,
             'tiempo_ejecucion': e.tiempo_ejecucion,
-            'created_at': e.created_at,
+            'created_at': e.iniciado_en,
         }
         for e in executions
     ]
