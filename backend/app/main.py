@@ -47,7 +47,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(assignments.router)
-from .api.endpoints import projections, professors, classrooms, auth, professors_upload, courses, algorithm, horario, db_admin
+from .api.endpoints import projections, professors, classrooms, auth, professors_upload, courses, algorithm, horario, db_admin, horario_interactivo
 app.include_router(projections.router)
 app.include_router(professors.router)
 app.include_router(classrooms.router)
@@ -56,6 +56,7 @@ app.include_router(professors_upload.router)
 app.include_router(algorithm.router)
 app.include_router(courses.router)
 app.include_router(horario.router)
+app.include_router(horario_interactivo.router)
 app.include_router(db_admin.router)
 
 # Global variables

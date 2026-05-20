@@ -70,6 +70,22 @@ export default function Sidebar({ open }) {
             <ListItemText primary="Generar Horario" />
           </ListItemButton>
         </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton 
+            onClick={() => navigate('/tablero-interactivo')}
+            sx={{ 
+              mx: 1, 
+              borderRadius: 1, 
+              backgroundColor: location.pathname === '/tablero-interactivo' ? '#1976d2' : 'transparent' 
+            }}
+          >
+            <ListItemIcon sx={{ color: '#ffffff', minWidth: 45 }}>
+              <GridOnIcon />
+            </ListItemIcon>
+            <ListItemText primary="Tablero Interactivo" />
+          </ListItemButton>
+        </ListItem>
         
         <ListItem disablePadding>
           <ListItemButton 

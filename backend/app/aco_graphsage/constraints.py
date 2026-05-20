@@ -714,10 +714,16 @@ class HardConstraintValidator:
 
     def _validate_classroom_capacity(self, assignment: Assignment) -> Tuple[bool, Dict[str, Any]]:
         """Verifica que la capacidad del aula sea suficiente"""
-        # Cursos virtuales (sin aula) NO necesitan validación de capacidad
+        is_actually_virtual = self._is_virtual(assignment.section_id, None)
+
         if assignment.classroom_id is None:
+            if not is_actually_virtual:
+                return False, {"error": "Curso presencial requiere aula física"}
             return True, {"virtual_course": True, "no_classroom_required": True}
-        
+            
+        if is_actually_virtual:
+            return False, {"error": "Curso virtual no debe tener aula física asignada"}
+            
         classroom = self.classrooms[assignment.classroom_id]
         detail: Dict[str, Any] = {
             "classroom_id": assignment.classroom_id,
@@ -731,10 +737,16 @@ class HardConstraintValidator:
 
     def _validate_classroom_type(self, assignment: Assignment) -> Tuple[bool, Dict[str, Any]]:
         """Verifica que el tipo de aula sea apropiado"""
-        # Cursos virtuales (sin aula) NO necesitan validación de tipo
+        is_actually_virtual = self._is_virtual(assignment.section_id, None)
+
         if assignment.classroom_id is None:
+            if not is_actually_virtual:
+                return False, {"error": "Curso presencial requiere aula física"}
             return True, {"virtual_course": True, "no_classroom_required": True}
-        
+            
+        if is_actually_virtual:
+            return False, {"error": "Curso virtual no debe tener aula física asignada"}
+            
         classroom = self.classrooms[assignment.classroom_id]
         
         # Normalizar el tipo de aula (LAB -> laboratorio, NOLAB -> teorica)

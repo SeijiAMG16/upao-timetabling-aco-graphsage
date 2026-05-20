@@ -258,6 +258,7 @@ class ScheduleAssignment(Base):
     # Metadatos del algoritmo
     generado_por_algoritmo = Column(Boolean, default=False)
     confianza_asignacion = Column(Float, nullable=True)  # Para GraphSAGE
+    is_manual_override = Column(Boolean, default=False)  # Para modificaciones de Human-in-the-Loop
     
     # Metadatos
     created_at = Column(DateTime, default=func.now())

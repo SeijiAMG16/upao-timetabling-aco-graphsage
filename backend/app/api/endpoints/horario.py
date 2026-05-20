@@ -263,9 +263,11 @@ async def descargar_horario(filename: str):
     generated_dir = backend_dir / "horarios_generados"
     file_path = generated_dir / filename
     
-    # Check if file exists in the production directory
+    # Check if file exists in the production directory or root
     if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Archivo no encontrado")
+        file_path = backend_dir / filename
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="Archivo no encontrado")
     
     # Determine media type
     if filename.endswith(".json"):
@@ -282,7 +284,8 @@ async def descargar_horario(filename: str):
         filename=filename,
         headers={
             "Content-Disposition": f"attachment; filename={filename}",
-            "Access-Control-Expose-Headers": "Content-Disposition"
+            "Access-Control-Expose-Headers": "Content-Disposition",
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
         }
     )
 
@@ -302,12 +305,16 @@ async def listar_archivos():
     if not os.path.exists(generated_dir):
         os.makedirs(generated_dir)
     
-    # Buscar archivos SOLAMENTE en el directorio de producción (horarios_generados)
+    # Buscar archivos SOLAMENTE en el directorio de producción (horarios_generados) y root (temporal)
     excel_files = []
     excel_files.extend(glob.glob(str(generated_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
     excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*_formato_profesores.xlsx")))
     excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*.json")))
     excel_files.extend(glob.glob(str(generated_dir / "horario_generado_*.csv")))
+    
+    # También buscar en el directorio base (por los que se generaron antes del refactor)
+    excel_files.extend(glob.glob(str(backend_dir / "horario_generado_*.json")))
+    excel_files.extend(glob.glob(str(backend_dir / "HORARIOS_PROFESORES_UPAO_*.xlsx")))
     
     files = []
     for file_path in excel_files:

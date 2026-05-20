@@ -684,6 +684,14 @@ class TimetableGraphBuilder:
                 "classrooms": 0,
                 "timeslots": 0,
             })
+            
+            # Evitar asignar aulas a cursos virtuales
+            metadata = self.section_metadata.get(section.id, {})
+            modalidad = str(metadata.get("modalidad", "")).strip().upper()
+            if modalidad == "NO_PRESENCIAL":
+                stats["classrooms"] = 0
+                continue
+                
             classroom_count = 0
             
             for classroom in classrooms:

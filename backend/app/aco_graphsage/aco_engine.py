@@ -940,7 +940,18 @@ class ACOEngine:
                 return cached
 
         sec_idx = self.graph_builder.section_id_to_idx[section_id]
-        
+
+        metadata_check = self.graph_builder.section_metadata.get(section_id, {})
+        modalidad_check = (metadata_check.get("modalidad") or "").upper()
+        if modalidad_check == "NO_PRESENCIAL":
+            candidates = self._generate_virtual_candidates(
+                section_id,
+                min_start_rank=min_start_rank,
+            )
+            if min_start_rank is None and not is_critical:
+                self._candidate_cache[section_id] = candidates
+            return candidates
+
         # Obtener profesores candidatos (desde aristas del grafo)
         if ('section', 'assigned_to', 'professor') in self.graph.edge_index_dict:
             section_to_prof_edges = self.graph[('section', 'assigned_to', 'professor')].edge_index
@@ -1033,15 +1044,6 @@ class ACOEngine:
                         break
                 if len(candidates) >= max_candidates or added >= quota:
                     break
-
-        if not candidates:
-            metadata_check = self.graph_builder.section_metadata.get(section_id, {})
-            modalidad_check = metadata_check.get("modalidad", "").upper()
-            if modalidad_check == "NO_PRESENCIAL":
-                candidates = self._generate_virtual_candidates(
-                    section_id,
-                    min_start_rank=min_start_rank,
-                )
 
         # No cachear secciones críticas para que siempre usen límites ampliados
         if min_start_rank is None and not is_critical:

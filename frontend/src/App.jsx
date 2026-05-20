@@ -15,6 +15,7 @@ import ProfessorRestrictions from './pages/ProfessorRestrictions';
 import Classrooms from './pages/Classrooms';
 import ProfessorAssignments from './pages/ProfessorAssignments';
 import GenerarHorario from './pages/GenerarHorario';
+import TableroInteractivo from './pages/TableroInteractivo';
 
 function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -32,6 +33,7 @@ function MainLayout() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/generar-horario" element={<GenerarHorario />} />
+            <Route path="/tablero-interactivo" element={<TableroInteractivo />} />
             <Route path="/projections" element={<Projections />} />
             <Route path="/professors" element={<Professors />} />
             <Route path="/professor-assignments" element={<ProfessorAssignments />} />
