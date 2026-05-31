@@ -252,6 +252,7 @@ backend/*.sql
 # =============================================
 backend/horario_generado_*
 backend/HORARIOS_PROFESORES_*
+backend/horarios_generados/
 backend/logs/
 
 # =============================================

@@ -245,7 +245,13 @@ def convertir_csv_a_excel(csv_path):
         
         for _, row in df.iterrows():
             prof_id = int(row['Profesor ID'])
-            aula_id = int(row['Aula ID'])
+            
+            if pd.isna(row['Aula ID']):
+                aula_id = None
+                aula_nombre = "Virtual"
+            else:
+                aula_id = int(row['Aula ID'])
+                aula_nombre = aulas_dict.get(aula_id, f'Aula-{aula_id}')
             
             # Parsear franjas horarias
             franjas_str = str(row['Franjas Horarias'])
@@ -258,7 +264,7 @@ def convertir_csv_a_excel(csv_path):
                 'tipo_sesion': row['Tipo Sesion'],
                 'liga': row['Liga'],
                 'ciclo': row['Ciclo'],
-                'aula': aulas_dict.get(aula_id, f'Aula-{aula_id}'),
+                'aula': aula_nombre,
                 'alumnos': row['Alumnos Proyectados'],
                 'timeslot_ids': timeslot_ids,
                 'timeslots': {tid: timeslots_dict[tid] for tid in timeslot_ids if tid in timeslots_dict}

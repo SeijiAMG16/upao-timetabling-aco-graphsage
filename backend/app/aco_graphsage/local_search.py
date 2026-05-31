@@ -170,12 +170,14 @@ class SimulatedAnnealing:
         self.operators = NeighborhoodOperators(hard_validator, soft_evaluator)
         
         # Parámetros
-        params = params or LOCAL_SEARCH_PARAMS
-        self.max_iterations = params["max_iterations"]
-        self.initial_temperature = params["initial_temperature"]
-        self.cooling_rate = params["cooling_rate"]
-        self.min_temperature = params["min_temperature"]
-        self.n_neighbors = params["n_neighbors"]
+        merged_params = LOCAL_SEARCH_PARAMS.copy()
+        if params:
+            merged_params.update(params)
+        self.max_iterations = merged_params["max_iterations"]
+        self.initial_temperature = merged_params["initial_temperature"]
+        self.cooling_rate = merged_params["cooling_rate"]
+        self.min_temperature = merged_params["min_temperature"]
+        self.n_neighbors = merged_params["n_neighbors"]
     
     def optimize(self, initial_solution: Solution) -> Solution:
         """
@@ -292,9 +294,11 @@ class HillClimbing:
     ):
         self.operators = NeighborhoodOperators(hard_validator, soft_evaluator)
         
-        params = params or LOCAL_SEARCH_PARAMS
-        self.max_iterations = params["max_iterations"]
-        self.n_neighbors = params["n_neighbors"]
+        merged_params = LOCAL_SEARCH_PARAMS.copy()
+        if params:
+            merged_params.update(params)
+        self.max_iterations = merged_params["max_iterations"]
+        self.n_neighbors = merged_params["n_neighbors"]
     
     def optimize(self, initial_solution: Solution) -> Solution:
         """Ejecuta Hill Climbing"""

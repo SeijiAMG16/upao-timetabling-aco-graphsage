@@ -917,6 +917,7 @@ class ACOEngine:
         section_id: int,
         min_start_rank: Optional[int] = None,
         is_critical: bool = False,
+        is_greedy_repair: bool = False,
     ) -> List[Tuple[int, int, int]]:
         """
         Obtiene las asignaciones candidatas para una sección.
@@ -930,11 +931,12 @@ class ACOEngine:
             section_id: ID de la sección
             min_start_rank: Rank mínimo pedagógico (si aplica)
             is_critical: Si True, amplía límites de exploración para secciones críticas
+            is_greedy_repair: Si True, desactiva límites de candidatos para forzar la asignación
         
         Returns:
             Lista de (prof_idx, classroom_idx, timeslot_idx)
         """
-        if min_start_rank is None and not is_critical:
+        if min_start_rank is None and not is_critical and not is_greedy_repair:
             cached = self._candidate_cache.get(section_id)
             if cached is not None:
                 return cached
@@ -947,8 +949,10 @@ class ACOEngine:
             candidates = self._generate_virtual_candidates(
                 section_id,
                 min_start_rank=min_start_rank,
+                is_critical=is_critical,
+                is_greedy_repair=is_greedy_repair,
             )
-            if min_start_rank is None and not is_critical:
+            if min_start_rank is None and not is_critical and not is_greedy_repair:
                 self._candidate_cache[section_id] = candidates
             return candidates
 
@@ -991,36 +995,46 @@ class ACOEngine:
             len(prof_candidates),
             self.params.get("max_professors_per_section", len(prof_candidates)),
         )
-        max_classrooms = min(
-            len(classroom_candidates),
-            self.params.get("max_classrooms_per_section", len(classroom_candidates)),
-        )
-
-        # MEJORA: Secciones críticas obtienen más slots de tiempo para explorar
+        
+        # Ajustar límites según modo de exploración
         base_timeslot_limit = self.params.get("max_timeslots_per_section")
-        if is_critical:
-            # Críticos: explorar hasta 18 franjas (1.5x normal de 12) - REDUCIDO para performance
-            max_timeslots = min(len(ordered_timeslots), 18)
+        if is_greedy_repair:
+            max_timeslots = len(ordered_timeslots)
+            max_classrooms = len(classroom_candidates)
+        elif is_critical:
+            max_timeslots = min(len(ordered_timeslots), 36)
+            max_classrooms = min(len(classroom_candidates), 24)
         elif min_start_rank is not None:
             max_timeslots = len(ordered_timeslots)
+            max_classrooms = len(classroom_candidates)
         elif base_timeslot_limit is None or base_timeslot_limit <= 0:
             max_timeslots = len(ordered_timeslots)
+            max_classrooms = len(classroom_candidates)
         else:
             duration = max(1, self.graph_builder.section_durations.get(section_id, 1))
             scaled_limit = base_timeslot_limit * duration
             max_timeslots = min(len(ordered_timeslots), scaled_limit)
+            max_classrooms = min(
+                len(classroom_candidates),
+                self.params.get("max_classrooms_per_section", len(classroom_candidates))
+            )
 
         if max_profs == 0 or max_classrooms == 0 or max_timeslots == 0:
             return candidates
 
         total_possible = max_profs * max_classrooms * max_timeslots
-        # MEJORA: Secciones críticas obtienen 1.5x combinaciones (900 vs 600) - REDUCIDO para performance
+        
         base_max_combinations = self.params.get("max_candidate_combinations", 600)
-        requested_max = int(base_max_combinations * 1.5) if is_critical else base_max_combinations
-        if requested_max is None or requested_max <= 0:
+        if is_greedy_repair:
             max_candidates = total_possible
+        elif is_critical:
+            max_candidates = min(1500, total_possible)
         else:
-            max_candidates = max(1, min(requested_max, total_possible))
+            requested_max = base_max_combinations
+            if requested_max is None or requested_max <= 0:
+                max_candidates = total_possible
+            else:
+                max_candidates = max(1, min(requested_max, total_possible))
 
         per_prof_base = max_candidates // max_profs
         remainder = max_candidates % max_profs
@@ -1046,7 +1060,7 @@ class ACOEngine:
                     break
 
         # No cachear secciones críticas para que siempre usen límites ampliados
-        if min_start_rank is None and not is_critical:
+        if min_start_rank is None and not is_critical and not is_greedy_repair:
             self._candidate_cache[section_id] = candidates
 
         return candidates
@@ -1055,6 +1069,8 @@ class ACOEngine:
         self,
         section_id: int,
         min_start_rank: Optional[int] = None,
+        is_critical: bool = False,
+        is_greedy_repair: bool = False,
     ) -> List[Tuple[int, int, int]]:
         """
         Genera candidatos para cursos virtuales (NO_PRESENCIAL).
@@ -1099,7 +1115,11 @@ class ACOEngine:
         )
         
         base_timeslot_limit = self.params.get("max_timeslots_per_section")
-        if min_start_rank is not None:
+        if is_greedy_repair:
+            max_timeslots = len(ordered_timeslots)
+        elif is_critical:
+            max_timeslots = min(len(ordered_timeslots), 36)
+        elif min_start_rank is not None:
             max_timeslots = len(ordered_timeslots)
         elif base_timeslot_limit is None or base_timeslot_limit <= 0:
             max_timeslots = len(ordered_timeslots)
@@ -1486,7 +1506,7 @@ class ACOEngine:
         
         repaired_count = 0
         for sec_id in missing_sections:
-            candidates = self._get_candidate_assignments(sec_id, is_critical=True)
+            candidates = self._get_candidate_assignments(sec_id, is_critical=True, is_greedy_repair=True)
             # Mezclar candidatos para exploración
             import random
             candidates_list = list(candidates)

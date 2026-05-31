@@ -569,7 +569,8 @@ def main():
             # Encontrar secciones problemáticas
             problematic = []
             for section_id, stats in builder.section_candidate_stats.items():
-                total = stats.get('professors', 0) * stats.get('classrooms', 0) * stats.get('timeslots', 0)
+                c_count = max(1, stats.get('classrooms', 0))
+                total = stats.get('professors', 0) * c_count * stats.get('timeslots', 0)
                 if total < 100:  # Menos de 100 combinaciones posibles
                     problematic.append((section_id, stats, total))
             

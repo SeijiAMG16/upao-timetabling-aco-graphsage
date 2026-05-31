@@ -351,11 +351,18 @@ class HardConstraintValidator:
         """Verifica que el aula no esté ocupada"""
         detail: Dict[str, Any] = {"classroom_id": assignment.classroom_id}
         
+        if assignment.classroom_id is None or self._is_virtual(assignment.section_id, assignment.classroom_id):
+            return True, detail
+            
         # OPTIMIZACIÓN: Usar set para detección rápida de overlap
         assignment_slots_set = set(assignment.timeslot_ids)
         
         for existing in current_schedule:
             if existing.classroom_id == assignment.classroom_id:
+                # Ignorar si el curso existente es virtual (no ocupa aula, incluso si tiene un ID residual)
+                if self._is_virtual(existing.section_id, existing.classroom_id):
+                    continue
+                    
                 # Verificación rápida con sets (O(1) promedio vs O(n) con listas)
                 existing_slots_set = set(existing.timeslot_ids)
                 overlap = assignment_slots_set & existing_slots_set
@@ -570,7 +577,7 @@ class HardConstraintValidator:
         assignment: Assignment,
         current_schedule: List[Assignment],
     ) -> Tuple[bool, Dict[str, Any]]:
-        """Evita adyacencia virtual/presencial para el mismo profesor en un mismo día."""
+        """Evita adyacencia virtual/presencial para alumnos del mismo ciclo en un mismo día."""
         detail: Dict[str, Any] = {}
 
         if not assignment.timeslot_ids:
@@ -593,9 +600,14 @@ class HardConstraintValidator:
             if not other.timeslot_ids:
                 continue
 
-            # Solo aplica cuando es el mismo docente (transición real entre modalidades)
-            if other.professor_id != assignment.professor_id:
+            # Solo aplica cuando son del mismo ciclo (los alumnos necesitan tiempo de traslado)
+            if not assignment.ciclo or not other.ciclo or assignment.ciclo != other.ciclo:
                 continue
+                
+            # Además, deben pertenecer a la misma liga (grupo de estudiantes) para que haya conflicto real
+            if assignment.league_id is not None and other.league_id is not None:
+                if assignment.league_id != other.league_id:
+                    continue
 
             other_is_virtual = self._is_virtual(other.section_id, other.classroom_id)
 

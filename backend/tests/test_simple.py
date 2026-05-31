@@ -42,8 +42,8 @@ def test_config():
     """Test: Verificar configuración"""
     from app.aco_graphsage import ACO_PARAMS, GRAPHSAGE_PARAMS, CONSTRAINT_WEIGHTS
     
-    assert ACO_PARAMS['n_hormigas'] == 50
-    assert ACO_PARAMS['n_iteraciones'] == 100
+    assert ACO_PARAMS['n_hormigas'] == 15
+    assert ACO_PARAMS['n_iteraciones'] == 4
     assert ACO_PARAMS['alpha'] == 1.0
     assert ACO_PARAMS['beta'] == 2.0
     

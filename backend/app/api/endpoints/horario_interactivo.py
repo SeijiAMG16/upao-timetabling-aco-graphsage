@@ -118,11 +118,19 @@ def validar_movimiento(movimiento: MovimientoCandidato, db: Session = Depends(ge
         
     new_timeslot_ids = [ts.id for ts in new_timeslots]
     
+    # Detectar si el curso es virtual para forzar que no tenga aula
+    is_virtual = False
+    modality = validator.hard_validator.section_modalities.get(assignment_to_move.section_id)
+    if modality and modality.strip().upper() == "NO_PRESENCIAL":
+        is_virtual = True
+        
+    final_classroom_id = None if is_virtual else movimiento.nueva_aula_id
+    
     # 4. Validar el movimiento (Delegamos la complejidad a MovementValidator)
     resultado = validator.evaluate_move(
         assignment_to_move=assignment_to_move,
         new_timeslot_ids=new_timeslot_ids,
-        new_classroom_id=movimiento.nueva_aula_id,
+        new_classroom_id=final_classroom_id,
         current_schedule=current_schedule
     )
     
@@ -198,11 +206,17 @@ def aplicar_movimiento(id: int, movimiento: MovimientoCandidato, db: Session = D
                 
             new_timeslot_ids = [ts.id for ts in new_timeslots]
             
+            # Determinar si el curso es virtual para forzar limpieza de aula
+            section_model = db.query(CourseSection).filter(CourseSection.id == movimiento.clase_id).first()
+            is_virtual = section_model and section_model.course.modalidad and section_model.course.modalidad.strip().upper() == "NO_PRESENCIAL"
+            
             # Modificar la asignación en el JSON
             for a in json_data.get("asignaciones", []):
                 if a["section_id"] == movimiento.clase_id:
                     a["timeslot_ids"] = new_timeslot_ids
-                    if movimiento.nueva_aula_id is not None:
+                    if is_virtual:
+                        a["classroom_id"] = None
+                    elif movimiento.nueva_aula_id is not None:
                         a["classroom_id"] = movimiento.nueva_aula_id
                     break
                     

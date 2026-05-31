@@ -50,7 +50,7 @@ def _create_course_with_section(db_session, *, league=1, session_type="T"):
         seccion="01",
         league=league,
         alumnos_proyectados=30,
-        activa=True,
+        active=True,
     )
     db_session.add(section)
     db_session.flush()
@@ -123,7 +123,10 @@ def test_candidate_professors_falls_back_to_course_professors(session):
     session.add_all([prof_primary, prof_secondary])
     session.flush()
 
-    course.professors = [prof_primary, prof_secondary]
+    session.add_all([
+        ProfessorCourseAssignment(course_id=course.id, professor_id=prof_primary.id, session_type=None, league=None),
+        ProfessorCourseAssignment(course_id=course.id, professor_id=prof_secondary.id, session_type=None, league=None),
+    ])
     session.commit()
 
     builder = TimetableGraphBuilder(session)

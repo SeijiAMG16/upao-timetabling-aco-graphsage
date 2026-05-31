@@ -299,6 +299,12 @@ class TimetableGraphBuilder:
                 (classroom.capacidad or 0) for classroom in compatible_classrooms
             ) if compatible_classrooms else 0
 
+            is_virtual = (section.course.modalidad.strip().upper() == "NO_PRESENCIAL") if section.course and section.course.modalidad else False
+
+            # Limitar capacidad de grupos virtuales a 60 alumnos máximo
+            if is_virtual:
+                max_capacity = 60
+
             if max_capacity > 0 and projected_students > max_capacity:
                 group_count = max(1, ceil(projected_students / max_capacity))
             else:

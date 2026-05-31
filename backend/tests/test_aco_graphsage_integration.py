@@ -87,7 +87,7 @@ def _populate_test_data(db):
             seccion=f'T{i}',
             league=i,
             alumnos_proyectados=30,
-            activa=True,
+            active=True,
         ))
         db.add(CourseSection(
             course_id=course.id,
@@ -95,7 +95,7 @@ def _populate_test_data(db):
             seccion=f'P{i}',
             league=i,
             alumnos_proyectados=30,
-            activa=True,
+            active=True,
         ))
         db.add(CourseSection(
             course_id=course.id,
@@ -103,7 +103,7 @@ def _populate_test_data(db):
             seccion=f'L{i}',
             league=i,
             alumnos_proyectados=30,
-            activa=True,
+            active=True,
         ))
     
     # Crear profesores y vincularlos con el curso
@@ -214,6 +214,10 @@ def test_hard_constraints_validator(test_db):
         classrooms=classrooms,
         professor_restrictions={},
         sections_by_league={},
+        league_session_types={},
+        section_session_types={1: "T"},
+        sections_by_block={},
+        section_modalities={1: "presencial"},
     )
     
     # Crear asignación de prueba
