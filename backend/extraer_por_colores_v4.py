@@ -93,7 +93,36 @@ BLOQUES_HORARIOS = [
 # ============================================================================
 
 def conectar_db():
-    """Conecta a la base de datos"""
+    """Conecta a la base de datos usando DATABASE_URL si está disponible, o valores locales por defecto"""
+    import os
+    from urllib.parse import urlparse
+    
+    db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        # Reemplazar mysql+pymysql con mysql para procesarlo correctamente
+        if db_url.startswith("mysql+pymysql://"):
+            db_url = db_url.replace("mysql+pymysql://", "mysql://")
+        
+        parsed = urlparse(db_url)
+        database = parsed.path.lstrip('/')
+        # Remover parámetros de consulta si existen
+        if '?' in database:
+            database = database.split('?')[0]
+            
+        connect_args = {
+            'host': parsed.hostname or 'localhost',
+            'port': parsed.port or 3306,
+            'user': parsed.username or 'root',
+            'password': parsed.password or '',
+            'database': database or 'upao_timetabling'
+        }
+        
+        # Habilitar SSL para DigitalOcean o si se solicita en la URL
+        if "ondigitalocean.com" in (parsed.hostname or "") or "ssl-mode" in db_url or "ssl_mode" in db_url:
+            connect_args['ssl_disabled'] = False
+            
+        return mysql.connector.connect(**connect_args)
+
     return mysql.connector.connect(
         host='localhost',
         user='root',
